@@ -1,10 +1,12 @@
 import { BrowserRouter, Route, Routes, } from 'react-router-dom';
-import { Footer, Header, PageNotFound } from './components';
+import { Footer, Header, PageNotFound, FetchData } from './components';
 import { Home, RoomDetails } from './pages';
+import { useEffect } from 'react';
 
 
 const App = () => {
 
+  
   // const paths = [
   //   { path: '/', element: <Home /> },
   //   { path: '/room/:id', element: <RoomDetails /> },
@@ -25,6 +27,8 @@ const App = () => {
           <Route path={'/room/:id'} element={<RoomDetails />} />
           <Route path={'*'} element={<PageNotFound />} />
         </Routes>
+        <FetchData></FetchData>
+      
 
         <Footer />
 
