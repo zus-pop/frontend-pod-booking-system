@@ -22,31 +22,31 @@ export const kidsList = [
 export const sliderData = [
     {
         id: 1,
-        title: 'Your Luxury Hotel For Vacation',
+        title: 'Your Luxury POD For Vacation',
         bg: images.Slider1,
-        btnNext: 'See our rooms',
+        btnNext: 'See our POD',
     },
     {
         id: 2,
-        title: 'Feel Relax & Enjoy Your Luxuriousness',
+        title: 'Your Luxury POD For Vacation',
         bg: images.Slider2,
         btnNext: 'See our rooms',
     },
     {
         id: 3,
-        title: 'Your Luxury Hotel For Vacation',
+        title: 'Your Luxury POD For Vacation',
         bg: images.Slider3,
-        btnNext: 'See our rooms',
+        btnNext: 'See our POD',
     },
 ]
 
 
 export const hotelRules = [
     {
-        rules: 'Check-in : 3:00 PM - 9:00 PM',
+        rules: 'No Drugs',
     },
     {
-        rules: 'Check-out : 10:30 AM',
+        rules: 'No Gambling',
     },
     {
         rules: 'No Smoking',
