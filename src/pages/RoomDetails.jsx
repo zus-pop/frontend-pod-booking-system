@@ -79,7 +79,7 @@ const RoomDetails = () => {
             </div>
 
             <div>
-              <h3 className='h3'>Hotel Rules</h3>
+              <h3 className='h3'>POD Rules</h3>
               <p className='mb-6 text-justify'>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi dolores iure fugiat eligendi illo est, aperiam quasi distinctio necessitatibus suscipit nemo provident eaque voluptas earum.
               </p>

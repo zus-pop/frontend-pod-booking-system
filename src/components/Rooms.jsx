@@ -22,8 +22,8 @@ const Rooms = () => {
       <div className='container mx-auto lg:px-0'>
 
         <div className='text-center'>
-          <p className='font-tertiary uppercase text-[15px] tracking-[6px]'>Hotel & Spa Adina</p>
-          <h2 className='font-primary text-[45px] mb-6'>Room & Suites</h2>
+          <p className='font-tertiary uppercase text-[15px] tracking-[6px]'>Coffee & POD workspaces</p>
+          <h2 className='font-primary text-[45px] mb-6'>POD Types</h2>
         </div>
 
         <div className='grid grid-cols-1 max-w-sm mx-auto gap-[30px] lg:grid-cols-3 lg:max-w-none lg:mx-0'>
