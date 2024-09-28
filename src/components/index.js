@@ -1,6 +1,6 @@
 export { default as PodTypesDropdown } from './PodTypesDropdown';
 export { default as PageNotFound } from './PageNotFound';
-export { default as DurationDropdown } from './DurationDropdown';
+export { default as StoreAddressDropdown } from './StoreAddressDropdown';
 export { default as HeroSlider } from './HeroSlider';
 export { default as BookForm } from './BookForm';
 export { default as CheckOut } from './CheckOut';

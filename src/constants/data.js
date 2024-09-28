@@ -6,15 +6,16 @@ export const podtypesList = [
     { name: 'POD Single' },
     { name: 'POD Double' },
     { name: 'POD Meeting' },
+    { name: 'None' },
     
 ]
 
 
-export const durationList = [
-    { name: '1 Hours' },
-    { name: '2 Hours' },
-    { name: '3 Hours' },
-    { name: '4 Hours' },
+export const storeaddressList = [
+    { name: '5, Le Van Viet, District 9' },
+    { name: '25, Vo Vang Ngan, District 9' },
+    { name: '112, Nguyen Xien, District 9' },
+    { name: '12, Nguyen Van Cu, District 1' },
     { name: ' None' },
 ]
 

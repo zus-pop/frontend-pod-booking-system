@@ -4,7 +4,7 @@ import { podtypesList } from '../constants/data';
 import { Menu } from '@headlessui/react';
 
 
-const AdultsDropdown = () => {
+const PodTypesDropdown = () => {
 
   const { podtypes, setPodtypes, } = useRoomContext();
 
@@ -25,7 +25,7 @@ const AdultsDropdown = () => {
             <Menu.Item
               as='li'
               key={idx}
-              onClick={() => setAdults(name)}
+              onClick={() => setPodtypes(name)}
               className='border-b last-of-type:border-b-0 h-10 hover:bg-accent hover:text-white w-full flex items-center justify-center cursor-pointer'
             >
               {name}
@@ -39,4 +39,4 @@ const AdultsDropdown = () => {
   );
 };
 
-export default AdultsDropdown;
+export default PodTypesDropdown;

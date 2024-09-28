@@ -1,4 +1,4 @@
-import { PodTypesDropdown, CheckIn, CheckOut, DurationDropdown, ScrollToTop } from '../components';
+import { PodTypesDropdown, CheckIn, CheckOut, StoreAddressDropdown, ScrollToTop } from '../components';
 import { useRoomContext } from '../context/RoomContext';
 import { hotelRules } from '../constants/data';
 import { useParams } from 'react-router-dom';
