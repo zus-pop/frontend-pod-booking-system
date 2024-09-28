@@ -1,22 +1,41 @@
+import { useState } from 'react';
 import { BsArrowsFullscreen, BsPeople } from 'react-icons/bs';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import LoginForm from './LoginForm';
 
 const Room = ({ room }) => {
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const navigate = useNavigate();
 
   const { id, name, image, size, maxPerson, description, price } = room ?? {};
 
+  const handleBookNow = () => {
+    setShowLoginForm(true);
+  };
+
+  const handleLogin = (email, password) => {
+    // Xử lý đăng nhập
+    console.log('Đăng nhập với:', email, password);
+    setShowLoginForm(false);
+    navigate(`/room/${id}`);
+  };
+
+  const handleRegister = (email, password) => {
+    // Xử lý đăng ký
+    console.log('Đăng ký với:', email, password);
+    setShowLoginForm(false);
+    navigate(`/room/${id}`);
+  };
+
   return (
     <div className='bg-white shadow-2xl min-h-[500px] group'>
-
       <div className='overflow-hidden'>
         <img src={image} alt="img" className='group-hover:scale-110 transition-all duration-300 w-full' />
       </div>
 
-
       <div className='bg-white shadow-lg max-w-[300px] mx-auto h-[60px] -translate-y-1/2 flex justify-center items-center uppercase font-tertiary tracking-[1px] font-semibold text-base'>
 
         <div className='flex justify-between w-[80%]'>
-
           <div className='flex items-center gap-x-2'>
             <div className='text-accent'>
               <BsArrowsFullscreen className='text-[15px]' />
@@ -41,7 +60,6 @@ const Room = ({ room }) => {
 
       </div>
 
-
       {/* name and description */}
       <div className='text-center'>
         <Link to={`/room/${id}`}>
@@ -51,18 +69,23 @@ const Room = ({ room }) => {
         <p className='max-w-[300px] mx-auto mb-3 lg:mb-6'>{description.slice(0, 56)}..</p>
       </div>
 
-
       {/* button */}
-      <Link
-        to={`/room/${id}`}
+      <button
+        onClick={handleBookNow}
         className="btn btn-secondary btn-sm max-w-[240px] mx-auto duration-300"
       >
         Book now from ${price}
-      </Link>
+      </button>
 
+      {showLoginForm && (
+        <LoginForm
+          onLogin={handleLogin}
+          onRegister={handleRegister}
+          onClose={() => setShowLoginForm(false)}
+        />
+      )}
     </div>
   );
-
 };
 
 export default Room;

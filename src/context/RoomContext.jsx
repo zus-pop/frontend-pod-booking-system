@@ -10,17 +10,15 @@ export const RoomContext = ({ children }) => {
   const [rooms, setRooms] = useState(roomData);
   const [loading, setLoading] = useState(false);
 
-  const [podtypes, setPodtypes] = useState('POD Types');
-  const [storeaddress, setStoreaddress] = useState('Store Address');
-  const [total, setTotal] = useState(0);
-
-
+  const [podtypes, setPodtypes] = useState('PODTypes');
+  const [storeaddress, setStoreaddress] = useState('StoreAddress');
+ 
 
 
 
   const resetRoomFilterData = () => {
-    setPodtypes('Pod types');
-    setStoreaddress('Store Address');
+    setPodtypes('PodTypes');
+    setStoreaddress('StoreAddress');
     setRooms(roomData)
   };
 
