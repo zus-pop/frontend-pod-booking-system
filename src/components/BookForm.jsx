@@ -1,4 +1,4 @@
-import { PodTypesDropdown, CheckIn, CheckOut, DurationDropdown } from '.';
+import { PodTypesDropdown, CheckIn, CheckOut, StoreAddressDropdown } from '.';
 import { useRoomContext } from '../context/RoomContext';
 
 
@@ -24,7 +24,7 @@ const BookForm = () => {
         </div>
 
         <div className='flex-1 border-r'>
-          <DurationDropdown />
+          <StoreAddressDropdown />
         </div>
 
         <button
