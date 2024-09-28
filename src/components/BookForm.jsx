@@ -1,4 +1,4 @@
-import { PodTypesDropdown, CheckIn, CheckOut, StoreAddressDropdown } from '.';
+import { PodTypesDropdown, StoreAddressDropdown } from '.';
 import { useRoomContext } from '../context/RoomContext';
 
 
@@ -11,14 +11,7 @@ const BookForm = () => {
     <form className='h-[300px] lg:h-[70px] w-full'>
       <div className='flex flex-col w-full h-full lg:flex-row'>
 
-        <div className='flex-1 border-r'>
-          <CheckIn />
-        </div>
-
-        <div className='flex-1 border-r'>
-          <CheckOut />
-        </div>
-
+       
         <div className='flex-1 border-r'>
           <PodTypesDropdown />
         </div>
@@ -32,7 +25,7 @@ const BookForm = () => {
           className='btn btn-primary'
           onClick={(e) => handleCheck(e)}
         >
-          Check Now
+          Search
         </button>
 
       </div>

@@ -23,7 +23,7 @@ const Rooms = () => {
 
         <div className='text-center'>
           <p className='font-tertiary uppercase text-[15px] tracking-[6px]'>Coffee & POD workspaces</p>
-          <h2 className='font-primary text-[45px] mb-6'>POD Types</h2>
+          <h2 className='font-primary text-[45px] mb-6'>POD</h2>
         </div>
 
         <div className='grid grid-cols-1 max-w-sm mx-auto gap-[30px] lg:grid-cols-3 lg:max-w-none lg:mx-0'>

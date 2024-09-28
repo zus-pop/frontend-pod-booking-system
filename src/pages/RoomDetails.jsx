@@ -1,4 +1,4 @@
-import { PodTypesDropdown, CheckIn, CheckOut, StoreAddressDropdown, ScrollToTop } from '../components';
+import { PodTypesDropdown, StoreAddressDropdown, ScrollToTop } from '../components';
 import { useRoomContext } from '../context/RoomContext';
 import { hotelRules } from '../constants/data';
 import { useParams } from 'react-router-dom';
@@ -67,14 +67,14 @@ const RoomDetails = () => {
 
               <div className='flex flex-col space-y-4 mb-4'>
                 <h3>Your Reservation</h3>
-                <div className='h-[60px]'> <CheckIn /> </div>
-                <div className='h-[60px]'> <CheckOut /> </div>
+                
+                
                 <div className='h-[60px]'> <PodTypesDropdown /> </div>
-                <div className='h-[60px]'> <DurationDropdown /> </div>
+                <div className='h-[60px]'> <StoreAddressDropdown /> </div>
               </div>
 
               <button className='btn btn-lg btn-primary w-full'>
-                book now for ${price}
+                Book now for ${price}
               </button>
             </div>
 
