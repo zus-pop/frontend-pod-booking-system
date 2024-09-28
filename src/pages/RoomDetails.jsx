@@ -1,4 +1,4 @@
-import { AdultsDropdown, CheckIn, CheckOut, KidsDropdown, ScrollToTop } from '../components';
+import { PodTypesDropdown, CheckIn, CheckOut, DurationDropdown, ScrollToTop } from '../components';
 import { useRoomContext } from '../context/RoomContext';
 import { hotelRules } from '../constants/data';
 import { useParams } from 'react-router-dom';
@@ -69,8 +69,8 @@ const RoomDetails = () => {
                 <h3>Your Reservation</h3>
                 <div className='h-[60px]'> <CheckIn /> </div>
                 <div className='h-[60px]'> <CheckOut /> </div>
-                <div className='h-[60px]'> <AdultsDropdown /> </div>
-                <div className='h-[60px]'> <KidsDropdown /> </div>
+                <div className='h-[60px]'> <PodTypesDropdown /> </div>
+                <div className='h-[60px]'> <DurationDropdown /> </div>
               </div>
 
               <button className='btn btn-lg btn-primary w-full'>

@@ -1,12 +1,12 @@
 import { useRoomContext } from '../context/RoomContext';
 import { BsChevronDown } from 'react-icons/bs';
-import { adultsList } from '../constants/data';
+import { durationList } from '../constants/data';
 import { Menu } from '@headlessui/react';
 
 
-const AdultsDropdown = () => {
+const KidsDropdown = () => {
 
-  const { adults, setAdults, } = useRoomContext();
+  const { duration, setDuration } = useRoomContext();
 
 
   return (
@@ -14,18 +14,18 @@ const AdultsDropdown = () => {
 
 
       <Menu.Button className='w-full h-full flex items-center justify-between px-8'>
-        {adults}
+        {duration === '0 Kid' ? 'No Kid' : duration}
         <BsChevronDown className='text-base text-accent-hover' />
       </Menu.Button>
 
 
       <Menu.Items as='ul' className='bg-white absolute w-full flex flex-col z-40'>
         {
-          adultsList.map(({ name }, idx) =>
+          durationList.map(({ name }, idx) =>
             <Menu.Item
               as='li'
               key={idx}
-              onClick={() => setAdults(name)}
+              onClick={() => setDuration(name)}
               className='border-b last-of-type:border-b-0 h-10 hover:bg-accent hover:text-white w-full flex items-center justify-center cursor-pointer'
             >
               {name}
@@ -39,4 +39,4 @@ const AdultsDropdown = () => {
   );
 };
 
-export default AdultsDropdown;
+export default KidsDropdown;

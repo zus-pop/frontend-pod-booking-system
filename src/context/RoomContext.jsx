@@ -10,17 +10,17 @@ export const RoomContext = ({ children }) => {
   const [rooms, setRooms] = useState(roomData);
   const [loading, setLoading] = useState(false);
 
-  const [adults, setAdults] = useState('1 Adult');
-  const [kids, setKids] = useState('0 Kid');
+  const [podtypes, setPodtypes] = useState('POD Types');
+  const [duration, setDuration] = useState('Duration');
   const [total, setTotal] = useState(0);
 
 
-  useEffect(() => { setTotal(+adults[0] + +kids[0]) });
+  useEffect(() => { setTotal(+podtypes[0] + +duration[0]) });
 
 
   const resetRoomFilterData = () => {
-    setAdults('1 Adult');
-    setKids('0 Kid');
+    setPodtypes('POD Single');
+    setDuration('None');
     setRooms(roomData)
   };
 
@@ -42,8 +42,8 @@ export const RoomContext = ({ children }) => {
 
   const shareWithChildren = {
     rooms, loading,
-    adults, setAdults,
-    kids, setKids,
+    podtypes, setPodtypes,
+    duration, setDuration,
     handleCheck,
     resetRoomFilterData,
   };
