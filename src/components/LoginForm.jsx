@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 
-const LoginForm = ({ onLogin, onRegister, onClose }) => {
+const LoginForm = ({ onClose, onLoginSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLogin) {
-      onLogin(email, password);
+      await login();
     } else {
-      onRegister(email, password);
+      await register();
     }
   };
 
@@ -18,6 +18,55 @@ const LoginForm = ({ onLogin, onRegister, onClose }) => {
     setIsLogin(!isLogin);
     setEmail('');
     setPassword('');
+  };
+
+  const login = async () => {
+    try {
+      console.log('Đang gửi yêu cầu đăng nhập với:', { email, password });
+      const response = await fetch('http://3.27.69.109:3000/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      console.log('Phản hồi từ API đăng nhập:', response);
+      if (!response.ok) {
+        throw new Error('Đăng nhập thất bại');
+      }
+      const data = await response.json();
+      console.log('Dữ liệu nhận được sau đăng nhập:', data);
+      if (data.token) {
+        onLoginSuccess('Đăng nhập thành công', data.token);
+        onClose();
+      } else {
+        throw new Error('Token không hợp lệ');
+      }
+    } catch (error) {
+      console.error('Lỗi đăng nhập:', error);
+      alert(error.message);
+    }
+  };
+
+  const register = async () => {
+    try {
+      const response = await fetch('http://3.27.69.109:3000/api/v1/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        throw new Error('Đăng ký thất bại');
+      }
+      alert('Đăng ký thành công');
+      // Tự động đăng nhập sau khi đăng ký
+      await login();
+    } catch (error) {
+      console.error('Lỗi đăng ký:', error);
+      alert(error.message);
+    }
   };
 
   return (

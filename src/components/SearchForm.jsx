@@ -2,7 +2,7 @@ import { PodTypesDropdown, StoreAddressDropdown } from '.';
 import { useRoomContext } from '../context/RoomContext';
 
 
-const BookForm = () => {
+const SearchForm = () => {
 
   const { handleCheck } = useRoomContext();
 
@@ -33,4 +33,4 @@ const BookForm = () => {
   );
 };
 
-export default BookForm;
+export default SearchForm;
