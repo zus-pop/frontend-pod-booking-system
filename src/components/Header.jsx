@@ -125,7 +125,7 @@ const Header = () => {
                   header ? 'text-primary border-primary' : 'text-white border-white'
                 } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent`}
               >
-                Đăng nhập
+                Login
               </button>
             )}
           </nav>
