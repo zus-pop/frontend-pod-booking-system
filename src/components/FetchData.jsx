@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const FetchData = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [pods, setPods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -8,7 +9,7 @@ const FetchData = () => {
   useEffect(() => {
     const fetchPods = async () => {
       try {
-        const response = await fetch('https://poddy.store/api/v1/pods');
+        const response = await fetch(`${API_URL}/api/v1/pods`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
