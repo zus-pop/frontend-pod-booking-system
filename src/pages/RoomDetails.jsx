@@ -4,7 +4,6 @@ import { hotelRules } from '../constants/data';
 import { useParams } from 'react-router-dom';
 import { FaCheck } from 'react-icons/fa';
 
-
 const RoomDetails = () => {
 
   const { id } = useParams(); // id get form url (/room/:id) as string...
@@ -17,6 +16,25 @@ const RoomDetails = () => {
   // }
 
   const { name, description, facilities, price, imageLg } = room ?? {};
+
+  // Tạm thời thay thế PodTypesDropdown và StoreAddressDropdown bằng select đơn giản
+  const PodTypesDropdown = () => (
+    <select className="w-full p-2 border rounded">
+      <option>Chọn loại Pod</option>
+      <option>Pod Single</option>
+      <option>Pod Double</option>
+      <option>Pod Meeting</option>
+    </select>
+  );
+
+  const StoreAddressDropdown = () => (
+    <select className="w-full p-2 border rounded">
+      <option>Chọn địa chỉ cửa hàng</option>
+      <option>123 Nguyen Hue, District 1</option>
+      <option>456 Le Van Sy, District 3</option>
+      <option>789 Tran Hung Dao, District 5</option>
+    </select>
+  );
 
   return (
     <section>
@@ -69,8 +87,8 @@ const RoomDetails = () => {
                 <h3>Your Reservation</h3>
                 
                 
-                <div className='h-[60px]'> <PodTypesDropdown /> </div>
-                <div className='h-[60px]'> <StoreAddressDropdown /> </div>
+                <div className='h-[60px]'><PodTypesDropdown /></div>
+                <div className='h-[60px]'><StoreAddressDropdown /></div>
               </div>
 
               <button className='btn btn-lg btn-primary w-full'>

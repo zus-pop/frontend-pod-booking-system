@@ -78,10 +78,7 @@ const Header = () => {
 
   return (
     <>
-      <header
-        className={`fixed z-50 w-full transition-all duration-300 
-        ${header ? 'bg-white py-6 shadow-lg' : 'bg-transparent py-8'}`}
-      >
+      <header className={`${header ? 'bg-white py-6 shadow-lg' : 'bg-transparent py-8'} fixed z-50 w-full transition-all duration-300`}>
         <div className='container mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-y-6 lg:gap-y-0'>
           {/* Logo */}
           <Link to="/" onClick={resetRoomFilterData}>
@@ -91,11 +88,11 @@ const Header = () => {
           {/* Nav */}
           <nav className={`${header ? 'text-primary' : 'text-white'}
           flex gap-x-4 lg:gap-x-8 font-tertiary tracking-[3px] text-[15px] items-center uppercase`}>
-            {navLinks.map(link => (
-              <Link to="/" className='transition hover:text-accent' key={link}>
-                {link}
-              </Link>
-            ))}
+            <Link to="/" className='transition hover:text-accent'>Home</Link>
+            <Link to="/about" className='transition hover:text-accent'>About</Link>
+            <Link to="/solutions" className='transition hover:text-accent'>Solutions</Link>
+            <Link to="/places" className='transition hover:text-accent'>Places</Link>
+            <Link to="/contact" className='transition hover:text-accent'>Contact</Link>
             {/* Nút đăng nhập hoặc tên người dùng */}
             {user ? (
               <div className="relative">
