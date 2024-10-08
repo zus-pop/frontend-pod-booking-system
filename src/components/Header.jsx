@@ -60,7 +60,7 @@ const Header = () => {
   };
 
   const handleLoginSuccess = (message, token) => {
-    console.log('Đăng nhập thành công, token:', token);
+    
     setShowLoginForm(false);
     setLoginMessage(message);
     setTimeout(() => setLoginMessage(''), 3000);
