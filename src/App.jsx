@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes, } from 'react-router-dom';
-import { Footer, Header, PageNotFound, FetchData, Room } from './components';
+import { Footer, Header, PageNotFound,  Room } from './components';
 import { Home, RoomDetails } from './pages';
 import { useEffect } from 'react';
 
@@ -27,7 +27,7 @@ const App = () => {
           <Route path={'/room/:id'} element={<RoomDetails />} />
           <Route path={'*'} element={<PageNotFound />} />
         </Routes>
-        <FetchData></FetchData>
+        
       
 
         <Footer />

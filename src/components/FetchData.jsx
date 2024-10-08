@@ -8,7 +8,7 @@ const FetchData = () => {
   useEffect(() => {
     const fetchPods = async () => {
       try {
-        const response = await fetch('http://3.27.69.109:3000/api/v1/pods');
+        const response = await fetch('https://poddy.store/api/v1/pods');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
