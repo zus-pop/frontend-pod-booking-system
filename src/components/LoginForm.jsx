@@ -39,7 +39,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
 
   const login = async () => {
     try {
-      console.log('Sending login request with:', { email, password });
+      console.log('Sending login request with:', { email });
       const response = await fetch(`${API_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
@@ -52,7 +52,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
         throw new Error('Login failed');
       }
       const data = await response.json();
-      console.log('Data received after login:', data);
+      
       if (data.token) {
         onLoginSuccess('Login successful', data.token);
         onClose();
