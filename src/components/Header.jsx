@@ -5,6 +5,7 @@ import { LogoWhite, LogoDark } from '../assets';
 import LoginForm from './LoginForm';
 
 const Header = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { resetRoomFilterData } = useRoomContext();
   const [header, setHeader] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
@@ -13,7 +14,6 @@ const Header = () => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const navLinks = ['Home', 'About', 'Solutions', 'Places', 'Contact'];
-
   useEffect(() => {
     window.addEventListener('scroll', () =>
       window.scrollY > 50 ? setHeader(true) : setHeader(false)
@@ -30,8 +30,8 @@ const Header = () => {
 
   const getUserData = async (token) => {
     try {
-      console.log('Đang lấy dữ liệu người dùng với token:', token);
-      const response = await fetch('https://poddy.store/api/v1/auth/profile', {
+      
+      const response = await fetch(`${API_URL}/api/v1/auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
