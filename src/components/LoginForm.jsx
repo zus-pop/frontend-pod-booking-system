@@ -39,7 +39,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   const login = async () => {
     try {
       console.log('Sending login request with:', { email, password });
-      const response = await fetch('http://3.27.69.109:3000/api/v1/auth/login', {
+      const response = await fetch('https://poddy.store/api/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
     try {
       const userData = { email, password, user_name: username, phone_number: phoneNumber };
       console.log('Registration data before sending:', JSON.stringify(userData, null, 2));
-      const response = await fetch('http://3.27.69.109:3000/api/v1/auth/register', {
+      const response = await fetch('https://poddy.store/api/v1/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

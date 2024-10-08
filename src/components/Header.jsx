@@ -31,7 +31,7 @@ const Header = () => {
   const getUserData = async (token) => {
     try {
       console.log('Đang lấy dữ liệu người dùng với token:', token);
-      const response = await fetch('http://3.27.69.109:3000/api/v1/auth/profile', {
+      const response = await fetch('https://poddy.store/api/v1/auth/profile', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
