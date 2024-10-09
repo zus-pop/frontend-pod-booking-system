@@ -59,7 +59,7 @@ const RoomDetails = () => {
 
             <div className='mt-12'>
               <h3 className='h3 mb-3'></h3>
-              <p className='mb-12'> Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis accusantium sapiente quas quos explicabo, odit nostrum? Reiciendis illum dolor eos dicta. Illum vero at hic nostrum sint et quod porro. </p>
+              <p className='mb-12'> The Poddy offers a delightful blend of functionality and ambiance, making it an ideal place to relax or get work done. With a range of amenities, it provides a perfect setup for students and professionals alike. The decor combines modern and cozy elements, creating a warm and inviting space to unwind or catch up with friends. Additionally, the shop has a great selection of coffee, snacks, and refreshments, ensuring that guests have everything they need for a productive or leisurely visit. </p>
 
               {/* icons grid */}
               <div className="grid grid-cols-3 gap-6 mb-12">
@@ -99,7 +99,7 @@ const RoomDetails = () => {
             <div>
               <h3 className='h3'>POD Rules</h3>
               <p className='mb-6 text-justify'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi dolores iure fugiat eligendi illo est, aperiam quasi distinctio necessitatibus suscipit nemo provident eaque voluptas earum.
+              Please follow these rules to experience the best services.
               </p>
 
               <ul className='flex flex-col gap-y-4'>
