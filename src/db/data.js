@@ -1,4 +1,4 @@
-import { FaWifi, FaCoffee, FaBath, FaParking, FaSwimmingPool, FaHotdog, FaStopwatch, FaCocktail } from 'react-icons/fa';
+import { FaWifi, FaCoffee, FaSnowflake, FaParking, FaSwimmingPool, FaHotdog, FaStopwatch, FaCocktail } from 'react-icons/fa';
 import images from '../assets';
 
 export const roomData = [
@@ -9,8 +9,8 @@ export const roomData = [
     facilities: [
       { name: 'Wifi', icon: FaWifi },
       { name: 'Coffee', icon: FaCoffee },
-      { name: 'Air Conditioning', icon: FaSwimmingPool },
-      { name: 'Modern Workstation', icon: FaParking },
+      { name: 'Air Conditioning', icon: FaSnowflake },
+      { name: 'Modern Parking', icon: FaParking },
     ],
     district: 'District 1',
     address: '123 Nguyen Hue, District 1, Ho Chi Minh City',
@@ -24,8 +24,8 @@ export const roomData = [
     facilities: [
       { name: 'Wifi', icon: FaWifi },
       { name: 'Coffee', icon: FaCoffee },
-      { name: 'Meeting Room', icon: FaBath },
-      { name: 'Standing Desk', icon: FaParking },
+      { name: 'Air Conditioning', icon: FaSnowflake },
+      { name: 'Morden Parking', icon: FaParking },
     ],
     district: 'District 3',
     address: '456 Le Van Sy, District 3, Ho Chi Minh City',
@@ -39,8 +39,8 @@ export const roomData = [
     facilities: [
       { name: 'Wifi', icon: FaWifi },
       { name: 'Coffee', icon: FaCoffee },
-      { name: 'Quiet Room', icon: FaBath },
-      { name: 'Group Workstation', icon: FaParking },
+      { name: 'Air Conditioning', icon: FaSnowflake },
+      { name: 'Morden Parking', icon: FaParking },
     ],
     district: 'District 5',
     address: '789 Tran Hung Dao, District 5, Ho Chi Minh City',
@@ -54,8 +54,8 @@ export const roomData = [
     facilities: [
       { name: 'Wifi', icon: FaWifi },
       { name: 'Coffee', icon: FaCoffee },
-      { name: 'Meeting Room', icon: FaBath },
-      { name: 'Outdoor Area', icon: FaParking },
+      { name: 'Air Conditioning', icon: FaSnowflake },
+      { name: 'Morden Parking', icon: FaParking },
     ],
     district: 'District 7',
     address: '101 Nguyen Duc Canh, District 7, Ho Chi Minh City',
@@ -69,8 +69,8 @@ export const roomData = [
     facilities: [
       { name: 'Wifi', icon: FaWifi },
       { name: 'Coffee', icon: FaCoffee },
-      { name: 'Garden Area', icon: FaSwimmingPool },
-      { name: 'Personal Workstation', icon: FaParking },
+      { name: 'Air Conditioning', icon: FaSnowflake },
+      { name: 'Morden Parking', icon: FaParking },
     ],
     district: 'District 2',
     address: '234 Nguyen Van Huong, District 2, Ho Chi Minh City',
@@ -84,8 +84,8 @@ export const roomData = [
     facilities: [
       { name: 'Wifi', icon: FaWifi },
       { name: 'Coffee', icon: FaCoffee },
-      { name: 'Meeting Room', icon: FaBath },
-      { name: 'Entertainment Area', icon: FaParking },
+      { name: 'Air Conditioning', icon: FaSnowflake },
+      { name: 'Morden Parking', icon: FaParking },
     ],
     district: 'Binh Thanh',
     address: '567 Xo Viet Nghe Tinh, Binh Thanh, Ho Chi Minh City',
