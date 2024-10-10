@@ -1,33 +1,41 @@
-import { PodTypesDropdown, StoreAddressDropdown } from '.';
+import { useState } from 'react';
 import { useRoomContext } from '../context/RoomContext';
 
+const SearchForm = ({ onSearch }) => {
+  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const { rooms } = useRoomContext();
 
-const SearchForm = () => {
+  const districts = ['Tất cả quận', ...new Set(rooms.map(room => room.district))];
 
-  const { handleCheck } = useRoomContext();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSearch(selectedDistrict === 'Tất cả quận' ? '' : selectedDistrict);
+  };
 
+  const handleDistrictChange = (e) => {
+    setSelectedDistrict(e.target.value);
+  };
 
   return (
-    <form className='h-[300px] lg:h-[70px] w-full'>
-      <div className='flex flex-col w-full h-full lg:flex-row'>
-
-       
-        <div className='flex-1 border-r'>
-          <PodTypesDropdown />
+    <form onSubmit={handleSubmit} className='h-[70px] w-full'>
+      <div className='flex w-full h-full'>
+        <div className='flex-1'>
+          <select
+            value={selectedDistrict}
+            onChange={handleDistrictChange}
+            className='w-full h-full px-8 text-primary outline-none cursor-pointer'
+          >
+            {districts.map((district, index) => (
+              <option key={index} value={district}>{district}</option>
+            ))}
+          </select>
         </div>
-
-        <div className='flex-1 border-r'>
-          <StoreAddressDropdown />
-        </div>
-
         <button
           type='submit'
           className='btn btn-primary'
-          onClick={(e) => handleCheck(e)}
         >
           Search
         </button>
-
       </div>
     </form>
   );
