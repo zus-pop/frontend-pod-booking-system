@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../context/ToastContext';
 
 const LoginForm = ({ onClose, onLoginSuccess }) => {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -9,6 +10,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   const [username, setUsername] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (isLogin) {
@@ -54,6 +56,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
       const data = await response.json();
       
       if (data.token) {
+        showToast('Login successful', 'success');
         onLoginSuccess('Login successful', data.token);
         onClose();
       } else {
@@ -61,7 +64,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert(error.message);
+      showToast(error.message, 'error');
     }
   };
 
@@ -99,17 +102,11 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
 
       const data = JSON.parse(responseData);
       console.log('Data received after registration:', data);
-      alert('Registration successful');
+      showToast('Registration successful', 'success');
       setIsLogin(true);
-      // Keep the data for failed registration
-      // setEmail('');
-      // setPassword('');
-      // setRePassword('');
-      // setUsername('');
-      // setPhoneNumber('');
     } catch (error) {
       console.error('Registration error:', error);
-      alert(error.message);
+      showToast(error.message, 'error');
     }
   };
 
