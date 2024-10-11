@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaStar } from 'react-icons/fa';
 
-const Room = ({ room }) => {
-  const { id, name, image, address, district } = room;
+const Store = ({ store }) => {
+  const { id, name, image, address, district } = store;
   
   // Generate random rating between 4-5
   const rating = (Math.random() * (5 - 4) + 4).toFixed(1);
@@ -25,7 +25,7 @@ const Room = ({ room }) => {
         <p className='text-sm text-gray-600 mb-2'>Coffee and workspaces: {address}</p>
         <p className='text-sm text-gray-600 mb-4'>Opening hours: {openingHours}</p>
         <Link 
-          to={`/room/${id}`} 
+          to={`/store/${id}`} 
           className='btn btn-secondary btn-sm w-full text-center'
         >
           View Details
@@ -35,4 +35,4 @@ const Room = ({ room }) => {
   );
 };
 
-export default Room;
+export default Store;

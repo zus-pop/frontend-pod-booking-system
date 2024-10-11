@@ -1,7 +1,7 @@
-import Room from './Room';
+import Store from './Store';
 import { FaArrowRight } from 'react-icons/fa';
 
-const Rooms = ({ rooms, nextPage, currentPage, totalPages }) => {
+const Stores = ({ stores, nextPage, currentPage, totalPages }) => {
   const showPagination = totalPages > 1;
 
   return (
@@ -12,9 +12,13 @@ const Rooms = ({ rooms, nextPage, currentPage, totalPages }) => {
         </div>
         <div className='relative'>
           <div className='grid grid-cols-1 max-w-sm mx-auto gap-[30px] lg:grid-cols-3 lg:max-w-none lg:mx-0'>
-            {rooms.map((room) => (
-              <Room room={room} key={room.id} />
-            ))}
+            {stores && stores.length > 0 ? (
+              stores.map((store) => (
+                <Store store={store} key={store.id} />
+              ))
+            ) : (
+              <p>Không có cửa hàng nào được tìm thấy.</p>
+            )}
           </div>
           {showPagination && (
             <button 
@@ -35,4 +39,4 @@ const Rooms = ({ rooms, nextPage, currentPage, totalPages }) => {
   );
 };
 
-export default Rooms;
+export default Stores;

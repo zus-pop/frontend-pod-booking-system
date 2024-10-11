@@ -1,4 +1,4 @@
-import { useRoomContext } from '../context/RoomContext';
+import { useStoreContext } from '../context/StoreContext';
 import { BsChevronDown } from 'react-icons/bs';
 import { podtypesList } from '../constants/data';
 import { Menu } from '@headlessui/react';
@@ -6,7 +6,7 @@ import { Menu } from '@headlessui/react';
 
 const PodTypesDropdown = () => {
 
-  const { podtypes, setPodtypes, } = useRoomContext();
+  const { podtypes, setPodtypes, } = useStoreContext();
 
 
   return (

@@ -1,4 +1,4 @@
-import { useRoomContext } from '../context/RoomContext';
+import { useStoreContext } from '../context/StoreContext';
 import { BsChevronDown } from 'react-icons/bs';
 import { storeaddressList } from '../constants/data';
 import { Menu } from '@headlessui/react';
@@ -6,7 +6,7 @@ import { Menu } from '@headlessui/react';
 
 const StoreAddressDropdown = () => {
 
-  const { storeaddress, setStoreaddress } = useRoomContext();
+  const { storeaddress, setStoreaddress } = useStoreContext();
 
 
   return (

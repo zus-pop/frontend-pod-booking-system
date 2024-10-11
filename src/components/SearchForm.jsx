@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useRoomContext } from '../context/RoomContext';
+import { useStoreContext } from '../context/StoreContext';
 
 const SearchForm = ({ onSearch }) => {
   const [selectedDistrict, setSelectedDistrict] = useState('');
-  const { rooms } = useRoomContext();
+  const { stores } = useStoreContext();
 
-  const districts = ['Tất cả quận', ...new Set(rooms.map(room => room.district))];
+  const districts = ['Tất cả quận', ...new Set(stores.map(store => store.district))];
 
   const handleSubmit = (e) => {
     e.preventDefault();

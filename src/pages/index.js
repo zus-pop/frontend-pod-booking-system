@@ -1,4 +1,4 @@
-export { default as RoomDetails } from './RoomDetails';
+export { default as StoreDetails } from './StoreDetails';
 export { default as Home } from './Home';
 export { default as About } from './About';
 export { default as Solutions } from './Solutions';

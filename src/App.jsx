@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Footer, Header, PageNotFound } from './components';
-import { Home, RoomDetails, About, Solutions, Places, Contact } from './pages';
+import { Home, StoreDetails, About, Solutions, Places, Contact } from './pages';
 
 const App = () => {
   return (
@@ -9,7 +9,7 @@ const App = () => {
         <Header />
         <Routes>
           <Route path={'/'} element={<Home />} />
-          <Route path={'/room/:id'} element={<RoomDetails />} />
+          <Route path={'/store/:id'} element={<StoreDetails />} />
           <Route path={'/about'} element={<About />} />
           <Route path={'/solutions'} element={<Solutions />} />
           <Route path={'/places'} element={<Places />} />

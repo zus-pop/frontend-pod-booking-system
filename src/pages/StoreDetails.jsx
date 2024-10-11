@@ -1,21 +1,21 @@
 import { ScrollToTop } from '../components';
-import { useRoomContext } from '../context/RoomContext';
+import { useStoreContext } from '../context/StoreContext';
 import { hotelRules } from '../constants/data';
 import { useParams } from 'react-router-dom';
 import { FaCheck } from 'react-icons/fa';
 
-const RoomDetails = () => {
+const StoreDetails = () => {
 
   const { id } = useParams(); // id get form url (/room/:id) as string...
-  const { rooms } = useRoomContext();
+  const { stores } = useStoreContext();
 
-  const room = rooms.find(room => room.id === +id);
+  const store = stores.find(store => store.id === +id);
 
   // for (const key in room) {
   //   console.log(key);
   // }
 
-  const { name, description, facilities, price, imageLg } = room ?? {};
+  const { name, description, facilities, price, imageLg } = store ?? {};
 
   // Tạm thời thay thế PodTypesDropdown và StoreAddressDropdown bằng select đơn giản
   const PodTypesDropdown = () => (
@@ -123,4 +123,4 @@ const RoomDetails = () => {
   );
 };
 
-export default RoomDetails;
+export default StoreDetails;

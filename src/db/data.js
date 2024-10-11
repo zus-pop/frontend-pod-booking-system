@@ -1,7 +1,7 @@
 import { FaWifi, FaCoffee, FaSnowflake, FaParking, FaSwimmingPool, FaHotdog, FaStopwatch, FaCocktail } from 'react-icons/fa';
 import images from '../assets';
 
-export const roomData = [
+export const storeData = [
   {
     id: 1,
     name: 'PODDY Coffee District 1',

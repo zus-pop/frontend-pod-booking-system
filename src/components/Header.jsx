@@ -1,4 +1,4 @@
-import { useRoomContext } from '../context/RoomContext';
+import { useStoreContext } from '../context/StoreContext';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LogoWhite, LogoDark } from '../assets';
@@ -6,7 +6,7 @@ import LoginForm from './LoginForm';
 
 const Header = () => {
   const API_URL = import.meta.env.VITE_API_URL;
-  const { resetRoomFilterData } = useRoomContext();
+  const { resetStoreFilterData } = useStoreContext();
   const [header, setHeader] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
@@ -81,7 +81,7 @@ const Header = () => {
       <header className={`${header ? 'bg-white py-6 shadow-lg' : 'bg-transparent py-8'} fixed z-50 w-full transition-all duration-300`}>
         <div className='container mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-y-6 lg:gap-y-0'>
           {/* Logo */}
-          <Link to="/" onClick={resetRoomFilterData}>
+          <Link to="/" onClick={resetStoreFilterData}>
             {header ? <LogoDark className='w-[160px]' /> : <LogoWhite className='w-[160px]' />}
           </Link>
 
