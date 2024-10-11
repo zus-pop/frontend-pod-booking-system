@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { useRoomContext } from '../context/RoomContext';
-import Room from '../components/Room';
+import { useStoreContext } from '../context/StoreContext';
+import Store from '../components/Store';
 import { HeroSlider } from '../components';
 
 const Places = () => {
-  const { rooms } = useRoomContext();
+  const { stores } = useStoreContext();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredRooms = rooms.filter(room => 
-    room.district.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStores = stores.filter(store => 
+    store.district.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -27,8 +27,8 @@ const Places = () => {
         <div className="flex">
           <div className="w-1/2 pr-4">
             <div className="flex flex-col space-y-4">
-              {filteredRooms.map(room => (
-                <Room key={room.id} room={room} />
+              {filteredStores.map(store => (
+                <Store key={store.id} store={store} />
               ))}
             </div>
           </div>

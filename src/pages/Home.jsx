@@ -1,27 +1,27 @@
-import { SearchForm, HeroSlider, Rooms, ScrollToTop } from '../components';
+import { SearchForm, HeroSlider, Stores, ScrollToTop } from '../components';
 import { useState } from 'react';
-import { roomData } from '../db/data';
+import { storeData } from '../db/data';
 
 const Home = () => {
-  const [filteredRooms, setFilteredRooms] = useState(roomData);
+  const [filteredStores, setFilteredStores] = useState(storeData);
   const [currentPage, setCurrentPage] = useState(1);
-  const roomsPerPage = 3;
+  const storesPerPage = 3;
 
   const handleSearch = (district) => {
     if (district === '') {
-      setFilteredRooms(roomData);
+      setFilteredStores(storeData);
     } else {
-      const filtered = roomData.filter(room => room.district.toLowerCase() === district.toLowerCase());
-      setFilteredRooms(filtered);
+      const filtered = storeData.filter(store => store.district.toLowerCase() === district.toLowerCase());
+      setFilteredStores(filtered);
     }
     setCurrentPage(1);
   };
 
-  const indexOfLastRoom = currentPage * roomsPerPage;
-  const indexOfFirstRoom = indexOfLastRoom - roomsPerPage;
-  const currentRooms = filteredRooms.slice(indexOfFirstRoom, indexOfLastRoom);
+  const indexOfLastStore = currentPage * storesPerPage;
+  const indexOfFirstStore = indexOfLastStore - storesPerPage;
+  const currentStores = filteredStores.slice(indexOfFirstStore, indexOfLastStore);
 
-  const totalPages = Math.ceil(filteredRooms.length / roomsPerPage);
+  const totalPages = Math.ceil(filteredStores.length / storesPerPage);
 
   const nextPage = () => {
     setCurrentPage(prev => (prev % totalPages) + 1);
@@ -39,8 +39,8 @@ const Home = () => {
         </div>
       </div>
 
-      <Rooms 
-        rooms={currentRooms} 
+      <Stores 
+        stores={currentStores} 
         nextPage={nextPage} 
         currentPage={currentPage} 
         totalPages={totalPages}

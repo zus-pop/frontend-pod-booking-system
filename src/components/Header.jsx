@@ -1,17 +1,19 @@
-import { useRoomContext } from '../context/RoomContext';
+import React from 'react';
+import { useStoreContext } from '../context/StoreContext';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LogoWhite, LogoDark } from '../assets';
 import LoginForm from './LoginForm';
+import { useToast } from '../context/ToastContext';
 
 const Header = () => {
   const API_URL = import.meta.env.VITE_API_URL;
-  const { resetRoomFilterData } = useRoomContext();
+  const { resetStoreFilterData } = useStoreContext();
   const [header, setHeader] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
-  const [loginMessage, setLoginMessage] = useState('');
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const { showToast } = useToast();
 
   const navLinks = ['Home', 'About', 'Solutions', 'Places', 'Contact'];
   useEffect(() => {
@@ -30,7 +32,6 @@ const Header = () => {
 
   const getUserData = async (token) => {
     try {
-      
       const response = await fetch(`${API_URL}/api/v1/auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -50,8 +51,7 @@ const Header = () => {
       setUser(data);
     } catch (error) {
       console.error('Lỗi lấy dữ liệu người dùng:', error);
-      setLoginMessage(error.message);
-      setTimeout(() => setLoginMessage(''), 3000);
+      showToast(error.message, 'error');
     }
   };
 
@@ -60,20 +60,17 @@ const Header = () => {
   };
 
   const handleLoginSuccess = (message, token) => {
-    
     setShowLoginForm(false);
-    setLoginMessage(message);
-    setTimeout(() => setLoginMessage(''), 3000);
     localStorage.setItem('token', token);
     getUserData(token);
+    showToast(message, 'success');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null);
     setShowDropdown(false);
-    setLoginMessage('Đã đăng xuất thành công');
-    setTimeout(() => setLoginMessage(''), 3000);
+    showToast('Logout successful', 'success');
   };
 
   return (
@@ -81,7 +78,7 @@ const Header = () => {
       <header className={`${header ? 'bg-white py-6 shadow-lg' : 'bg-transparent py-8'} fixed z-50 w-full transition-all duration-300`}>
         <div className='container mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-y-6 lg:gap-y-0'>
           {/* Logo */}
-          <Link to="/" onClick={resetRoomFilterData}>
+          <Link to="/" onClick={resetStoreFilterData}>
             {header ? <LogoDark className='w-[160px]' /> : <LogoWhite className='w-[160px]' />}
           </Link>
 
@@ -127,12 +124,6 @@ const Header = () => {
             )}
           </nav>
         </div>
-        {/* Thông báo đăng nhập thành công */}
-        {loginMessage && (
-          <div className="absolute top-full left-0 right-0 bg-green-500 text-white text-center py-2">
-            {loginMessage}
-          </div>
-        )}
       </header>
 
       {/* Modal LoginForm */}
