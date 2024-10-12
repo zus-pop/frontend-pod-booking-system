@@ -10,14 +10,13 @@ const Stores = () => {
 
   const fetchStores = useCallback(async () => {
     try {
-      console.log('Đang gọi API với URL:', `${API_URL}/api/v1/stores`);
+      
       const response = await fetch(`${API_URL}/api/v1/stores`);
       console.log('Trạng thái response:', response.status);
       if (!response.ok) {
         throw new Error('Không thể lấy danh sách cửa hàng');
       }
       const data = await response.json();
-      console.log('Dữ liệu nhận được từ API:', data);
       // Lọc ra các store có image không phải null
       const validStores = data.filter(store => store.image !== null);
       setStores(validStores);
@@ -45,7 +44,6 @@ const Stores = () => {
     }
   };
 
-  console.log('Rendering Stores component với stores:', filteredStores);
 
   if (isLoading) {
     return <div>Đang tải...</div>;
