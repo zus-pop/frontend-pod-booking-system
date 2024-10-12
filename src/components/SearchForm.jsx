@@ -1,38 +1,42 @@
-import { useState } from 'react';
-import { useStoreContext } from '../context/StoreContext';
+import { useState, useEffect } from 'react';
 
-const SearchForm = ({ onSearch }) => {
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const { stores } = useStoreContext();
+const SearchForm = ({ onSearch, stores }) => {
+  const [selectedAddress, setSelectedAddress] = useState('');
+  const [addresses, setAddresses] = useState(['All Address']);
 
-  const districts = ['Tất cả quận', ...new Set(stores.map(store => store.district))];
+  useEffect(() => {
+    if (stores && stores.length > 0) {
+      const uniqueAddresses = ['All Address', ...new Set(stores.map(store => store.address))];
+      setAddresses(uniqueAddresses);
+    }
+  }, [stores]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(selectedDistrict === 'Tất cả quận' ? '' : selectedDistrict);
+    onSearch(selectedAddress === 'All Address' ? '' : selectedAddress);
   };
 
-  const handleDistrictChange = (e) => {
-    setSelectedDistrict(e.target.value);
+  const handleAddressChange = (e) => {
+    setSelectedAddress(e.target.value);
   };
 
   return (
-    <form onSubmit={handleSubmit} className='h-[70px] w-full'>
+    <form onSubmit={handleSubmit} className='h-[50px] w-full'>
       <div className='flex w-full h-full'>
         <div className='flex-1'>
           <select
-            value={selectedDistrict}
-            onChange={handleDistrictChange}
-            className='w-full h-full px-8 text-primary outline-none cursor-pointer'
+            value={selectedAddress}
+            onChange={handleAddressChange}
+            className='w-full h-full px-4 text-sm text-primary outline-none cursor-pointer bg-white border border-gray-300 rounded-l-md focus:ring-2 focus:ring-accent transition-all duration-300 ease-in-out'
           >
-            {districts.map((district, index) => (
-              <option key={index} value={district}>{district}</option>
+            {addresses.map((address, index) => (
+              <option key={index} value={address}>{address}</option>
             ))}
           </select>
         </div>
         <button
           type='submit'
-          className='btn btn-primary'
+          className='btn btn-primary rounded-r-md px-6 text-sm font-sans bg-black text-white hover:bg-accent transition-all duration-300 ease-in-out uppercase tracking-wider'
         >
           Search
         </button>
