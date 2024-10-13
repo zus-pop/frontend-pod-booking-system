@@ -66,12 +66,8 @@ const StoreDetails = () => {
     </select>
   );
 
-  const handleBookNow = (podId) => {
-    if (!user) {
-      setShowLoginForm(true);
-    } else {
-      navigate(`/pod/${podId}`);
-    }
+  const handleViewDetails = (podId) => {
+    navigate(`/pod/${podId}`);
   };
 
   const handleLoginSuccess = async (message, token) => {
@@ -155,14 +151,12 @@ const StoreDetails = () => {
         </div>
       </div>
 
-      {/* Cập nhật phần hiển thị danh sách pods */}
       <div className="container mx-auto mt-16 mb-24">
-        <h2 className="font-primary text-[45px] mb-8">Pods List</h2>
+        <h2 className="font-primary text-[45px] mb-8">Pod List</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
           {pods.map((pod) => (
             <div key={pod.pod_id} className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 hover:-translate-y-2">
               <div className="w-full h-48 bg-gray-300">
-                {/* Khung hình ảnh mẫu */}
                 <img 
                   src={pod.image}
                   alt={pod.pod_name} 
@@ -176,15 +170,15 @@ const StoreDetails = () => {
                   <p className="text-sm text-gray-600">
                     Status: 
                     <span className={pod.is_available ? 'text-green-500' : 'text-red-500'}>
-                      {pod.is_available ? ' available' : ' unavailable'}
+                      {pod.is_available ? ' Available' : ' Unavailable'}
                     </span>
                   </p>
                 </div>
                 <button 
                   className="w-full text-center mt-4 py-2 text-sm font-sans bg-black text-white hover:bg-accent transition-colors duration-200 ease-in-out uppercase tracking-wider"
-                  onClick={() => handleBookNow(pod.pod_id)}
+                  onClick={() => handleViewDetails(pod.pod_id)}
                 >
-                  Book Now
+                  View Details
                 </button>
               </div>
             </div>
