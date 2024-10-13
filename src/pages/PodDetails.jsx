@@ -15,41 +15,45 @@ const PodDetails = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { user, login, checkUserLoggedIn } = useAuth();
+  const { user, checkUserLoggedIn } = useAuth();
 
   useEffect(() => {
-    if (!user) {
-      navigate('/');
-      showToast('Please login to view Pod details', 'error');
-      return;
-    }
-
     const fetchPodDetails = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/');
+        showToast('Please login to view Pod details', 'error');
+        return;
+      }
+
       try {
-        setLoading(true);
-        const response = await fetch(`${API_URL}/api/v1/pods/${id}`);
+        const response = await fetch(`${API_URL}/api/v1/pods/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (!response.ok) {
-          throw new Error('Không thể lấy thông tin pod');
+          throw new Error('Failed to fetch pod details');
         }
         const data = await response.json();
         setPod(data);
       } catch (error) {
-        console.error('Lỗi khi lấy thông tin:', error);
-        showToast('Không thể lấy thông tin pod', 'error');
+        console.error('Error fetching pod details:', error);
+        showToast('Failed to fetch pod details', 'error');
       } finally {
         setLoading(false);
       }
     };
 
     fetchPodDetails();
-  }, [id, API_URL, showToast, user, navigate]);
+  }, [id, API_URL, showToast, navigate]);
 
   const handleBookNow = () => {
     if (!user) {
       setShowLoginForm(true);
     } else {
       // Xử lý đặt pod ở đây
-      showToast('Chức năng đặt pod đang được phát triển', 'info');
+      showToast('Booking function is under development', 'info');
     }
   };
 
@@ -65,7 +69,7 @@ const PodDetails = () => {
   }
 
   if (!pod) {
-    return <div>Không tìm thấy thông tin pod</div>;
+    return <div>No pod details found</div>;
   }
 
   return (
