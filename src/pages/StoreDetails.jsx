@@ -1,16 +1,23 @@
 import { useState, useEffect } from 'react';
 import { ScrollToTop } from '../components';
 import { hotelRules } from '../constants/data';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { FaCheck } from 'react-icons/fa';
 import Loading from '../components/Loading';
+import LoginForm from '../components/LoginForm';
+import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 const StoreDetails = () => {
   const { id } = useParams();
   const [store, setStore] = useState(null);
   const [pods, setPods] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showLoginForm, setShowLoginForm] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const { user, login } = useAuth();
 
   useEffect(() => {
     const fetchStoreDetails = async () => {
@@ -58,6 +65,20 @@ const StoreDetails = () => {
       <option>789 Tran Hung Dao, District 5</option>
     </select>
   );
+
+  const handleBookNow = (podId) => {
+    if (!user) {
+      setShowLoginForm(true);
+    } else {
+      navigate(`/pod/${podId}`);
+    }
+  };
+
+  const handleLoginSuccess = async (message, token) => {
+    setShowLoginForm(false);
+    await login(token);
+    showToast(message, 'success');
+  };
 
   if (loading) {
     return <Loading />;
@@ -143,7 +164,7 @@ const StoreDetails = () => {
               <div className="w-full h-48 bg-gray-300">
                 {/* Khung hình ảnh mẫu */}
                 <img 
-                  src="/path/to/placeholder-image.jpg" 
+                  src={pod.image}
                   alt={pod.pod_name} 
                   className="w-full h-full object-cover"
                 />
@@ -159,7 +180,10 @@ const StoreDetails = () => {
                     </span>
                   </p>
                 </div>
-                <button className="w-full text-center mt-4 py-2 text-sm font-sans bg-black text-white hover:bg-accent transition-colors duration-200 ease-in-out uppercase tracking-wider">
+                <button 
+                  className="w-full text-center mt-4 py-2 text-sm font-sans bg-black text-white hover:bg-accent transition-colors duration-200 ease-in-out uppercase tracking-wider"
+                  onClick={() => handleBookNow(pod.pod_id)}
+                >
                   Book Now
                 </button>
               </div>
@@ -167,6 +191,14 @@ const StoreDetails = () => {
           ))}
         </div>
       </div>
+
+      {showLoginForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white p-8 rounded-lg">
+            <LoginForm onClose={() => setShowLoginForm(false)} onLoginSuccess={handleLoginSuccess} />
+          </div>
+        </div>
+      )}
     </section>
   );
 };
