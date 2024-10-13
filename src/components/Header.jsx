@@ -5,72 +5,37 @@ import { Link } from 'react-router-dom';
 import { LogoWhite, LogoDark } from '../assets';
 import LoginForm from './LoginForm';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
   const { resetStoreFilterData } = useStoreContext();
   const [header, setHeader] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
-  const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const { showToast } = useToast();
+  const { user, logout, login } = useAuth();
 
   const navLinks = ['Home', 'About', 'Solutions', 'Places', 'Contact'];
   useEffect(() => {
     window.addEventListener('scroll', () =>
       window.scrollY > 50 ? setHeader(true) : setHeader(false)
     );
-    checkUserLoggedIn();
   }, []);
-
-  const checkUserLoggedIn = () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      getUserData(token);
-    }
-  };
-
-  const getUserData = async (token) => {
-    try {
-      const response = await fetch(`${API_URL}/api/v1/auth/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
-      if (response.status === 403) {
-        localStorage.removeItem('token');
-        setUser(null);
-        throw new Error('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại');
-      }
-      if (!response.ok) {
-        throw new Error('Không thể lấy dữ liệu người dùng');
-      }
-      const data = await response.json();
-      console.log('Dữ liệu người dùng nhận được:', data);
-      setUser(data);
-    } catch (error) {
-      console.error('Lỗi lấy dữ liệu người dùng:', error);
-      showToast(error.message, 'error');
-    }
-  };
 
   const handleLoginClick = () => {
     setShowLoginForm(true);
   };
 
-  const handleLoginSuccess = (message, token) => {
+  const handleLoginSuccess = async (message, token) => {
     setShowLoginForm(false);
-    localStorage.setItem('token', token);
-    getUserData(token);
+    await login(token);
     showToast(message, 'success');
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+    logout();
     setShowDropdown(false);
-    showToast('Logout successful', 'success');
+    showToast('Logout successfully', 'success');
   };
 
   return (
