@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStoreContext } from '../context/StoreContext';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogoWhite, LogoDark } from '../assets';
 import LoginForm from './LoginForm';
 import { useToast } from '../context/ToastContext';
@@ -14,13 +14,23 @@ const Header = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { showToast } = useToast();
   const { user, logout, login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const navLinks = ['Home', 'About', 'Solutions', 'Places', 'Contact'];
   useEffect(() => {
-    window.addEventListener('scroll', () =>
-      window.scrollY > 50 ? setHeader(true) : setHeader(false)
-    );
-  }, []);
+    const handleScroll = () => {
+      // Không thay đổi header khi ở trang Booking History
+      if (location.pathname !== '/booking-history') {
+        setHeader(window.scrollY > 50);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [location.pathname]);
 
   const handleLoginClick = () => {
     setShowLoginForm(true);
@@ -35,20 +45,32 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     setShowDropdown(false);
-    showToast('Logout successfully', 'success');
+    showToast('Logged out successfully', 'success');
+    if (location.pathname === '/booking-history') {
+      navigate('/');
+      showToast('Please log in to view booking history', 'info');
+    }
   };
+
+  const handleBookingHistoryClick = () => {
+    setShowDropdown(false);
+    navigate('/booking-history');
+  };
+
+  // Xác định xem có nên sử dụng kiểu header tối hay sáng
+  const isDarkHeader = location.pathname === '/booking-history' || !header;
 
   return (
     <>
-      <header className={`${header ? 'bg-white py-6 shadow-lg' : 'bg-transparent py-8'} fixed z-50 w-full transition-all duration-300`}>
+      <header className={`${isDarkHeader ? 'bg-transparent py-8' : 'bg-white py-6 shadow-lg'} fixed z-50 w-full transition-all duration-300`}>
         <div className='container mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-y-6 lg:gap-y-0'>
           {/* Logo */}
           <Link to="/" onClick={resetStoreFilterData}>
-            {header ? <LogoDark className='w-[160px]' /> : <LogoWhite className='w-[160px]' />}
+            {isDarkHeader ? <LogoWhite className='w-[160px]' /> : <LogoDark className='w-[160px]' />}
           </Link>
 
           {/* Nav */}
-          <nav className={`${header ? 'text-primary' : 'text-white'}
+          <nav className={`${isDarkHeader ? 'text-white' : 'text-primary'}
           flex gap-x-4 lg:gap-x-8 font-tertiary tracking-[3px] text-[15px] items-center uppercase`}>
             <Link to="/" className='transition hover:text-accent'>Home</Link>
             <Link to="/about" className='transition hover:text-accent'>About</Link>
@@ -61,13 +83,20 @@ const Header = () => {
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
                   className={`${
-                    header ? 'text-primary border-primary' : 'text-white border-white'
+                    isDarkHeader ? 'text-white border-white' : 'text-primary border-primary'
                   } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent`}
                 >
                   {user.user_name || user.email}
                 </button>
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                    <Link
+                      to="/booking-history"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      Booking History
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -79,9 +108,9 @@ const Header = () => {
               </div>
             ) : (
               <button
-                onClick={handleLoginClick}
+                onClick={() => setShowLoginForm(true)}
                 className={`${
-                  header ? 'text-primary border-primary' : 'text-white border-white'
+                  isDarkHeader ? 'text-white border-white' : 'text-primary border-primary'
                 } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent`}
               >
                 Login

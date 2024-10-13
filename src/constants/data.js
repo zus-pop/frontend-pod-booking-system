@@ -1,7 +1,4 @@
-import { FaCheck } from "react-icons/fa";
 import images from "../assets";
-
-
 
 export const sliderData = [
     {
