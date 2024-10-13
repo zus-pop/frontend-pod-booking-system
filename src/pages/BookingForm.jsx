@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import Select from "react-select";
 import { getSlotsByPodIdAndDate } from "../utils/api";
 import { useToast } from "../context/ToastContext";
-import { IconBase } from "react-icons/lib";
 
 export default function BookingForm({ pod }) {
     const { showToast } = useToast();
@@ -13,11 +12,22 @@ export default function BookingForm({ pod }) {
 
     const handleBookNow = (e) => {
         e.preventDefault();
-        console.log(selectRefs.current[0].getValue());
-        if (!selectedDates) {
-            showToast("", "error");
+        const booking = {
+            pod_id: pod.pod_id,
+        };
+        const bookingSlots = selectRefs.current.flatMap((slotsOfDate) =>
+            slotsOfDate ? slotsOfDate.getValue().map((slot) => slot.value) : []
+        );
+        if (!bookingSlots.length) {
+            showToast("You haven't chosen any slot yet", "error");
             return;
         }
+        const submission = {
+            booking,
+            bookingSlots,
+        };
+        console.log(submission);
+
         showToast("Booking function is under development", "info");
     };
     const getCurrentDate = () => {
@@ -49,8 +59,11 @@ export default function BookingForm({ pod }) {
                                     className="bg-red-600 px-1.5 my-2 rounded-xl disabled:opacity-50 hover:bg-red-500 transition-all"
                                     disabled={selectedDates.length === 1}
                                     onClick={() => {
-                                        const newSelectedDates =
-                                            selectedDates.splice(index, 1);
+                                        const newSelectedDates = [
+                                            ...selectedDates,
+                                        ];
+                                        newSelectedDates.splice(index, 1);
+                                        selectRefs.current.splice(index, 1);
                                         setSelectedDates(newSelectedDates);
                                     }}
                                 >
@@ -66,6 +79,9 @@ export default function BookingForm({ pod }) {
                                     const newMap = selectedDates.map(
                                         (date, i) => {
                                             if (i === index) {
+                                                selectRefs.current[
+                                                    index
+                                                ].clearValue();
                                                 return e.target.value;
                                             }
                                             return date;
@@ -88,7 +104,6 @@ export default function BookingForm({ pod }) {
                                 isMulti
                                 autoFocus
                                 isSearchable
-                                // onChange={setSlots}
                                 options={slotsForDates[index]}
                                 isOptionDisabled={(slot) => !slot.is_available}
                             />

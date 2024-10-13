@@ -12,7 +12,6 @@ export const getSlotsByPodIdAndDate = (pod_id, dates) => {
             },
         })),
     });
-    // console.log(results);
     if (!pod_id || !dates.length || !dates[0]) {
         return [];
     }
