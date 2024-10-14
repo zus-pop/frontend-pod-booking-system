@@ -7,24 +7,69 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [userName, setUserName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const { showToast } = useToast();
+
+  const validateEmail = (email) => {
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  const validatePhoneNumber = (phone) => {
+    const re = /^[0-9]{10}$/;  // Assumes a 10-digit phone number
+    return re.test(phone);
+  };
 
   useEffect(() => {
     if (isLogin) {
-      setIsFormValid(email.trim() !== '' && password.trim() !== '');
+      setIsFormValid(email !== '' && password !== '' && validateEmail(email));
     } else {
       setIsFormValid(
-        email.trim() !== '' &&
-        password.trim() !== '' &&
-        rePassword.trim() !== '' &&
+        email !== '' &&
+        password !== '' &&
+        rePassword !== '' &&
+        userName !== '' &&
+        phoneNumber !== '' &&
         password === rePassword &&
-        username.trim() !== ''
+        validateEmail(email) &&
+        validatePhoneNumber(phoneNumber)
       );
     }
-  }, [isLogin, email, password, rePassword, username]);
+  }, [isLogin, email, password, rePassword, userName, phoneNumber]);
+
+  const handleEmailBlur = () => {
+    if (email && !validateEmail(email)) {
+      setEmailError('Invalid email format');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    if (phoneNumber && !validatePhoneNumber(phoneNumber)) {
+      setPhoneError('Invalid phone number format');
+    } else {
+      setPhoneError('');
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    setEmailError('');
+  };
+
+  const handlePhoneChange = (e) => {
+    const newPhone = e.target.value;
+    setPhoneNumber(newPhone);
+    setPhoneError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +82,15 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
+    setEmail('');
+    setPassword('');
+    setRePassword('');
+    setUserName('');
+    setPhoneNumber('');
+    setEmailError('');
+    setPhoneError('');
+    setEmailTouched(false);
+    setPhoneTouched(false);
   };
 
   const login = async () => {
@@ -70,7 +124,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
 
   const register = async () => {
     try {
-      const userData = { email, password, user_name: username, phone_number: phoneNumber };
+      const userData = { email, password, user_name: userName, phone_number: phoneNumber };
       
       const response = await fetch(`${API_URL}/api/v1/auth/register`, {
         method: 'POST',
@@ -111,111 +165,119 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50">
-      <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="bg-white p-8 rounded-lg shadow-2xl w-96 z-10">
-        <h2 className="text-3xl mb-6 font-bold text-center text-gray-800">
-          {isLogin ? 'Login' : 'Register'}
-        </h2>
-        <form onSubmit={handleSubmit}>
-          {!isLogin && (
-            <div className="mb-4">
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                Username <span className="text-red-500">*</span>
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-sm relative flex flex-col max-h-[90vh]">
+        <h2 className="text-2xl font-bold p-6 text-center border-b">{isLogin ? 'Login' : 'Register'}</h2>
+        
+        <form onSubmit={handleSubmit} className="flex-grow overflow-y-auto p-6">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email
               </label>
               <input
-                id="username"
-                type="text"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={handleEmailChange}
+                onBlur={handleEmailBlur}
+                className={`w-full p-2 text-sm border ${emailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
               />
+              {emailError && <p className="mt-1 text-xs text-red-500">{emailError}</p>}
             </div>
-          )}
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          {!isLogin && (
-            <div className="mb-4">
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone number (optional)
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                Password
               </label>
               <input
-                id="phoneNumber"
-                type="tel"
-                placeholder="Enter your phone number"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          )}
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          {!isLogin && (
-            <div className="mb-6">
-              <label htmlFor="rePassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Re-enter Password <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="rePassword"
+                id="password"
                 type="password"
-                placeholder="Re-enter your password"
-                value={rePassword}
-                onChange={(e) => setRePassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
-          )}
+            {!isLogin && (
+              <>
+                <div>
+                  <label htmlFor="rePassword" className="block text-sm font-medium text-gray-700 mb-1">
+                    Re-enter Password
+                  </label>
+                  <input
+                    id="rePassword"
+                    type="password"
+                    placeholder="Re-enter your password"
+                    value={rePassword}
+                    onChange={(e) => setRePassword(e.target.value)}
+                    className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-1">
+                    User Name
+                  </label>
+                  <input
+                    id="userName"
+                    type="text"
+                    placeholder="Enter your user name"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    id="phoneNumber"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    onBlur={handlePhoneBlur}
+                    className={`w-full p-2 text-sm border ${phoneError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    required
+                  />
+                  {phoneError && <p className="mt-1 text-xs text-red-500">{phoneError}</p>}
+                </div>
+              </>
+            )}
+          </div>
+        </form>
+        
+        <div className="p-6 border-t">
           <button 
             type="submit" 
-            className={`w-full bg-blue-600 text-white p-3 rounded-md transition duration-300 font-semibold ${
+            onClick={handleSubmit}
+            className={`w-full bg-blue-600 text-white p-2 rounded-md transition duration-300 font-semibold text-sm ${
               isFormValid ? 'hover:bg-blue-700' : 'opacity-50 cursor-not-allowed'
             }`}
             disabled={!isFormValid}
           >
             {isLogin ? 'Login' : 'Register'}
           </button>
-        </form>
-        <div className="mt-4 text-center">
-          <button 
-            onClick={toggleMode} 
-            className="text-blue-600 hover:text-blue-800 transition duration-300"
-          >
-            {isLogin ? 'Don\'t have an account? Register now' : 'Already have an account? Login'}
-          </button>
+          <div className="text-center text-sm mt-4">
+            <button 
+              onClick={toggleMode} 
+              className="text-blue-600 hover:text-blue-800 transition duration-300"
+            >
+              {isLogin ? 'Don\'t have an account? Register now' : 'Already have an account? Login'}
+            </button>
+          </div>
         </div>
-        <button 
-          onClick={onClose} 
-          className="mt-4 w-full bg-gray-200 text-gray-800 p-3 rounded-md hover:bg-gray-300 transition duration-300 font-semibold"
+        
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
         >
-          Cancel
+          &times;
         </button>
       </div>
     </div>

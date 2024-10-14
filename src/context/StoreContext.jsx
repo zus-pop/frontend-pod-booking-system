@@ -5,12 +5,9 @@ const StoreInfo = createContext();
 
 export const StoreContext = ({ children }) => {
   const [stores, setStores] = useState(storeData);
-  
-  // ... các state và hàm khác ...
 
   const shareWithChildren = {
     stores,
-    // ... các giá trị khác ...
   };
 
   return (

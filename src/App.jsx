@@ -1,8 +1,17 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { Footer, Header, PageNotFound } from './components';
-import { Home, StoreDetails, About, Solutions, Places, Contact, PodDetails } from './pages';
+import { Home, StoreDetails, About, Solutions, Places, Contact, PodDetails, BookingHistory } from './pages';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
+
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 const App = () => {
   return (
@@ -19,6 +28,14 @@ const App = () => {
               <Route path={'/solutions'} element={<Solutions />} />
               <Route path={'/places'} element={<Places />} />
               <Route path={'/contact'} element={<Contact />} />
+              <Route 
+                path={'/booking-history'} 
+                element={
+                  <ProtectedRoute>
+                    <BookingHistory />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path={'*'} element={<PageNotFound />} />
             </Routes>
             <Footer />
