@@ -45,7 +45,6 @@ const PodDetails = () => {
     return (
         <section>
             <ScrollToTop />
-
             <div
                 className="bg-room h-[560px] relative flex justify-center items-center bg-cover bg-center"
                 style={{ backgroundImage: `url(${pod.image})` }}
