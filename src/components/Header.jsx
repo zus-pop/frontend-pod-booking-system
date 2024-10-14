@@ -19,10 +19,8 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Không thay đổi header khi ở trang Booking History
-      if (location.pathname !== '/booking-history') {
-        setHeader(window.scrollY > 50);
-      }
+      // Áp dụng hiệu ứng cuộn cho tất cả các trang, bao gồm cả Booking History
+      setHeader(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -30,7 +28,7 @@ const Header = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [location.pathname]);
+  }, []);
 
   const handleLoginClick = () => {
     setShowLoginForm(true);
@@ -58,7 +56,7 @@ const Header = () => {
   };
 
   // Xác định xem có nên sử dụng kiểu header tối hay sáng
-  const isDarkHeader = location.pathname === '/booking-history' || !header;
+  const isDarkHeader = !header;
 
   return (
     <>
