@@ -46,8 +46,7 @@ export default function BookingForm({ pod }) {
         showToast("Booking function is under development", "info");
     };
     const getCurrentDate = () => {
-        return moment("2024-08-30").format("YYYY-MM-DD");
-        // modify soon
+        return moment().format("YYYY-MM-DD");
     };
 
     const availableSlotOptions = (index) =>
