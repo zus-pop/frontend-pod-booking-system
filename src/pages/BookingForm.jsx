@@ -87,16 +87,16 @@ export default function BookingForm({ pod }) {
                             >
                                 <IoIosCloseCircle
                                     onClick={() => {
-                                        setSelectedSlots(
-                                            selectedSlots.filter(
-                                                (_, i) => i === index
-                                            )
-                                        );
-                                        setSelectedDates(
-                                            selectedDates.filter(
-                                                (_, i) => i === index
-                                            )
-                                        );
+                                        // setSelectedSlots(
+                                        //     selectedSlots.filter(
+                                        //         (_, i) => i !== index
+                                        //     )
+                                        // );
+                                        // setSelectedDates(
+                                        //     selectedDates.filter(
+                                        //         (_, i) => i !== index
+                                        //     )
+                                        // );
                                         selectRefs.current[index].clearValue();
                                     }}
                                     className="text-red-600 text-base md:text-md lg:text-lg xl:text-xl absolute top-0 right-2 my-2 rounded-xl enable:hover:text-red-300 transition-all"
