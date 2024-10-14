@@ -1,5 +1,3 @@
-export { default as PodTypesDropdown } from './PodTypesDropdown';
-export { default as StoreAddressDropdown } from './StoreAddressDropdown';
 export { default as PageNotFound } from './PageNotFound';
 export { default as HeroSlider } from './HeroSlider';
 export { default as SearchForm } from './SearchForm';
