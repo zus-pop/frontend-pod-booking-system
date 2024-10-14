@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { getSlotsByPodIdAndDate } from "../utils/api";
 import { useToast } from "../context/ToastContext";
@@ -9,10 +9,21 @@ import ReactDatePicker from "react-datepicker";
 
 export default function BookingForm({ pod }) {
     const { showToast } = useToast();
-    const selectRefs = useRef([]);
     const [selectedDates, setSelectedDates] = useState([null]);
     const slotsForDates = getSlotsByPodIdAndDate(pod.pod_id, selectedDates);
+    const [selectedSlots, setSelectedSlots] = useState([]);
+    const selectRefs = useRef([]);
     const [totalCost, setTotalCost] = useState(0);
+
+    useEffect(() => {
+        const newTotalCost = selectedSlots
+            .flat()
+            .reduce(
+                (acc, cur) => acc + Number.parseFloat(cur.value.unit_price),
+                0
+            );
+        setTotalCost(newTotalCost);
+    }, [selectedSlots]);
 
     const handleBookNow = (e) => {
         e.preventDefault();
@@ -43,13 +54,11 @@ export default function BookingForm({ pod }) {
         Array.isArray(slotsForDates[index])
             ? slotsForDates[index].filter(
                   (option) =>
-                      !selectRefs.current[index]
-                          .getValue()
-                          .some(
-                              (selectedSlot) =>
-                                  selectedSlot.value.slot_id ===
-                                  option.value.slot_id
-                          )
+                      !selectedSlots[index].some(
+                          (selectedSlot) =>
+                              selectedSlot.value.slot_id ===
+                              option.value.slot_id
+                      )
               )
             : slotsForDates[index];
 
@@ -75,15 +84,21 @@ export default function BookingForm({ pod }) {
                             <button
                                 disabled={selectedDates.length === 1}
                                 className="disabled:opacity-50"
+                                type="button"
                             >
                                 <IoIosCloseCircle
                                     onClick={() => {
-                                        const newSelectedDates = [
-                                            ...selectedDates,
-                                        ];
-                                        newSelectedDates.splice(index, 1);
-                                        selectRefs.current.splice(index, 1);
-                                        setSelectedDates(newSelectedDates);
+                                        setSelectedSlots(
+                                            selectedSlots.filter(
+                                                (_, i) => i === index
+                                            )
+                                        );
+                                        setSelectedDates(
+                                            selectedDates.filter(
+                                                (_, i) => i === index
+                                            )
+                                        );
+                                        selectRefs.current[index].clearValue();
                                     }}
                                     className="text-red-600 text-base md:text-md lg:text-lg xl:text-xl absolute top-0 right-2 my-2 rounded-xl enable:hover:text-red-300 transition-all"
                                 />
@@ -140,13 +155,9 @@ export default function BookingForm({ pod }) {
                                 isSearchable
                                 isClearable
                                 onChange={(e) => {
-                                    const newTotalCost = e.reduce(
-                                        (acc, curr) =>
-                                            acc +
-                                            Number.parseFloat(curr.value.price),
-                                        0
-                                    );
-                                    setTotalCost((prev) => prev + newTotalCost);
+                                    const slotDates = [...selectedSlots];
+                                    slotDates[index] = e;
+                                    setSelectedSlots(slotDates);
                                 }}
                                 options={availableSlotOptions(index)}
                                 isOptionDisabled={(option) =>

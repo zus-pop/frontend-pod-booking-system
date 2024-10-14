@@ -19,10 +19,10 @@ export const getSlotsByPodIdAndDate = (pod_id, dates) => {
     return results.length ? results.map(({ data: slots, isSuccess }) => {
         if (isSuccess) {
             return Array.isArray(slots) ? slots.map(slot => ({
-                label: `${moment.utc(slot.start_time).format("HH:mm:ss")} - ${moment.utc(slot.end_time).format("HH:mm:ss")} | ${Number(slot.unit_price).toLocaleString("vi-VN", { style: "currency", currency: "VND" })}`,
+                label: `${moment.utc(slot.start_time).format("HH:mm:ss")} - ${moment.utc(slot.end_time).format("HH:mm:ss")} | ${Number(slot.price).toLocaleString("vi-VN", { style: "currency", currency: "VND" })}`,
                 value: {
                     slot_id: slot.slot_id,
-                    price: slot.unit_price,
+                    unit_price: slot.price,
                     is_available: slot.is_available
                 },
             })) : [];
