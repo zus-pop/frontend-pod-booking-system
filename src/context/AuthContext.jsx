@@ -19,12 +19,12 @@ export const AuthProvider = ({ children }) => {
           const data = await response.json();
           setUser(data);
         } else {
-          localStorage.removeItem('token');
+          //localStorage.removeItem('token');
           setUser(null);
         }
       } catch (error) {
         console.error('Lỗi khi kiểm tra đăng nhập:', error);
-        localStorage.removeItem('token');
+        //localStorage.removeItem('token');
         setUser(null);
       }
     }

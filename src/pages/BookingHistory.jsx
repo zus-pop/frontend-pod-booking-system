@@ -18,7 +18,7 @@ const BookingHistory = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchBookings = useCallback(async () => {
-    if (!user) return;
+    // if (!user) return;
     
     try {
       const token = localStorage.getItem('token');
@@ -83,9 +83,9 @@ const BookingHistory = () => {
     return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
   };
 
-  if (!user) {
-    return null;
-  }
+  // if (!user) {
+  //   return null;
+  // }
 
   return (
     <section className="relative min-h-screen">
