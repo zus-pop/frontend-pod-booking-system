@@ -9,7 +9,7 @@ import ReactDatePicker from "react-datepicker";
 import { useAuth } from "../context/AuthContext";
 import LoginForm from "../components/LoginForm";
 
-export default function BookingForm({ pod }) {
+const BookingForm = ({ pod, onBookNow }) => {
     const { showToast } = useToast();
     const { user, login } = useAuth();
     const [showLoginForm, setShowLoginForm] = useState(false);
@@ -78,10 +78,15 @@ export default function BookingForm({ pod }) {
               )
             : slotsForDates[index];
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onBookNow(); // Gọi hàm onBookNow được truyền từ PodDetails
+    };
+
     return (
         <>
             <form
-                onSubmit={handleBookNow}
+                onSubmit={handleSubmit}
                 className="py-8 px-6 bg-accent/20 mb-12 rounded-lg"
             >
                 <div className="flex flex-col space-y-4 mb-4">
@@ -224,4 +229,6 @@ export default function BookingForm({ pod }) {
             )}
         </>
     );
-}
+};
+
+export default BookingForm;
