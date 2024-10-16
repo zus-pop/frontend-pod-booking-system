@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { getSlotsByPodIdAndDate } from "../utils/api";
 import { useToast } from "../context/ToastContext";
-import { IoIosCloseCircle } from "react-icons/io";
+import { MdClose } from "react-icons/md";
 import { FaPlus } from "react-icons/fa";
 import ReactDatePicker from "react-datepicker";
 import { useAuth } from "../context/AuthContext";
@@ -82,19 +82,19 @@ export default function BookingForm({ pod }) {
         <>
             <form
                 onSubmit={handleBookNow}
-                className="py-8 px-5 rounded-xl bg-accent/20 mb-12"
+                className="py-8 px-6 bg-accent/20 mb-12 rounded-lg"
             >
                 <div className="flex flex-col space-y-4 mb-4">
-                    <h3 className="text-xl font-bold">Your Reservation</h3>
+                    <h3 className="text-2xl font-primary font-semibold tracking-[1px] mb-4">Your Reservation</h3>
                     {selectedDates.map((selectedDate, index) => (
                         <div
                             key={index}
-                            className="flex md:flex-col relative gap-4 border-2 border-black rounded-xl p-2"
+                            className="flex md:flex-col relative gap-4 bg-white p-4 rounded-lg shadow-md"
                         >
                             <div className="md:w-full">
                                 <label
                                     htmlFor="reservationDate"
-                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                    className="block text-sm font-medium text-gray-700 mb-2"
                                 >
                                     Select Date
                                 </label>
@@ -103,21 +103,11 @@ export default function BookingForm({ pod }) {
                                     className="disabled:opacity-50"
                                     type="button"
                                 >
-                                    <IoIosCloseCircle
+                                    <MdClose
                                         onClick={() => {
-                                            // setSelectedSlots(
-                                            //     selectedSlots.filter(
-                                            //         (_, i) => i !== index
-                                            //     )
-                                            // );
-                                            // setSelectedDates(
-                                            //     selectedDates.filter(
-                                            //         (_, i) => i !== index
-                                            //     )
-                                            // );
                                             selectRefs.current[index].clearValue();
                                         }}
-                                        className="text-red-600 text-base md:text-md lg:text-lg xl:text-xl absolute top-0 right-2 my-2 rounded-xl enable:hover:text-red-300 transition-all"
+                                        className="text-red-600 text-xl absolute top-2 right-2 rounded-xl enable:hover:text-red-300 transition-all"
                                     />
                                 </button>
                                 <ReactDatePicker
@@ -137,7 +127,7 @@ export default function BookingForm({ pod }) {
                                             : null
                                     }
                                     minDate={moment(getCurrentDate()).toDate()}
-                                    className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
+                                    className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent p-2"
                                     onChange={(value) => {
                                         const newMap = selectedDates.map(
                                             (date, i) => {
@@ -161,7 +151,7 @@ export default function BookingForm({ pod }) {
                             <div className="w-full">
                                 <label
                                     htmlFor="reservationSlot"
-                                    className="block text-sm font-medium text-gray-700 mb-1"
+                                    className="block text-sm font-medium text-gray-700 mb-2"
                                 >
                                     Select Slot
                                 </label>
@@ -180,6 +170,8 @@ export default function BookingForm({ pod }) {
                                     isOptionDisabled={(option) =>
                                         !option.value.is_available
                                     }
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
                                 />
                             </div>
                         </div>
@@ -188,7 +180,7 @@ export default function BookingForm({ pod }) {
                 <div className="flex flex-col">
                     <button
                         type="button"
-                        className="w-full flex justify-center items-center gap-2 font-bold hover:scale-110 transition-all"
+                        className="w-full flex justify-center items-center gap-2 font-tertiary text-sm uppercase tracking-[1px] hover:scale-105 transition-all my-4"
                         onClick={() => {
                             setSelectedDates((prev) => [...prev, ""]);
                         }}
@@ -215,7 +207,7 @@ export default function BookingForm({ pod }) {
 
                     <button
                         type="submit"
-                        className="btn btn-lg btn-primary py-4 rounded-xl w-full transition-all"
+                        className="btn btn-lg btn-primary py-4 rounded-lg w-full transition-all mt-6"
                         disabled={!pod.is_available}
                     >
                         Book now
