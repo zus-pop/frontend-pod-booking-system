@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ScrollToTop } from "../components";
 import { FaCheck } from "react-icons/fa";
 import Loading from "../components/Loading";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import BookingForm from "./BookingForm";
 
 const PodDetails = () => {
@@ -15,6 +16,9 @@ const PodDetails = () => {
     const [availableSlots, setAvailableSlots] = useState([]);
     const API_URL = import.meta.env.VITE_API_URL;
     const { showToast } = useToast();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchPodDetails = async () => {
@@ -54,10 +58,11 @@ const PodDetails = () => {
     }, [selectedDate]);
 
     const handleBookNow = () => {
-        if (!selectedDate || !selectedSlot) {
-            showToast("", "error");
+        if (!user) {
+            navigate('/auth', { state: { from: location.pathname } });
             return;
         }
+        // Xử lý logic đặt phòng ở đây
         showToast("Booking function is under development", "info");
     };
 
@@ -139,7 +144,7 @@ const PodDetails = () => {
                     {/* Right side */}
                     <div className="w-full lg:w-[40%] h-full">
                         {/* Booking section */}
-                        <BookingForm pod={pod} />
+                        <BookingForm pod={pod} onBookNow={handleBookNow} />
 
                         <div>
                             <h3 className="h3">POD Rules</h3>
@@ -148,7 +153,7 @@ const PodDetails = () => {
                                 services.
                             </p>
                             <ul className="flex flex-col gap-y-4">
-                                {/* Thay thế bằng rules thực tế của pod nếu có */}
+                                {/* Thay thế bằng rules thực tế của pod nếu c */}
                                 <li className="flex items-center gap-x-4">
                                     <FaCheck className="text-accent" />
                                     Respect quiet hours

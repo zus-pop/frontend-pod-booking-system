@@ -1,10 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
 
   const checkUserLoggedIn = async () => {
     const token = localStorage.getItem('token');
@@ -44,8 +46,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  const redirectToLogin = (from) => {
+    navigate('/auth', { state: { from } });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, checkUserLoggedIn }}>
+    <AuthContext.Provider value={{ user, login, logout, checkUserLoggedIn, redirectToLogin }}>
       {children}
     </AuthContext.Provider>
   );

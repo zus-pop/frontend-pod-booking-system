@@ -47,24 +47,7 @@ const StoreDetails = () => {
     fetchStoreDetails();
   }, [id, API_URL]);
 
-  // Tạm thời thay thế PodTypesDropdown và StoreAddressDropdown bằng select đơn giản
-  // const PodTypesDropdown = () => (
-  //   <select className="w-full p-2 border rounded">
-  //     <option>Chọn loại Pod</option>
-  //     <option>Pod Single</option>
-  //     <option>Pod Double</option>
-  //     <option>Pod Meeting</option>
-  //   </select>
-  // );
-
-  // const StoreAddressDropdown = () => (
-  //   <select className="w-full p-2 border rounded">
-  //     <option>Chọn địa chỉ cửa hàng</option>
-  //     <option>123 Nguyen Hue, District 1</option>
-  //     <option>456 Le Van Sy, District 3</option>
-  //     <option>789 Tran Hung Dao, District 5</option>
-  //   </select>
-  // );
+  
 
   const handleViewDetails = (podId) => {
     navigate(`/pod/${podId}`);
