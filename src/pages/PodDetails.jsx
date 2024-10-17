@@ -11,14 +11,8 @@ const PodDetails = () => {
     const { id } = useParams();
     const [pod, setPod] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [selectedDate, setSelectedDate] = useState("");
-    const [selectedSlot, setSelectedSlot] = useState("");
-    const [availableSlots, setAvailableSlots] = useState([]);
     const API_URL = import.meta.env.VITE_API_URL;
     const { showToast } = useToast();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { user } = useAuth();
 
     useEffect(() => {
         const fetchPodDetails = async () => {
@@ -39,40 +33,6 @@ const PodDetails = () => {
 
         fetchPodDetails();
     }, [id, API_URL, showToast]);
-
-    useEffect(() => {
-        // Giả lập việc lấy slots từ API
-        if (selectedDate) {
-            // Trong tương lai, thay thế bằng cuộc gọi API thực tế
-            const mockSlots = [
-                "09:00 - 10:00",
-                "10:00 - 11:00",
-                "11:00 - 12:00",
-                "13:00 - 14:00",
-                "14:00 - 15:00",
-            ];
-            setAvailableSlots(mockSlots);
-        } else {
-            setAvailableSlots([]);
-        }
-    }, [selectedDate]);
-
-    const handleBookNow = () => {
-        if (!user) {
-            navigate('/auth', { state: { from: location.pathname } });
-            return;
-        }
-        // Xử lý logic đặt phòng ở đây
-        showToast("Booking function is under development", "info");
-    };
-
-    const getCurrentDate = () => {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const day = String(today.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-    };
 
     if (loading) {
         return <Loading />;
@@ -144,7 +104,7 @@ const PodDetails = () => {
                     {/* Right side */}
                     <div className="w-full lg:w-[40%] h-full">
                         {/* Booking section */}
-                        <BookingForm pod={pod} onBookNow={handleBookNow} />
+                        <BookingForm pod={pod} />
 
                         <div>
                             <h3 className="h3">POD Rules</h3>
