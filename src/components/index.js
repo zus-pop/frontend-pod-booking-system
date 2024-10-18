@@ -6,5 +6,5 @@ export { default as Header } from './Header';
 export { default as Stores } from './Stores';
 export { default as Store } from './Store';
 export { default as FetchData } from './FetchData';
-export { default as LoginForm } from './LoginForm';
+
 export { default as ScrollToTop } from '../utils/ScrollToTop';

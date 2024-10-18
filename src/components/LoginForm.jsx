@@ -283,5 +283,3 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
     </div>
   );
 };
-
-export default LoginForm;

@@ -1,29 +1,31 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Store from "./Store";
 import SearchForm from "./SearchForm";
+import Pagination from "./Pagination";
+import Loading from "./Loading";
 
 const Stores = () => {
     const [stores, setStores] = useState([]);
     const [filteredStores, setFilteredStores] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalStores, setTotalStores] = useState(0);
     const API_URL = import.meta.env.VITE_API_URL;
+    const ITEMS_PER_PAGE = 3;
 
-    const fetchStores = useCallback(async () => {
+    const fetchStores = useCallback(async (page) => {
         try {
-            const response = await fetch(`${API_URL}/api/v1/stores`);
-            console.log("Trạng thái response:", response.status);
+            setIsLoading(true);
+            const response = await fetch(`${API_URL}/api/v1/stores?page=${page}&limit=${ITEMS_PER_PAGE}`);
             if (!response.ok) {
-                throw new Error("Không thể lấy danh sách cửa hàng");
+                throw new Error("Error fetching stores");
             }
             const data = await response.json();
-            // Lọc ra các store có image không phải null
-            const validStores = data.stores.filter(
-                (store) => store.image !== null
-            );
-            setStores(validStores);
-            setFilteredStores(validStores);
+            setStores(data.stores);
+            setFilteredStores(data.stores);
+            setTotalStores(data.total);
         } catch (error) {
-            console.error("Lỗi khi lấy danh sách cửa hàng:", error);
+            console.error("Error fetching stores:", error);
             setStores([]);
             setFilteredStores([]);
         } finally {
@@ -32,9 +34,8 @@ const Stores = () => {
     }, [API_URL]);
 
     useEffect(() => {
-        setIsLoading(true);
-        fetchStores();
-    }, [fetchStores]);
+        fetchStores(currentPage);
+    }, [fetchStores, currentPage]);
 
     const handleSearch = (address) => {
         if (address === "") {
@@ -47,15 +48,19 @@ const Stores = () => {
         }
     };
 
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
     if (isLoading) {
-        return <div>Đang tải...</div>;
+        return <Loading />;
     }
 
     return (
         <section className="py-12">
             <div className="container mx-auto lg:px-0">
                 <div className="text-center mb-8">
-                    <h2 className="font-primary text-[45px] mb-4">STORES</h2>
+                    <h2 className="font-primary text-[45px] mb-4">Stores</h2>
                 </div>
                 <div className="mb-8">
                     <SearchForm onSearch={handleSearch} stores={stores} />
@@ -71,9 +76,15 @@ const Stores = () => {
                             </div>
                         ))
                     ) : (
-                        <p>Không có cửa hàng nào được tìm thấy.</p>
+                        <p>No stores found</p>
                     )}
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalStores}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={handlePageChange}
+                />
             </div>
         </section>
     );
