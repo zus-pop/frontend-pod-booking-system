@@ -5,6 +5,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
 
@@ -20,15 +21,22 @@ export const AuthProvider = ({ children }) => {
         if (response.ok) {
           const data = await response.json();
           setUser(data);
+          return true;
         } else {
-          //localStorage.removeItem('token');
           setUser(null);
+          return false;
         }
       } catch (error) {
-        console.error('Lỗi khi kiểm tra đăng nhập:', error);
-        //localStorage.removeItem('token');
+        console.error('Error checking login status:', error);
         setUser(null);
+        return false;
+      } finally {
+        setIsLoading(false);
       }
+    } else {
+      setUser(null);
+      setIsLoading(false);
+      return false;
     }
   };
 
@@ -46,12 +54,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
-  const redirectToLogin = (from) => {
-    navigate('/auth', { state: { from } });
-  };
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, checkUserLoggedIn, redirectToLogin }}>
+    <AuthContext.Provider value={{ user, login, logout, checkUserLoggedIn, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
