@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { ScrollToTop } from "../components";
 import { hotelRules } from "../constants/data";
@@ -7,6 +8,7 @@ import Loading from "../components/Loading";
 import LoginForm from "../components/LoginForm";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
+
 
 const StoreDetails = () => {
     const { id } = useParams();
