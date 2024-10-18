@@ -7,13 +7,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { getSlotsByPodIdAndDate } from "../utils/api";
+import { getSlotsByPodIdAndDate, makeBooking } from "../utils/api";
 
 const BookingForm = ({ pod }) => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
-    const { user } = useAuth();
+    const { user, checkUserLoggedIn } = useAuth();
     const [selectedDates, setSelectedDates] = useState([
         { id: Date.now(), date: null },
     ]); // Each date has a unique id
@@ -24,6 +24,7 @@ const BookingForm = ({ pod }) => {
     );
     const selectRefs = useRef({});
     const [totalCost, setTotalCost] = useState(0);
+    const { mutate: book } = makeBooking();
 
     // Update totalCost based on selected slots
     useEffect(() => {
@@ -38,10 +39,10 @@ const BookingForm = ({ pod }) => {
 
     const handleBookNow = (e) => {
         e.preventDefault();
+        checkUserLoggedIn();
 
         if (!user) {
-            navigate("/auth", { state: { from: location.pathname } });
-            return;
+            return navigate("/auth", { state: { from: location.pathname } });
         }
 
         const booking = {
@@ -66,8 +67,7 @@ const BookingForm = ({ pod }) => {
             })),
         };
         console.log(submission);
-
-        showToast("Booking function is under development", "info");
+        book(submission);
     };
 
     const getCurrentDate = () => moment().format("YYYY-MM-DD");
