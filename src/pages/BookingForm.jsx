@@ -1,18 +1,19 @@
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import Select from "react-select";
-import { getSlotsByPodIdAndDate } from "../utils/api";
-import { useToast } from "../context/ToastContext";
-import { MdClose } from "react-icons/md";
-import { FaPlus } from "react-icons/fa";
 import ReactDatePicker from "react-datepicker";
+import { FaPlus } from "react-icons/fa";
+import { MdClose } from "react-icons/md";
+import { useLocation, useNavigate } from "react-router-dom";
+import Select from "react-select";
 import { useAuth } from "../context/AuthContext";
-import LoginForm from "../components/LoginForm";
+import { useToast } from "../context/ToastContext";
+import { getSlotsByPodIdAndDate } from "../utils/api";
 
-const BookingForm = ({ pod, onBookNow }) => {
+const BookingForm = ({ pod }) => {
     const { showToast } = useToast();
-    const { user, login } = useAuth();
-    const [showLoginForm, setShowLoginForm] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { user } = useAuth();
     const [selectedDates, setSelectedDates] = useState([null]);
     const slotsForDates = getSlotsByPodIdAndDate(pod.pod_id, selectedDates);
     const [selectedSlots, setSelectedSlots] = useState([]);
@@ -29,20 +30,14 @@ const BookingForm = ({ pod, onBookNow }) => {
         setTotalCost(newTotalCost);
     }, [selectedSlots]);
 
-    const handleLoginSuccess = async (message, token) => {
-        setShowLoginForm(false);
-        await login(token);
-        showToast(message, 'success');
-    };
-
     const handleBookNow = (e) => {
         e.preventDefault();
 
         if (!user) {
-            setShowLoginForm(true);
+            navigate("/auth", { state: { from: location.pathname } });
             return;
         }
-        
+
         const booking = {
             pod_id: pod.pod_id,
         };
@@ -55,13 +50,16 @@ const BookingForm = ({ pod, onBookNow }) => {
         }
         const submission = {
             booking,
-            bookingSlots,
+            bookingSlots: bookingSlots.map((bookingSlot) => ({
+                slot_id: bookingSlot.slot_id,
+                unit_price: bookingSlot.unit_price,
+            })),
         };
         console.log(submission);
 
         showToast("Booking function is under development", "info");
     };
-    
+
     const getCurrentDate = () => {
         return moment().format("YYYY-MM-DD");
     };
@@ -78,19 +76,16 @@ const BookingForm = ({ pod, onBookNow }) => {
               )
             : slotsForDates[index];
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onBookNow(); // Gọi hàm onBookNow được truyền từ PodDetails
-    };
-
     return (
         <>
             <form
-                onSubmit={handleSubmit}
+                onSubmit={handleBookNow}
                 className="py-8 px-6 bg-accent/20 mb-12 rounded-lg"
             >
                 <div className="flex flex-col space-y-4 mb-4">
-                    <h3 className="text-2xl font-primary font-semibold tracking-[1px] mb-4">Your Reservation</h3>
+                    <h3 className="text-2xl font-primary font-semibold tracking-[1px] mb-4">
+                        Your Reservation
+                    </h3>
                     {selectedDates.map((selectedDate, index) => (
                         <div
                             key={index}
@@ -110,7 +105,19 @@ const BookingForm = ({ pod, onBookNow }) => {
                                 >
                                     <MdClose
                                         onClick={() => {
-                                            selectRefs.current[index].clearValue();
+                                            setSelectedDates((prev) =>
+                                                prev.filter(
+                                                    (_, i) => i !== index
+                                                )
+                                            );
+                                            setSelectedSlots((prev) =>
+                                                prev.filter(
+                                                    (_, i) => i !== index
+                                                )
+                                            );
+                                            selectRefs.current[
+                                                index
+                                            ].clearValue();
                                         }}
                                         className="text-red-600 text-xl absolute top-2 right-2 rounded-xl enable:hover:text-red-300 transition-all"
                                     />
@@ -161,7 +168,9 @@ const BookingForm = ({ pod, onBookNow }) => {
                                     Select Slot
                                 </label>
                                 <Select
-                                    ref={(el) => (selectRefs.current[index] = el)}
+                                    ref={(el) =>
+                                        (selectRefs.current[index] = el)
+                                    }
                                     isMulti
                                     autoFocus
                                     isSearchable
@@ -219,14 +228,6 @@ const BookingForm = ({ pod, onBookNow }) => {
                     </button>
                 </div>
             </form>
-
-            {showLoginForm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                    <div className="bg-white p-8 rounded-lg">
-                        <LoginForm onClose={() => setShowLoginForm(false)} onLoginSuccess={handleLoginSuccess} />
-                    </div>
-                </div>
-            )}
         </>
     );
 };
