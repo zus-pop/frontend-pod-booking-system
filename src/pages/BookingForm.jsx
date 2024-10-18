@@ -129,6 +129,7 @@ const BookingForm = ({ pod }) => {
                                     format="YYYY-MM-DD"
                                     todayButton="Today"
                                     placeholderText="Select A Date"
+                                    isClearable
                                     excludeDates={selectedDates.map((date) =>
                                         moment(date).toDate()
                                     )}
