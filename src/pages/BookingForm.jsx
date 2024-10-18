@@ -7,24 +7,31 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { getSlotsByPodIdAndDate } from "../utils/api";
+import { getSlotsByPodIdAndDate, makeBooking } from "../utils/api";
 
 const BookingForm = ({ pod }) => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
-    const { user } = useAuth();
-    const [selectedDates, setSelectedDates] = useState([null]);
-    const slotsForDates = getSlotsByPodIdAndDate(pod.pod_id, selectedDates);
-    const [selectedSlots, setSelectedSlots] = useState([]);
-    const selectRefs = useRef([]);
+    const { user, checkUserLoggedIn } = useAuth();
+    const [selectedDates, setSelectedDates] = useState([
+        { id: Date.now(), date: null },
+    ]); // Each date has a unique id
+    const [selectedSlots, setSelectedSlots] = useState({});
+    const slotsForDates = getSlotsByPodIdAndDate(
+        pod.pod_id,
+        selectedDates.map((dateObj) => dateObj.date)
+    );
+    const selectRefs = useRef({});
     const [totalCost, setTotalCost] = useState(0);
+    const { mutate: book } = makeBooking();
 
+    // Update totalCost based on selected slots
     useEffect(() => {
-        const newTotalCost = selectedSlots
+        const newTotalCost = Object.values(selectedSlots)
             .flat()
             .reduce(
-                (acc, cur) => acc + Number.parseFloat(cur.value.unit_price),
+                (acc, cur) => acc + Number.parseFloat(cur?.unit_price || 0),
                 0
             );
         setTotalCost(newTotalCost);
@@ -32,22 +39,26 @@ const BookingForm = ({ pod }) => {
 
     const handleBookNow = (e) => {
         e.preventDefault();
+        checkUserLoggedIn();
 
         if (!user) {
-            navigate("/auth", { state: { from: location.pathname } });
-            return;
+            return navigate("/auth", { state: { from: location.pathname } });
         }
 
         const booking = {
             pod_id: pod.pod_id,
         };
-        const bookingSlots = selectRefs.current.flatMap((slotsOfDate) =>
-            slotsOfDate ? slotsOfDate.getValue().map((slot) => slot.value) : []
+
+        // Collect all selected slot values
+        const bookingSlots = Object.values(selectRefs.current).flatMap(
+            (ref) => ref?.getValue()?.map((slot) => slot.value) || []
         );
+
         if (!bookingSlots.length) {
             showToast("You haven't chosen any slot yet", "error");
             return;
         }
+
         const submission = {
             booking,
             bookingSlots: bookingSlots.map((bookingSlot) => ({
@@ -56,25 +67,44 @@ const BookingForm = ({ pod }) => {
             })),
         };
         console.log(submission);
-
-        showToast("Booking function is under development", "info");
+        book(submission);
     };
 
-    const getCurrentDate = () => {
-        return moment().format("YYYY-MM-DD");
-    };
+    const getCurrentDate = () => moment().format("YYYY-MM-DD");
 
-    const availableSlotOptions = (index) =>
-        Array.isArray(slotsForDates[index])
-            ? slotsForDates[index].filter(
+    const availableSlotOptions = (id) => {
+        const selectedDateId = selectedDates.findIndex((d) => d.id === id);
+        return Array.isArray(slotsForDates[selectedDateId])
+            ? slotsForDates[selectedDateId].filter(
                   (option) =>
-                      !selectedSlots[index].some(
+                      !selectedSlots[id]?.some(
                           (selectedSlot) =>
-                              selectedSlot.value.slot_id ===
-                              option.value.slot_id
+                              selectedSlot?.slot_id === option.value.slot_id
                       )
               )
-            : slotsForDates[index];
+            : slotsForDates[selectedDateId];
+    };
+
+    // Remove select element based on id
+    const handleRemoveSelect = (id) => {
+        // Remove both the date and slots by unique date id
+        setSelectedDates((prevDates) =>
+            prevDates.filter((dateObj) => dateObj.id !== id)
+        );
+        setSelectedSlots((prevSlots) => {
+            const updatedSlots = { ...prevSlots };
+            delete updatedSlots[id]; // Remove the corresponding slots for that date id
+            return updatedSlots;
+        });
+
+        // Clear the value of the specific select
+        // if (selectRefs.current[id]) {
+        //     selectRefs.current[id].clearValue();
+        // }
+
+        // just let the select cook :/
+        delete selectRefs.current[id];
+    };
 
     return (
         <>
@@ -86,9 +116,9 @@ const BookingForm = ({ pod }) => {
                     <h3 className="text-2xl font-primary font-semibold tracking-[1px] mb-4">
                         Your Reservation
                     </h3>
-                    {selectedDates.map((selectedDate, index) => (
+                    {selectedDates.map((selectedDateObj) => (
                         <div
-                            key={index}
+                            key={selectedDateObj.id}
                             className="flex md:flex-col relative gap-4 bg-white p-4 rounded-lg shadow-md"
                         >
                             <div className="md:w-full">
@@ -102,25 +132,11 @@ const BookingForm = ({ pod }) => {
                                     disabled={selectedDates.length === 1}
                                     className="disabled:opacity-50"
                                     type="button"
+                                    onClick={() =>
+                                        handleRemoveSelect(selectedDateObj.id)
+                                    } // Remove by id
                                 >
-                                    <MdClose
-                                        onClick={() => {
-                                            setSelectedDates((prev) =>
-                                                prev.filter(
-                                                    (_, i) => i !== index
-                                                )
-                                            );
-                                            setSelectedSlots((prev) =>
-                                                prev.filter(
-                                                    (_, i) => i !== index
-                                                )
-                                            );
-                                            selectRefs.current[
-                                                index
-                                            ].clearValue();
-                                        }}
-                                        className="text-red-600 text-xl absolute top-2 right-2 rounded-xl enable:hover:text-red-300 transition-all"
-                                    />
+                                    <MdClose className="text-red-600 text-xl absolute top-2 right-2 rounded-xl enable:hover:text-red-300 transition-all" />
                                 </button>
                                 <ReactDatePicker
                                     isSearchable
@@ -130,33 +146,39 @@ const BookingForm = ({ pod }) => {
                                     todayButton="Today"
                                     placeholderText="Select A Date"
                                     isClearable
-                                    excludeDates={selectedDates.map((date) =>
-                                        moment(date).toDate()
+                                    excludeDates={selectedDates.map((dateObj) =>
+                                        moment(dateObj.date).toDate()
                                     )}
                                     selected={
-                                        selectedDate
-                                            ? moment(selectedDate).toDate()
+                                        selectedDateObj.date
+                                            ? moment(
+                                                  selectedDateObj.date
+                                              ).toDate()
                                             : null
                                     }
                                     minDate={moment(getCurrentDate()).toDate()}
                                     className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent p-2"
                                     onChange={(value) => {
-                                        const newMap = selectedDates.map(
-                                            (date, i) => {
-                                                if (i === index) {
-                                                    selectRefs.current[
-                                                        index
-                                                    ].clearValue();
-                                                    return value
-                                                        ? moment(value).format(
-                                                              "YYYY-MM-DD"
-                                                          )
-                                                        : null;
-                                                }
-                                                return date;
-                                            }
+                                        const updatedDates = selectedDates.map(
+                                            (dateObj) =>
+                                                dateObj.id ===
+                                                selectedDateObj.id
+                                                    ? {
+                                                          ...dateObj,
+                                                          date: value
+                                                              ? moment(
+                                                                    value
+                                                                ).format(
+                                                                    "YYYY-MM-DD"
+                                                                )
+                                                              : null,
+                                                      }
+                                                    : dateObj
                                         );
-                                        setSelectedDates(newMap);
+                                        selectRefs.current[
+                                            selectedDateObj.id
+                                        ]?.clearValue();
+                                        setSelectedDates(updatedDates);
                                     }}
                                 />
                             </div>
@@ -169,18 +191,25 @@ const BookingForm = ({ pod }) => {
                                 </label>
                                 <Select
                                     ref={(el) =>
-                                        (selectRefs.current[index] = el)
+                                        (selectRefs.current[
+                                            selectedDateObj.id
+                                        ] = el)
                                     }
                                     isMulti
                                     autoFocus
                                     isSearchable
                                     isClearable
                                     onChange={(e) => {
-                                        const slotDates = [...selectedSlots];
-                                        slotDates[index] = e;
-                                        setSelectedSlots(slotDates);
+                                        setSelectedSlots((prev) => ({
+                                            ...prev,
+                                            [selectedDateObj.id]: e.map(
+                                                (slot) => slot.value
+                                            ),
+                                        }));
                                     }}
-                                    options={availableSlotOptions(index)}
+                                    options={availableSlotOptions(
+                                        selectedDateObj.id
+                                    )}
                                     isOptionDisabled={(option) =>
                                         !option.value.is_available
                                     }
@@ -196,7 +225,11 @@ const BookingForm = ({ pod }) => {
                         type="button"
                         className="w-full flex justify-center items-center gap-2 font-tertiary text-sm uppercase tracking-[1px] hover:scale-105 transition-all my-4"
                         onClick={() => {
-                            setSelectedDates((prev) => [...prev, ""]);
+                            const newId = Date.now() + Math.random(); // Generate unique id
+                            setSelectedDates((prev) => [
+                                ...prev,
+                                { id: newId, date: null },
+                            ]);
                         }}
                     >
                         Add more slot of other date <FaPlus />

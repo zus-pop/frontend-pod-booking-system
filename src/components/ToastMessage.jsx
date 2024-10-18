@@ -1,13 +1,6 @@
 import React, { useEffect } from 'react';
 
-const ToastMessage = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [onClose]);
+const ToastMessage = ({ message, type }) => {
 
   const typeClasses = {
     success: 'bg-green-500',
