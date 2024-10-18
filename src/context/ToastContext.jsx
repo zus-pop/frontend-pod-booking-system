@@ -10,7 +10,7 @@ export const ToastProvider = ({ children }) => {
 
   const showToast = (message, type = 'info') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 10000);
   };
 
   return (
