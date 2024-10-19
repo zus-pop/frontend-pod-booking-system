@@ -76,3 +76,35 @@ export const makeBooking = () => {
     });
     return { mutate };
 };
+
+export const cancelBook = () => {
+    const API_URL = import.meta.env.VITE_API_URL;
+    const { showToast } = useToast();
+    const { mutate } = useMutation({
+        mutationFn: async (bookingId) => {
+            const response = await fetch(`${API_URL}/api/v1/bookings/${bookingId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ booking_status: "Canceled" }),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
+            return data;
+        },
+        onSuccess: () => {
+            showToast("Canceled", "success");
+        },
+        onMutate: () => {
+            // Show a loading indicator while the mutation is in progress
+            showToast("Processing...");
+        },
+        onError: (err) => {
+            showToast(`${err.message}`, "error");
+        }
+    });
+    return { mutate };
+};

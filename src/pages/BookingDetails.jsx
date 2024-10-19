@@ -14,6 +14,7 @@ import Loading from "../components/Loading";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
 import moment from "moment";
+import { cancelBook } from "../utils/api";
 
 const BookingDetails = () => {
     const { id } = useParams();
@@ -21,20 +22,15 @@ const BookingDetails = () => {
     const [loading, setLoading] = useState(true);
     const API_URL = import.meta.env.VITE_API_URL;
     const { showToast } = useToast();
+    const { mutate: cancelTheBook } = cancelBook();
     const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchBookingDetails = async () => {
             try {
-                const token = localStorage.getItem("token");
                 const response = await fetch(
-                    `${API_URL}/api/v1/bookings/${id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
+                    `${API_URL}/api/v1/bookings/${id}`
                 );
                 if (!response.ok) {
                     throw new Error("Unable to fetch booking information");
@@ -53,35 +49,12 @@ const BookingDetails = () => {
     }, [id, API_URL, showToast]);
 
     const handlePayment = async (payment_url) => {
-        try {
-            window.open(payment_url);
-        } catch (error) {
-            console.error("Error processing payment:", error);
-            showToast("Payment failed", "error");
-        }
+        window.open(payment_url);
     };
 
-    const handleCancel = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(
-                `${API_URL}/api/v1/bookings/${id}/cancel`,
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            if (!response.ok) {
-                throw new Error("Cancellation failed");
-            }
-            const updatedBooking = await response.json();
-            setBooking(updatedBooking);
-            showToast("Booking cancelled successfully", "success");
-        } catch (error) {
-            console.error("Error cancelling booking:", error);
-            showToast("Cancellation failed", "error");
+    const handleCancel = async (booking_id) => {
+        if (confirm("Are you sure want to cancel?")) {
+            cancelTheBook(booking_id);
         }
     };
 
@@ -330,7 +303,9 @@ const BookingDetails = () => {
                                             Pay Now
                                         </button>
                                         <button
-                                            onClick={handleCancel}
+                                            onClick={() =>
+                                                handleCancel(booking.booking_id)
+                                            }
                                             className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-300 flex-1 flex items-center justify-center"
                                         >
                                             <FaExclamationTriangle className="mr-2" />{" "}
