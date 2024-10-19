@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ScrollToTop } from "../components";
 import { hotelRules } from "../constants/data";
@@ -8,7 +7,6 @@ import Loading from "../components/Loading";
 import LoginForm from "../components/LoginForm";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
-
 
 const StoreDetails = () => {
     const { id } = useParams();
@@ -181,7 +179,7 @@ const StoreDetails = () => {
                                 </h3>
                                 <div className="flex-grow">
                                     <p className="text-sm text-gray-600 mb-2">
-                                        Type: {pod.type_id}
+                                        Type: {pod.type.type_name}
                                     </p>
                                     <p className="text-sm text-gray-600">
                                         Status:

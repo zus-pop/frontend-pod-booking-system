@@ -78,7 +78,7 @@ const PodDetails = () => {
                             <div className="grid grid-cols-2 gap-6 mb-12">
                                 <div className="flex items-center gap-x-3">
                                     <div className="text-base">
-                                        Type: {pod.type_id}
+                                        Type: {pod.type.type_name}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-x-3">
