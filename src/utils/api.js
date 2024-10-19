@@ -63,7 +63,7 @@ export const makeBooking = () => {
             console.log(data);
             showToast("Success", "success");
             window.open(data.payment_url);
-            navigate("/booking-history");
+            navigate(`/booking-history/${data.booking_id}`);
         },
         onError: (err) => {
             console.log("Error: ", err.message);

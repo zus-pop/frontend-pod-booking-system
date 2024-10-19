@@ -20,8 +20,8 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/pod/:id" element={<PodDetails />} />
             <Route path="/booking-history" element={<BookingHistory />} />
+            <Route path="/booking-history/:id" element={<BookingDetails />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="/booking/:id" element={<BookingDetails />} />
           </Routes>
           <Footer />
         </AuthProvider>
