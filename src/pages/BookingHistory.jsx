@@ -46,23 +46,19 @@ const BookingHistory = () => {
         if (!(await checkUserLoggedIn())) {
             return navigate("/auth", { state: { from: location.pathname } });
         }
-        const response = await fetch(`${API_URL}/api/v1/google-calendar`);
-        if (response.ok) {
+        try {
+            const response = await fetch(`${API_URL}/api/v1/google-calendar`);
             const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
             window.open(
                 data.redirect_url,
                 "Google-Authenticate",
                 "left=50,top=50,width=600,height=800"
             );
-            window.addEventListener(
-                "message",
-                async (event) => {
-                    if (event.data === "oauth-success") {
-                        sync();
-                    }
-                },
-                { once: true }
-            );
+        } catch (err) {
+            showToast(err.message, "error");
         }
     };
 
@@ -76,8 +72,16 @@ const BookingHistory = () => {
                 fetchBookings();
             }
         };
-
+        const goToCalendar = (event) => {
+            if (event.data === "oauth-success") {
+                sync();
+            }
+        };
         initializeBookingHistory();
+        window.addEventListener("message", goToCalendar);
+        return () => {
+            window.removeEventListener("message", goToCalendar);
+        };
     }, []);
 
     if (isLoading || loading) {
