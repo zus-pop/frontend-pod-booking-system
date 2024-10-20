@@ -108,3 +108,35 @@ export const cancelBook = () => {
     });
     return { mutate };
 };
+
+export const syncGoogleCalendar = () => {
+    const API_URL = import.meta.env.VITE_API_URL;
+    const { showToast } = useToast();
+    const { mutate } = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(`${API_URL}/api/v1/google-calendar/sync`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem('token')}`
+                },
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
+            return data;
+        },
+        onSuccess: (data) => {
+            showToast(data.message, "success");
+        },
+        onMutate: () => {
+            // Show a loading indicator while the mutation is in progress
+            showToast("Syncing...");
+        },
+        onError: (err) => {
+            showToast(`${err.message}`, "error");
+        }
+    });
+    return { mutate };
+};
