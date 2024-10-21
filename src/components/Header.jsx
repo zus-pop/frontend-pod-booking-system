@@ -1,8 +1,7 @@
-import React from 'react';
-import { useStoreContext } from '../context/StoreContext';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogoWhite, LogoDark } from '../assets';
+import { useStoreContext } from '../context/StoreContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -14,21 +13,34 @@ const Header = () => {
   const { user, logout, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const dropdownRef = useRef(null);
+  const headerRef = useRef(null);
+
+  const closeDropdown = useCallback(() => {
+    setShowDropdown(false);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Chỉ áp dụng hiệu ứng cuộn khi không ở trang AuthPage
       if (location.pathname !== '/auth') {
         setHeader(window.scrollY > 50);
       }
     };
 
+    const handleClickOutside = (event) => {
+      if (showDropdown && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
+    document.addEventListener('click', handleClickOutside);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('click', handleClickOutside);
     };
-  }, [location.pathname]);
+  }, [location.pathname, showDropdown]);
 
   const handleLoginClick = () => {
     navigate('/auth', { state: { from: location.pathname } });
@@ -44,18 +56,25 @@ const Header = () => {
     }
   };
 
-  // Xác định xem có nên sử dụng kiểu header tối hay sáng
+  const toggleDropdown = (e) => {
+    e.stopPropagation();
+    setShowDropdown(prev => !prev);
+  };
+
   const isDarkHeader = !header && location.pathname === '/' && location.pathname !== '/auth';
   const isAuthPage = location.pathname === '/auth';
 
   return (
-    <header className={`${
-      isAuthPage 
-        ? 'bg-white py-6 shadow-lg' 
-        : isDarkHeader 
-          ? 'bg-transparent py-8' 
-          : 'bg-white py-6 shadow-lg'
-    } fixed z-50 w-full transition-all duration-300`}>
+    <header 
+      ref={headerRef}
+      className={`${
+        isAuthPage 
+          ? 'bg-white py-6 shadow-lg' 
+          : isDarkHeader 
+            ? 'bg-transparent py-8' 
+            : 'bg-white py-6 shadow-lg'
+      } fixed z-50 w-full transition-all duration-300`}
+    >
       <div className='container mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-y-6 lg:gap-y-0'>
         {/* Logo */}
         <Link to="/" onClick={resetStoreFilterData}>
@@ -74,7 +93,7 @@ const Header = () => {
           {user ? (
             <div className="relative">
               <button
-                onClick={() => setShowDropdown(!showDropdown)}
+                onClick={toggleDropdown}
                 className={`${
                   isDarkHeader ? 'text-white border-white' : 'text-primary border-primary'
                 } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent`}
@@ -82,16 +101,23 @@ const Header = () => {
                 {user.user_name || user.email}
               </button>
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                <div 
+                  ref={dropdownRef}
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
+                  onClick={(e) => e.stopPropagation()} // Ngăn sự kiện lan truyền khi click vào dropdown
+                >
                   <Link
                     to="/booking-history"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setShowDropdown(false)}
+                    onClick={closeDropdown}
                   >
                     Booking History
                   </Link>
                   <button
-                    onClick={handleLogout}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLogout();
+                    }}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Logout

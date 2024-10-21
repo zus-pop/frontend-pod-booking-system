@@ -8,6 +8,7 @@ import { SiGooglecalendar } from "react-icons/si";
 import moment from "moment";
 import Loading from "../components/Loading";
 import { syncGoogleCalendar } from "../utils/api";
+import Pagination from "../components/Pagination";
 
 const BookingHistory = () => {
     const { showToast } = useToast();
@@ -18,14 +19,17 @@ const BookingHistory = () => {
     const [loading, setLoading] = useState(true);
     const API_URL = import.meta.env.VITE_API_URL;
     const { mutate: sync } = syncGoogleCalendar();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalBookings, setTotalBookings] = useState(0);
+    const ITEMS_PER_PAGE = 4;
 
-    const fetchBookings = async () => {
+    const fetchBookings = async (page) => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
                 throw new Error("No token found");
             }
-            const response = await fetch(`${API_URL}/api/v1/auth/bookings`, {
+            const response = await fetch(`${API_URL}/api/v1/auth/bookings?page=${page}&limit=${ITEMS_PER_PAGE}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -34,7 +38,8 @@ const BookingHistory = () => {
                 throw new Error("Failed to fetch bookings");
             }
             const data = await response.json();
-            setBookings(data);
+            setBookings(data.bookings);
+            setTotalBookings(data.total);
         } catch (error) {
             console.error("Error fetching bookings:", error);
         } finally {
@@ -69,7 +74,7 @@ const BookingHistory = () => {
                 navigate("/auth");
                 showToast("Please log in to view booking history", "error");
             } else {
-                fetchBookings();
+                fetchBookings(currentPage);
             }
         };
         const goToCalendar = (event) => {
@@ -82,7 +87,11 @@ const BookingHistory = () => {
         return () => {
             window.removeEventListener("message", goToCalendar);
         };
-    }, []);
+    }, [currentPage]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
 
     if (isLoading || loading) {
         return <Loading />;
@@ -126,63 +135,71 @@ const BookingHistory = () => {
                             </button>
                         </div>
                         {bookings.length > 0 ? (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm text-left text-gray-500">
-                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                                        <tr>
-                                            <th
-                                                scope="col"
-                                                className="px-6 py-3"
-                                            >
-                                                Booking Date
-                                            </th>
-                                            <th
-                                                scope="col"
-                                                className="px-6 py-3"
-                                            >
-                                                Status
-                                            </th>
-                                            <th
-                                                scope="col"
-                                                className="px-6 py-3"
-                                            >
-                                                Details
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {bookings.map((booking) => (
-                                            <tr
-                                                key={booking.booking_id}
-                                                className="bg-white border-b"
-                                            >
-                                                <td className="px-6 py-4">
-                                                    {moment(
-                                                        booking.booking_date
-                                                    ).format(
-                                                        "DD/MM/YYYY HH:mm"
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {booking.booking_status}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleViewDetails(
-                                                                booking.booking_id
-                                                            )
-                                                        }
-                                                        className="font-medium text-blue-600 hover:underline"
-                                                    >
-                                                        View Details
-                                                    </button>
-                                                </td>
+                            <>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm text-left text-gray-500">
+                                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                            <tr>
+                                                <th
+                                                    scope="col"
+                                                    className="px-6 py-3"
+                                                >
+                                                    Booking Date
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="px-6 py-3"
+                                                >
+                                                    Status
+                                                </th>
+                                                <th
+                                                    scope="col"
+                                                    className="px-6 py-3"
+                                                >
+                                                    Details
+                                                </th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody>
+                                            {bookings.map((booking) => (
+                                                <tr
+                                                    key={booking.booking_id}
+                                                    className="bg-white border-b"
+                                                >
+                                                    <td className="px-6 py-4">
+                                                        {moment(
+                                                            booking.booking_date
+                                                        ).format(
+                                                            "DD/MM/YYYY HH:mm"
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        {booking.booking_status}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <button
+                                                            onClick={() =>
+                                                                handleViewDetails(
+                                                                    booking.booking_id
+                                                                )
+                                                            }
+                                                            className="font-medium text-blue-600 hover:underline"
+                                                        >
+                                                            View Details
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalItems={totalBookings}
+                                    itemsPerPage={ITEMS_PER_PAGE}
+                                    onPageChange={handlePageChange}
+                                />
+                            </>
                         ) : (
                             <div className="text-center py-8">
                                 <p className="text-xl text-gray-600">

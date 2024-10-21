@@ -1,3 +1,4 @@
+import React from 'react';
 import { Swiper, SwiperSlide } from "swiper/react";
 import { sliderData } from "../constants/data";
 import { EffectFade, Autoplay } from "swiper";
@@ -15,6 +16,16 @@ const HeroSlider = () => {
                 disableOnInteraction: false,
             }}
             className={`heroSlider h-screen`}
+            onClick={(swiper, event) => {
+                // Đảm bảo sự kiện click lan truyền ra ngoài Swiper
+                event.stopPropagation();
+                const customEvent = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                event.target.dispatchEvent(customEvent);
+            }}
         >
             {sliderData.map(({ id, title, bg }) => (
                 <SwiperSlide
