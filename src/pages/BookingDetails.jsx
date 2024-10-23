@@ -60,6 +60,23 @@ const BookingDetails = () => {
         }
     };
 
+    const getStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'confirmed':
+                return 'bg-green-100 text-green-800';
+            case 'paid':
+                    return 'bg-green-100 text-green-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'canceled':
+                return 'bg-red-100 text-red-800';
+                case 'failed':
+                    return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
     if (loading) {
         return <Loading />;
     }
@@ -113,7 +130,12 @@ const BookingDetails = () => {
                                     <h2 className="text-2xl font-semibold mb-4">Booking Information</h2>
                                     <p><strong>Booking ID:</strong> {booking.booking_id}</p>
                                     <p><strong>Booking Date:</strong> {moment(booking.booking_date).format("DD/MM/YYYY HH:mm")}</p>
-                                    <p><strong>Status:</strong> {booking.booking_status}</p>
+                                    <p>
+                                        <strong>Status:</strong> 
+                                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(booking.booking_status)}`}>
+                                            {booking.booking_status}
+                                        </span>
+                                    </p>
                                 </div>
                             )}
 
@@ -141,7 +163,12 @@ const BookingDetails = () => {
                                     <p><strong>Transaction ID:</strong> {booking.payment.transaction_id}</p>
                                     <p><strong>Total Cost:</strong> {booking.payment.total_cost.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                                     <p><strong>Payment Date:</strong> {moment(booking.payment.payment_date).format("DD/MM/YYYY HH:mm")}</p>
-                                    <p><strong>Payment Status:</strong> {booking.payment.payment_status}</p>
+                                    <p>
+                                        <strong>Payment Status:</strong> 
+                                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(booking.payment.payment_status)}`}>
+                                            {booking.payment.payment_status}
+                                        </span>
+                                    </p>
                                 </div>
                             )}
 
