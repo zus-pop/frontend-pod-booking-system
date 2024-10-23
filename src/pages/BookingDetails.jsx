@@ -202,8 +202,8 @@ const BookingDetails = () => {
                         </div>
 
                         {booking.booking_status === "Pending" && (
-                            <div className="mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
-                                <div className="bg-orange-600 text-white p-4">
+                            <div className="mt-8 bg-white shadow-lg rounded-lg overflow-hidden border border-accent">
+                                <div className="bg-accent text-white p-4">
                                     <h2 className="text-2xl font-semibold flex items-center">
                                         <FaExclamationTriangle className="mr-2" /> Action Required
                                     </h2>
@@ -212,16 +212,16 @@ const BookingDetails = () => {
                                     <p className="mb-4 text-gray-700">
                                         Your booking is pending. Please choose an action:
                                     </p>
-                                    <div className="flex gap-4">
+                                    <div className="flex flex-col sm:flex-row gap-4">
                                         <button
                                             onClick={() => handlePayment(booking.payment.payment_url)}
-                                            className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300 flex-1 flex items-center justify-center"
+                                            className="bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent-dark transition duration-300 flex-1 flex items-center justify-center"
                                         >
                                             <FaCreditCard className="mr-2" /> Pay Now
                                         </button>
                                         <button
                                             onClick={() => handleCancel(booking.booking_id)}
-                                            className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-300 flex-1 flex items-center justify-center"
+                                            className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-300 flex-1 flex items-center justify-center"
                                         >
                                             <FaExclamationTriangle className="mr-2" /> Cancel Booking
                                         </button>
