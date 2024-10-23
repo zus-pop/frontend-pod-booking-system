@@ -11,6 +11,7 @@ import {
     FaInfoCircle,
     FaStore,
     FaCoffee,
+    FaRegClock,
 } from "react-icons/fa";
 import Loading from "../components/Loading";
 import { useToast } from "../context/ToastContext";
@@ -68,11 +69,12 @@ const BookingDetails = () => {
     }
 
     const tabs = [
-        { id: "booking", label: "Booking Information", icon: FaCalendarAlt },
-        { id: "user", label: "User Information", icon: FaUser },
-        { id: "payment", label: "Payment Information", icon: FaCreditCard },
-        { id: "product", label: "Product Information", icon: FaCoffee },
-        { id: "store", label: "Store Information", icon: FaStore },
+        { id: "booking", label: "Booking\nInformation", icon: FaCalendarAlt },
+        { id: "slot", label: "Slot\nInformation", icon: FaRegClock },
+        { id: "user", label: "User\nInformation", icon: FaUser },
+        { id: "payment", label: "Payment\nInformation", icon: FaCreditCard },
+        { id: "product", label: "Product\nInformation", icon: FaCoffee },
+        { id: "store", label: "Store\nInformation", icon: FaStore },
     ];
 
     return (
@@ -87,7 +89,7 @@ const BookingDetails = () => {
                     {/* Left side - Booking Details */}
                     <div className="w-full lg:w-2/3">
                         {/* Navbar */}
-                        <div className="flex justify-between mb-8">
+                        <div className="flex justify-between mb-8 overflow-x-auto">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
@@ -99,7 +101,7 @@ const BookingDetails = () => {
                                     }`}
                                 >
                                     <tab.icon className="text-2xl mb-1" />
-                                    <span className="text-sm">{tab.label}</span>
+                                    <span className="text-sm whitespace-pre-line text-center">{tab.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -112,9 +114,15 @@ const BookingDetails = () => {
                                     <p><strong>Booking ID:</strong> {booking.booking_id}</p>
                                     <p><strong>Booking Date:</strong> {moment(booking.booking_date).format("DD/MM/YYYY HH:mm")}</p>
                                     <p><strong>Status:</strong> {booking.booking_status}</p>
-                                    <p><strong>Slot ID:</strong> {booking.slots[0].slot_id}</p>
-                                    <p><strong>Start Time:</strong> {moment(booking.slots[0].start_time).format("DD/MM/YYYY HH:mm")}</p>
-                                    <p><strong>End Time:</strong> {moment(booking.slots[0].end_time).format("DD/MM/YYYY HH:mm")}</p>
+                                </div>
+                            )}
+
+                            {activeTab === "slot" && (
+                                <div className="p-6">
+                                    <h2 className="text-2xl font-semibold mb-4">Slot Information</h2>
+                                    <p><strong>Slot ID:</strong> 13</p>
+                                    <p><strong>Start Time:</strong> 21/10/2024 08:00</p>
+                                    <p><strong>End Time:</strong> 21/10/2024 08:30</p>
                                 </div>
                             )}
 
