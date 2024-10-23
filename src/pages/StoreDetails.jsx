@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ScrollToTop } from "../components";
 import { hotelRules } from "../constants/data";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
 import Loading from "../components/Loading";
 import LoginForm from "../components/LoginForm";
 import { useToast } from "../context/ToastContext";
@@ -88,10 +88,22 @@ const StoreDetails = () => {
                         <h2 className="h2">{store.store_name}</h2>
 
                         <img
-                            className="mb-8"
+                            className="mb-4"
                             src={store.image}
                             alt={store.store_name}
                         />
+
+                        {/* Thêm địa chỉ và số hotline */}
+                        <div className="mb-8">
+                            <p className="flex items-center mb-2">
+                                <FaMapMarkerAlt className="text-accent mr-2" />
+                                <span>{store.address}</span>
+                            </p>
+                            <p className="flex items-center">
+                                <FaPhone className="text-accent mr-2" />
+                                <span>{store.hotline}</span>
+                            </p>
+                        </div>
 
                         <div className="mt-8">
                             <h3 className="h2 mb-3">About</h3>

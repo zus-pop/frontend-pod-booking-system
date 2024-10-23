@@ -105,8 +105,21 @@ const BookingHistory = () => {
         navigate(`/booking-history/${bookingId}`);
     };
 
+    const getStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'confirmed':
+                return 'bg-green-100 text-green-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'canceled':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
     return (
-        <section className="relative min-h-screen">
+        <section className="relative min-h-screen bg-gray-100">
             <ScrollToTop />
             <div className="absolute inset-0 z-0">
                 <BookingHistorySlider />
@@ -174,7 +187,9 @@ const BookingHistory = () => {
                                                         )}
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        {booking.booking_status}
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(booking.booking_status)}`}>
+                                                            {booking.booking_status}
+                                                        </span>
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <button

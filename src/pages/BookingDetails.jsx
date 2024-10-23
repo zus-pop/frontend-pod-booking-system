@@ -11,6 +11,7 @@ import {
     FaInfoCircle,
     FaStore,
     FaCoffee,
+    FaRegClock,
 } from "react-icons/fa";
 import Loading from "../components/Loading";
 import { useToast } from "../context/ToastContext";
@@ -59,6 +60,23 @@ const BookingDetails = () => {
         }
     };
 
+    const getStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'confirmed':
+                return 'bg-green-100 text-green-800';
+            case 'paid':
+                    return 'bg-green-100 text-green-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'canceled':
+                return 'bg-red-100 text-red-800';
+                case 'failed':
+                    return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
     if (loading) {
         return <Loading />;
     }
@@ -68,11 +86,12 @@ const BookingDetails = () => {
     }
 
     const tabs = [
-        { id: "booking", label: "Booking Information", icon: FaCalendarAlt },
-        { id: "user", label: "User Information", icon: FaUser },
-        { id: "payment", label: "Payment Information", icon: FaCreditCard },
-        { id: "product", label: "Product Information", icon: FaCoffee },
-        { id: "store", label: "Store Information", icon: FaStore },
+        { id: "booking", label: "Booking\nInformation", icon: FaCalendarAlt },
+        { id: "slot", label: "Slot\nInformation", icon: FaRegClock },
+        { id: "user", label: "User\nInformation", icon: FaUser },
+        { id: "payment", label: "Payment\nInformation", icon: FaCreditCard },
+        { id: "product", label: "Product\nInformation", icon: FaCoffee },
+        { id: "store", label: "Store\nInformation", icon: FaStore },
     ];
 
     return (
@@ -87,7 +106,7 @@ const BookingDetails = () => {
                     {/* Left side - Booking Details */}
                     <div className="w-full lg:w-2/3">
                         {/* Navbar */}
-                        <div className="flex justify-between mb-8">
+                        <div className="flex justify-between mb-8 overflow-x-auto">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
@@ -99,7 +118,7 @@ const BookingDetails = () => {
                                     }`}
                                 >
                                     <tab.icon className="text-2xl mb-1" />
-                                    <span className="text-sm">{tab.label}</span>
+                                    <span className="text-sm whitespace-pre-line text-center">{tab.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -111,10 +130,21 @@ const BookingDetails = () => {
                                     <h2 className="text-2xl font-semibold mb-4">Booking Information</h2>
                                     <p><strong>Booking ID:</strong> {booking.booking_id}</p>
                                     <p><strong>Booking Date:</strong> {moment(booking.booking_date).format("DD/MM/YYYY HH:mm")}</p>
-                                    <p><strong>Status:</strong> {booking.booking_status}</p>
-                                    <p><strong>Slot ID:</strong> {booking.slots[0].slot_id}</p>
-                                    <p><strong>Start Time:</strong> {moment(booking.slots[0].start_time).format("DD/MM/YYYY HH:mm")}</p>
-                                    <p><strong>End Time:</strong> {moment(booking.slots[0].end_time).format("DD/MM/YYYY HH:mm")}</p>
+                                    <p>
+                                        <strong>Status:</strong> 
+                                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(booking.booking_status)}`}>
+                                            {booking.booking_status}
+                                        </span>
+                                    </p>
+                                </div>
+                            )}
+
+                            {activeTab === "slot" && (
+                                <div className="p-6">
+                                    <h2 className="text-2xl font-semibold mb-4">Slot Information</h2>
+                                    <p><strong>Slot ID:</strong> 13</p>
+                                    <p><strong>Start Time:</strong> 21/10/2024 08:00</p>
+                                    <p><strong>End Time:</strong> 21/10/2024 08:30</p>
                                 </div>
                             )}
 
@@ -133,7 +163,12 @@ const BookingDetails = () => {
                                     <p><strong>Transaction ID:</strong> {booking.payment.transaction_id}</p>
                                     <p><strong>Total Cost:</strong> {booking.payment.total_cost.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                                     <p><strong>Payment Date:</strong> {moment(booking.payment.payment_date).format("DD/MM/YYYY HH:mm")}</p>
-                                    <p><strong>Payment Status:</strong> {booking.payment.payment_status}</p>
+                                    <p>
+                                        <strong>Payment Status:</strong> 
+                                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(booking.payment.payment_status)}`}>
+                                            {booking.payment.payment_status}
+                                        </span>
+                                    </p>
                                 </div>
                             )}
 
@@ -167,8 +202,8 @@ const BookingDetails = () => {
                         </div>
 
                         {booking.booking_status === "Pending" && (
-                            <div className="mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
-                                <div className="bg-orange-600 text-white p-4">
+                            <div className="mt-8 bg-white shadow-lg rounded-lg overflow-hidden border border-accent">
+                                <div className="bg-accent text-white p-4">
                                     <h2 className="text-2xl font-semibold flex items-center">
                                         <FaExclamationTriangle className="mr-2" /> Action Required
                                     </h2>
@@ -177,16 +212,16 @@ const BookingDetails = () => {
                                     <p className="mb-4 text-gray-700">
                                         Your booking is pending. Please choose an action:
                                     </p>
-                                    <div className="flex gap-4">
+                                    <div className="flex flex-col sm:flex-row gap-4">
                                         <button
                                             onClick={() => handlePayment(booking.payment.payment_url)}
-                                            className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300 flex-1 flex items-center justify-center"
+                                            className="bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent-dark transition duration-300 flex-1 flex items-center justify-center"
                                         >
                                             <FaCreditCard className="mr-2" /> Pay Now
                                         </button>
                                         <button
                                             onClick={() => handleCancel(booking.booking_id)}
-                                            className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-300 flex-1 flex items-center justify-center"
+                                            className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-300 flex-1 flex items-center justify-center"
                                         >
                                             <FaExclamationTriangle className="mr-2" /> Cancel Booking
                                         </button>
