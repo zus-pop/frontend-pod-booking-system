@@ -1,9 +1,10 @@
 import React from 'react';
-import { HeroSlider } from '../components';
+import { HeroSlider, ScrollToTop } from '../components';
 
 const About = () => {
   return (
     <div>
+      <ScrollToTop />
       <HeroSlider />
       <div className="container mx-auto py-24">
         <h1 className="text-4xl font-bold mb-8">About Poddy Coffee and Workspace</h1>

@@ -22,7 +22,7 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (location.pathname !== '/auth') {
+      if (location.pathname !== '/auth' && location.pathname !== '/booking-details') {
         setHeader(window.scrollY > 50);
       }
     };
@@ -61,7 +61,7 @@ const Header = () => {
     setShowDropdown(prev => !prev);
   };
 
-  const isDarkHeader = !header && location.pathname === '/' && location.pathname !== '/auth';
+  const isDarkHeader = !header && (location.pathname === '/' || location.pathname === '/about' || location.pathname === '/solutions' || location.pathname === '/places' || location.pathname === '/contact') && location.pathname !== '/auth';
   const isAuthPage = location.pathname === '/auth';
 
   return (
