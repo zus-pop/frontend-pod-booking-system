@@ -27,35 +27,42 @@ const BookingDetails = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const { showToast } = useToast();
     const { mutate: cancelTheBook } = cancelBook();
-    const { user } = useAuth();
+    const { user, isLoading: isAuthLoading } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!user) {
+        if (!isAuthLoading && !user) {
             navigate('/');
-            showToast('Please log in to view booking information', 'info');
+            showToast('Please login to view booking information', 'info');
         }
-    }, [user, navigate, showToast]);
+    }, [user, isAuthLoading, navigate, showToast]);
 
     useEffect(() => {
         const fetchBookingDetails = async () => {
+            if (!user) return; // Không fetch nếu chưa có user
             try {
-                const response = await fetch(`${API_URL}/api/v1/bookings/${id}`);
+                const response = await fetch(`${API_URL}/api/v1/bookings/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
                 if (!response.ok) {
                     throw new Error("Unable to fetch booking information");
                 }
                 const data = await response.json();
                 setBooking(data);
             } catch (error) {
-                console.error("Error fetching booking information:", error);
-                showToast("Unable to fetch booking information", "error");
+                console.error("Error fetching booking details:", error);
+                showToast("Unable to fetch booking details", "error");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchBookingDetails();
-    }, [id, API_URL, showToast]);
+        if (!isAuthLoading) {
+            fetchBookingDetails();
+        }
+    }, [id, API_URL, showToast, user, isAuthLoading]);
 
     const handlePayment = async (payment_url) => {
         window.open(payment_url);
@@ -84,8 +91,12 @@ const BookingDetails = () => {
         }
     };
 
-    if (loading) {
+    if (isAuthLoading || loading) {
         return <Loading />;
+    }
+
+    if (!user) {
+        return null; // Hoặc có thể hiển thị một thông báo yêu cầu đăng nhập
     }
 
     if (!booking) {
