@@ -16,6 +16,9 @@ const Header = () => {
   const location = useLocation();
   const dropdownRef = useRef(null);
   const headerRef = useRef(null);
+  const [notifications, setNotifications] = useState([]);
+  const [totalNotifications, setTotalNotifications] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const closeDropdown = useCallback(() => {
     setShowDropdown(false);
@@ -42,6 +45,34 @@ const Header = () => {
       document.removeEventListener('click', handleClickOutside);
     };
   }, [location.pathname, showDropdown]);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/notifications?page=1&limit=10`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch notifications');
+      }
+      const data = await response.json();
+      setNotifications(data.notifications);
+      setTotalNotifications(data.total);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+  };
 
   const handleLoginClick = () => {
     navigate('/auth', { state: { from: location.pathname } });
@@ -93,14 +124,34 @@ const Header = () => {
           
           {/* Biểu tượng thông báo chỉ hiển thị khi user đã đăng nhập */}
           {user && (
-            <button className={`${
-              isDarkHeader ? 'text-white hover:text-accent' : 'text-primary hover:text-accent'
-            } transition relative`}>
-              <FaBell className="text-xl" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                3
-              </span>
-            </button>
+            <div className="relative">
+              <button 
+                onClick={toggleNotifications}
+                className={`${
+                  isDarkHeader ? 'text-white hover:text-accent' : 'text-primary hover:text-accent'
+                } transition relative`}
+              >
+                <FaBell className="text-xl" />
+                {totalNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {totalNotifications}
+                  </span>
+                )}
+              </button>
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-50">
+                  {notifications.length > 0 ? (
+                    notifications.map((notification, index) => (
+                      <div key={index} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        {notification.message}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-sm text-gray-700">No notifications</div>
+                  )}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Nút đăng nhập hoặc tên người dùng */}
