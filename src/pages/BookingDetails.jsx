@@ -27,28 +27,42 @@ const BookingDetails = () => {
     const API_URL = import.meta.env.VITE_API_URL;
     const { showToast } = useToast();
     const { mutate: cancelTheBook } = cancelBook();
-    const { user } = useAuth();
+    const { user, isLoading: isAuthLoading } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!isAuthLoading && !user) {
+            navigate('/');
+            showToast('Please login to view booking information', 'info');
+        }
+    }, [user, isAuthLoading, navigate, showToast]);
+
+    useEffect(() => {
         const fetchBookingDetails = async () => {
+            if (!user) return; // Không fetch nếu chưa có user
             try {
-                const response = await fetch(`${API_URL}/api/v1/bookings/${id}`);
+                const response = await fetch(`${API_URL}/api/v1/bookings/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
                 if (!response.ok) {
                     throw new Error("Unable to fetch booking information");
                 }
                 const data = await response.json();
                 setBooking(data);
             } catch (error) {
-                console.error("Error fetching booking information:", error);
-                showToast("Unable to fetch booking information", "error");
+                console.error("Error fetching booking details:", error);
+                showToast("Unable to fetch booking details", "error");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchBookingDetails();
-    }, [id, API_URL, showToast]);
+        if (!isAuthLoading) {
+            fetchBookingDetails();
+        }
+    }, [id, API_URL, showToast, user, isAuthLoading]);
 
     const handlePayment = async (payment_url) => {
         window.open(payment_url);
@@ -77,8 +91,12 @@ const BookingDetails = () => {
         }
     };
 
-    if (loading) {
+    if (isAuthLoading || loading) {
         return <Loading />;
+    }
+
+    if (!user) {
+        return null; // Hoặc có thể hiển thị một thông báo yêu cầu đăng nhập
     }
 
     if (!booking) {
@@ -142,9 +160,18 @@ const BookingDetails = () => {
                             {activeTab === "slot" && (
                                 <div className="p-6">
                                     <h2 className="text-2xl font-semibold mb-4">Slot Information</h2>
-                                    <p><strong>Slot ID:</strong> 13</p>
-                                    <p><strong>Start Time:</strong> 21/10/2024 08:00</p>
-                                    <p><strong>End Time:</strong> 21/10/2024 08:30</p>
+                                    {booking.slots && booking.slots.length > 0 ? (
+                                        booking.slots.map((slot, index) => (
+                                            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                                                <p><strong>Slot ID:</strong> {slot.slot_id}</p>
+                                                <p><strong>Start Time:</strong> {moment(slot.start_time).format("DD/MM/YYYY HH:mm")}</p>
+                                                <p><strong>End Time:</strong> {moment(slot.end_time).format("DD/MM/YYYY HH:mm")}</p>
+                                                <p><strong>Price:</strong> {slot.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No slot information available for this booking.</p>
+                                    )}
                                 </div>
                             )}
 

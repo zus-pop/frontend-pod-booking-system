@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollToTop } from "../components";
 import { hotelRules } from "../constants/data";
 import { useParams, useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import Loading from "../components/Loading";
 import LoginForm from "../components/LoginForm";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
+import Pagination from "../components/Pagination";
 
 const StoreDetails = () => {
     const { id } = useParams();
@@ -14,10 +15,13 @@ const StoreDetails = () => {
     const [pods, setPods] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showLoginForm, setShowLoginForm] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPods, setTotalPods] = useState(0);
     const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { login } = useAuth();
+    const ITEMS_PER_PAGE = 3;
 
     useEffect(() => {
         const fetchStoreDetails = async () => {
@@ -30,24 +34,26 @@ const StoreDetails = () => {
                 const data = await response.json();
                 setStore(data);
 
-                // Fetch pods for this store
+                // Fetch pods for this store with pagination
                 const podsResponse = await fetch(
-                    `${API_URL}/api/v1/stores/${id}/pods`
+                    `${API_URL}/api/v1/stores/${id}/pods?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
                 );
                 if (!podsResponse.ok) {
                     throw new Error("Không thể lấy danh sách pods");
                 }
                 const podsData = await podsResponse.json();
-                setPods(podsData);
+                setPods(podsData.pods);
+                setTotalPods(podsData.total);
             } catch (error) {
                 console.error("Lỗi khi lấy thông tin:", error);
+                showToast("Không thể lấy thông tin cửa hàng hoặc pods", "error");
             } finally {
-                setTimeout(() => setLoading(false), 500);
+                setLoading(false);
             }
         };
 
         fetchStoreDetails();
-    }, [id, API_URL]);
+    }, [id, API_URL, showToast, currentPage]);
 
     const handleViewDetails = (podId) => {
         navigate(`/pod/${podId}`);
@@ -57,6 +63,10 @@ const StoreDetails = () => {
         setShowLoginForm(false);
         await login(token);
         showToast(message, "success");
+    };
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
     };
 
     if (loading) {
@@ -220,6 +230,12 @@ const StoreDetails = () => {
                         </div>
                     ))}
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalPods}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={handlePageChange}
+                />
             </div>
 
             {showLoginForm && (

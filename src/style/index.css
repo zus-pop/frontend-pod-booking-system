@@ -69,3 +69,18 @@
     @apply bg-white text-[#0a0a0a];
   }
 }
+
+/* Thêm vào cuối file */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: #a37d4c;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: #FFFFFF;
+}
