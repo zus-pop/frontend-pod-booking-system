@@ -4,6 +4,7 @@ import { LogoWhite, LogoDark } from '../assets';
 import { useStoreContext } from '../context/StoreContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { FaBell } from 'react-icons/fa';
 
 const Header = () => {
   const { resetStoreFilterData } = useStoreContext();
@@ -89,6 +90,19 @@ const Header = () => {
           <Link to="/solutions" className='transition hover:text-accent'>Solutions</Link>
           <Link to="/places" className='transition hover:text-accent'>Places</Link>
           <Link to="/contact" className='transition hover:text-accent'>Contact</Link>
+          
+          {/* Biểu tượng thông báo chỉ hiển thị khi user đã đăng nhập */}
+          {user && (
+            <button className={`${
+              isDarkHeader ? 'text-white hover:text-accent' : 'text-primary hover:text-accent'
+            } transition relative`}>
+              <FaBell className="text-xl" />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                3
+              </span>
+            </button>
+          )}
+
           {/* Nút đăng nhập hoặc tên người dùng */}
           {user ? (
             <div className="relative">
