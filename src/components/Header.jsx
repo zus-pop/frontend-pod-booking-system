@@ -21,6 +21,7 @@ const Header = () => {
   const [totalNotifications, setTotalNotifications] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const notificationRef = useRef(null);
 
   const closeDropdown = useCallback(() => {
     setShowDropdown(false);
@@ -37,6 +38,9 @@ const Header = () => {
       if (showDropdown && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
+      if (showNotifications && notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -46,7 +50,7 @@ const Header = () => {
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [location.pathname, showDropdown]);
+  }, [location.pathname, showDropdown, showNotifications]);
 
   useEffect(() => {
     if (user) {
@@ -77,7 +81,8 @@ const Header = () => {
     }
   };
 
-  const toggleNotifications = () => {
+  const toggleNotifications = (e) => {
+    e.stopPropagation();
     setShowNotifications(!showNotifications);
   };
 
@@ -187,25 +192,30 @@ const Header = () => {
                 )}
               </button>
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-50">
+                <div ref={notificationRef} className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-50">
                   <div className="px-4 py-2 bg-gray-100 border-b border-gray-200">
                     <h3 className="text-sm font-medium text-gray-700 uppercase tracking-wide">Notifications</h3>
                   </div>
-                  <div className="max-h-96 overflow-y-auto">
+                  <div className="max-h-96 overflow-y-auto custom-scrollbar">
                     {notifications.length > 0 ? (
                       notifications.map((notification) => (
                         <div 
                           key={notification.notification_id}
                           className={`px-4 py-3 border-b border-gray-100 ${
-                            notification.is_read ? 'bg-white' : 'bg-blue-50'
+                            notification.is_read ? 'bg-white' : 'bg-blue-100'
                           } hover:bg-gray-50 transition duration-150 ease-in-out cursor-pointer`}
                           onClick={() => handleReadNotification(notification.notification_id)}
                         >
-                          <p className="text-xs font-normal text-black tracking-wide capitalize">{notification.message}</p>
+                          <p className="text-sm font-sans text-gray-800 tracking-wide capitalize mb-1">
+                            {notification.message}
+                          </p>
+                          <p className="text-xs font-sans text-gray-500 capitalize">
+                            {moment(notification.created_at).fromNow().replace(/\b\w/g, c => c.toUpperCase())}
+                          </p>
                         </div>
                       ))
                     ) : (
-                      <div className="px-4 py-3 text-center text-gray-500">
+                      <div className="px-4 py-3 text-center text-gray-500 font-sans">
                         No new notifications
                       </div>
                     )}
@@ -213,7 +223,7 @@ const Header = () => {
                   {notifications.length >= 10 && (
                     <div className="px-4 py-2 bg-gray-100 border-t border-gray-200">
                       <button 
-                        className="text-xs font-normal text-accent hover:underline w-full text-center capitalize tracking-wide"
+                        className="text-xs font-sans text-accent hover:underline w-full text-center capitalize tracking-wide"
                         onClick={() => {/* Xử lý xem tất cả thông báo */}}
                       >
                         View all notifications
