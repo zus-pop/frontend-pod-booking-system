@@ -22,6 +22,8 @@ const Header = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const notificationRef = useRef(null);
+  const [allNotifications, setAllNotifications] = useState([]);
+  const [isViewingAll, setIsViewingAll] = useState(false);
 
   const closeDropdown = useCallback(() => {
     setShowDropdown(false);
@@ -54,13 +56,13 @@ const Header = () => {
 
   useEffect(() => {
     if (user) {
-      fetchNotifications();
+      loadInitialNotifications();
     }
   }, [user]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (page = 1, limit = 10) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/notifications?page=1&limit=10`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/notifications?page=${page}&limit=${limit}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -69,16 +71,34 @@ const Header = () => {
         throw new Error('Failed to fetch notifications');
       }
       const data = await response.json();
-      setNotifications(data.notifications);
-      
-      // Tính toán số lượng thông báo chưa đọc
-      const unreadNotifications = data.notifications.filter(notification => !notification.is_read);
-      setUnreadCount(unreadNotifications.length);
-      
-      console.log('Unread count:', unreadNotifications.length); // Kiểm tra log
+      return data;
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      return null;
     }
+  };
+
+  const loadInitialNotifications = async () => {
+    const data = await fetchNotifications();
+    if (data) {
+      setNotifications(data.notifications);
+      setTotalNotifications(data.total);
+      updateUnreadCount(data.notifications);
+    }
+  };
+
+  const loadAllNotifications = async () => {
+    const data = await fetchNotifications(1, totalNotifications);
+    if (data) {
+      setAllNotifications(data.notifications);
+      updateUnreadCount(data.notifications);
+      setIsViewingAll(true);
+    }
+  };
+
+  const updateUnreadCount = (notificationsList) => {
+    const unreadNotifications = notificationsList.filter(notification => !notification.is_read);
+    setUnreadCount(unreadNotifications.length);
   };
 
   const toggleNotifications = (e) => {
@@ -110,6 +130,10 @@ const Header = () => {
   const isDarkHeader = !header && (location.pathname === '/' || location.pathname === '/about' || location.pathname === '/solutions' || location.pathname === '/places' || location.pathname === '/contact') && location.pathname !== '/auth';
   const isAuthPage = location.pathname === '/auth';
 
+  const handleViewAllNotifications = () => {
+    loadAllNotifications();
+  };
+
   const handleReadNotification = async (notificationId) => {
     try {
       if (!notificationId) {
@@ -129,19 +153,17 @@ const Header = () => {
         throw new Error(errorData.message || 'Failed to mark notification as read');
       }
 
-      // Cập nhật state local
-      setNotifications(prevNotifications =>
-        prevNotifications.map(notification =>
-          notification.notification_id === notificationId ? { ...notification, is_read: true } : notification
-        )
+      // Sau khi cập nhật trạng thái đã đọc
+      const updatedNotifications = isViewingAll ? allNotifications : notifications;
+      const updatedList = updatedNotifications.map(notification =>
+        notification.notification_id === notificationId ? { ...notification, is_read: true } : notification
       );
-
-      // Cập nhật số lượng thông báo chưa đọc
-      setUnreadCount(prevCount => {
-        const newCount = prevCount > 0 ? prevCount - 1 : 0;
-        console.log('New unread count:', newCount); // Thêm log để kiểm tra
-        return newCount;
-      });
+      if (isViewingAll) {
+        setAllNotifications(updatedList);
+      } else {
+        setNotifications(updatedList);
+      }
+      updateUnreadCount(updatedList);
 
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -197,8 +219,8 @@ const Header = () => {
                     <h3 className="text-sm font-medium text-gray-700 uppercase tracking-wide">Notifications</h3>
                   </div>
                   <div className="max-h-96 overflow-y-auto custom-scrollbar">
-                    {notifications.length > 0 ? (
-                      notifications.map((notification) => (
+                    {(isViewingAll ? allNotifications : notifications).length > 0 ? (
+                      (isViewingAll ? allNotifications : notifications).map((notification) => (
                         <div 
                           key={notification.notification_id}
                           className={`px-4 py-3 border-b border-gray-100 ${
@@ -220,11 +242,11 @@ const Header = () => {
                       </div>
                     )}
                   </div>
-                  {notifications.length >= 10 && (
+                  {!isViewingAll && notifications.length >= 10 && (
                     <div className="px-4 py-2 bg-gray-100 border-t border-gray-200">
                       <button 
                         className="text-xs font-sans text-accent hover:underline w-full text-center capitalize tracking-wide"
-                        onClick={() => {/* Xử lý xem tất cả thông báo */}}
+                        onClick={handleViewAllNotifications}
                       >
                         View all notifications
                       </button>
@@ -254,10 +276,10 @@ const Header = () => {
                 >
                   <Link
                     to="/booking-history"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 capitalize"
                     onClick={closeDropdown}
                   >
-                    Booking History
+                    Booking history
                   </Link>
                   <button
                     onClick={(e) => {
