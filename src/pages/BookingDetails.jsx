@@ -31,6 +31,13 @@ const BookingDetails = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!user) {
+            navigate('/');
+            showToast('Please log in to view booking information', 'info');
+        }
+    }, [user, navigate, showToast]);
+
+    useEffect(() => {
         const fetchBookingDetails = async () => {
             try {
                 const response = await fetch(`${API_URL}/api/v1/bookings/${id}`);
@@ -142,9 +149,18 @@ const BookingDetails = () => {
                             {activeTab === "slot" && (
                                 <div className="p-6">
                                     <h2 className="text-2xl font-semibold mb-4">Slot Information</h2>
-                                    <p><strong>Slot ID:</strong> 13</p>
-                                    <p><strong>Start Time:</strong> 21/10/2024 08:00</p>
-                                    <p><strong>End Time:</strong> 21/10/2024 08:30</p>
+                                    {booking.slots && booking.slots.length > 0 ? (
+                                        booking.slots.map((slot, index) => (
+                                            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                                                <p><strong>Slot ID:</strong> {slot.slot_id}</p>
+                                                <p><strong>Start Time:</strong> {moment(slot.start_time).format("DD/MM/YYYY HH:mm")}</p>
+                                                <p><strong>End Time:</strong> {moment(slot.end_time).format("DD/MM/YYYY HH:mm")}</p>
+                                                <p><strong>Price:</strong> {slot.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No slot information available for this booking.</p>
+                                    )}
                                 </div>
                             )}
 

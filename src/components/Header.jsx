@@ -5,6 +5,7 @@ import { useStoreContext } from '../context/StoreContext';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { FaBell } from 'react-icons/fa';
+import moment from 'moment';
 
 const Header = () => {
   const { resetStoreFilterData } = useStoreContext();
@@ -19,6 +20,7 @@ const Header = () => {
   const [notifications, setNotifications] = useState([]);
   const [totalNotifications, setTotalNotifications] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const closeDropdown = useCallback(() => {
     setShowDropdown(false);
@@ -64,7 +66,12 @@ const Header = () => {
       }
       const data = await response.json();
       setNotifications(data.notifications);
-      setTotalNotifications(data.total);
+      
+      // Tính toán số lượng thông báo chưa đọc
+      const unreadNotifications = data.notifications.filter(notification => !notification.is_read);
+      setUnreadCount(unreadNotifications.length);
+      
+      console.log('Unread count:', unreadNotifications.length); // Kiểm tra log
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
@@ -82,9 +89,11 @@ const Header = () => {
     logout();
     setShowDropdown(false);
     showToast('Logged out successfully', 'success');
-    if (location.pathname === '/booking-history') {
+    
+    // Kiểm tra nếu đang ở trang booking history hoặc booking detail
+    if (location.pathname === '/booking-history' || location.pathname.startsWith('/booking-details')) {
       navigate('/');
-      showToast('Please log in to view booking history', 'info');
+      showToast('Please log in to view booking information', 'info');
     }
   };
 
@@ -95,6 +104,45 @@ const Header = () => {
 
   const isDarkHeader = !header && (location.pathname === '/' || location.pathname === '/about' || location.pathname === '/solutions' || location.pathname === '/places' || location.pathname === '/contact') && location.pathname !== '/auth';
   const isAuthPage = location.pathname === '/auth';
+
+  const handleReadNotification = async (notificationId) => {
+    try {
+      if (!notificationId) {
+        throw new Error('Notification ID is undefined');
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to mark notification as read');
+      }
+
+      // Cập nhật state local
+      setNotifications(prevNotifications =>
+        prevNotifications.map(notification =>
+          notification.notification_id === notificationId ? { ...notification, is_read: true } : notification
+        )
+      );
+
+      // Cập nhật số lượng thông báo chưa đọc
+      setUnreadCount(prevCount => {
+        const newCount = prevCount > 0 ? prevCount - 1 : 0;
+        console.log('New unread count:', newCount); // Thêm log để kiểm tra
+        return newCount;
+      });
+
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      showToast('Failed to mark notification as read', 'error');
+    }
+  };
 
   return (
     <header 
@@ -132,22 +180,45 @@ const Header = () => {
                 } transition relative`}
               >
                 <FaBell className="text-xl" />
-                {totalNotifications > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                    {totalNotifications}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount}
                   </span>
                 )}
               </button>
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-50">
-                  {notifications.length > 0 ? (
-                    notifications.map((notification, index) => (
-                      <div key={index} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        {notification.message}
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-50">
+                  <div className="px-4 py-2 bg-gray-100 border-b border-gray-200">
+                    <h3 className="text-sm font-medium text-gray-700 uppercase tracking-wide">Notifications</h3>
+                  </div>
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      notifications.map((notification) => (
+                        <div 
+                          key={notification.notification_id}
+                          className={`px-4 py-3 border-b border-gray-100 ${
+                            notification.is_read ? 'bg-white' : 'bg-blue-50'
+                          } hover:bg-gray-50 transition duration-150 ease-in-out cursor-pointer`}
+                          onClick={() => handleReadNotification(notification.notification_id)}
+                        >
+                          <p className="text-xs font-normal text-black tracking-wide capitalize">{notification.message}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-center text-gray-500">
+                        No new notifications
                       </div>
-                    ))
-                  ) : (
-                    <div className="px-4 py-2 text-sm text-gray-700">No notifications</div>
+                    )}
+                  </div>
+                  {notifications.length >= 10 && (
+                    <div className="px-4 py-2 bg-gray-100 border-t border-gray-200">
+                      <button 
+                        className="text-xs font-normal text-accent hover:underline w-full text-center capitalize tracking-wide"
+                        onClick={() => {/* Xử lý xem tất cả thông báo */}}
+                      >
+                        View all notifications
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
