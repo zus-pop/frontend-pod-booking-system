@@ -77,18 +77,25 @@ const BookingDetails = () => {
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
             case 'confirmed':
-                return 'bg-green-100 text-green-800';
+            case 'complete':
             case 'paid':
-                    return 'bg-green-100 text-green-800';
+                return 'bg-green-100 text-green-800';
             case 'pending':
                 return 'bg-yellow-100 text-yellow-800';
             case 'canceled':
+            case 'failed':
                 return 'bg-red-100 text-red-800';
-                case 'failed':
-                    return 'bg-red-100 text-red-800';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
+    };
+
+    // Sửa lại hàm tính tổng tiền
+    const calculateTotalAmount = (payments) => {
+        if (!payments || !Array.isArray(payments) || payments.length === 0) {
+            return 0;
+        }
+        return payments.reduce((total, payment) => total + payment.total_cost, 0);
     };
 
     if (isAuthLoading || loading) {
@@ -116,7 +123,7 @@ const BookingDetails = () => {
         <section className="bg-gray-100 min-h-screen">
             <ScrollToTop />
             <div className="container mx-auto py-24 px-4">
-                <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">
+                <h1 className="text-4xl font-tertiary tracking-[1px] mb-8 text-center text-gray-800">
                     Booking Details
                 </h1>
                 
@@ -154,6 +161,7 @@ const BookingDetails = () => {
                                             {booking.booking_status}
                                         </span>
                                     </p>
+                                    <p><strong>Total Amount:</strong> {calculateTotalAmount(booking.payment).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
                                 </div>
                             )}
 
@@ -186,16 +194,25 @@ const BookingDetails = () => {
                             {activeTab === "payment" && (
                                 <div className="p-6">
                                     <h2 className="text-2xl font-semibold mb-4">Payment Information</h2>
-                                    <p><strong>Payment ID:</strong> {booking.payment.payment_id}</p>
-                                    <p><strong>Transaction ID:</strong> {booking.payment.transaction_id}</p>
-                                    <p><strong>Total Cost:</strong> {booking.payment.total_cost.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-                                    <p><strong>Payment Date:</strong> {moment(booking.payment.payment_date).format("DD/MM/YYYY HH:mm")}</p>
-                                    <p>
-                                        <strong>Payment Status:</strong> 
-                                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(booking.payment.payment_status)}`}>
-                                            {booking.payment.payment_status}
-                                        </span>
-                                    </p>
+                                    {booking.payment && booking.payment.length > 0 ? (
+                                        booking.payment.map((payment, index) => (
+                                            <div key={payment.payment_id} className="mb-6 pb-6 border-b border-gray-200 last:border-b-0">
+                                                <h3 className="text-xl font-semibold mb-2">Payment {index + 1}</h3>
+                                                <p><strong>Payment ID:</strong> {payment.payment_id}</p>
+                                                <p><strong>Transaction ID:</strong> {payment.transaction_id}</p>
+                                                <p><strong>Total Cost:</strong> {payment.total_cost.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                                <p><strong>Payment Date:</strong> {moment(payment.payment_date).format("DD/MM/YYYY HH:mm")}</p>
+                                                <p>
+                                                    <strong>Payment Status:</strong> 
+                                                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(payment.payment_status)}`}>
+                                                        {payment.payment_status}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No payment information available.</p>
+                                    )}
                                 </div>
                             )}
 
@@ -241,7 +258,7 @@ const BookingDetails = () => {
                                     </p>
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         <button
-                                            onClick={() => handlePayment(booking.payment.payment_url)}
+                                            onClick={() => handlePayment(booking.payments[booking.payments.length - 1].payment_url)}
                                             className="bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent-dark transition duration-300 flex-1 flex items-center justify-center"
                                         >
                                             <FaCreditCard className="mr-2" /> Pay Now
