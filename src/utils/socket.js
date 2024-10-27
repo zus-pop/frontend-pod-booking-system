@@ -23,12 +23,12 @@ export const initializeSocket = (token) => {
             console.log('Error connecting to server: ', err.message);
         });
     }
+    return socket;
 };
-
-export const getSocket = () => socket;
 
 export const disconnectSocket = () => {
     if (socket) {
         socket.close();
+        socket = null;
     }
 };
