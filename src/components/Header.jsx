@@ -387,7 +387,7 @@ const Header = () => {
                                 >
                                     <Link
                                         to="/booking-history"
-                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 capitalize"
+                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 capitalize font-tertiary tracking-[1px]"
                                         onClick={closeDropdown}
                                     >
                                         Booking history
@@ -397,9 +397,9 @@ const Header = () => {
                                             e.stopPropagation();
                                             handleLogout();
                                         }}
-                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-tertiary tracking-[1px]"
                                     >
-                                        Logout
+                                        Log out
                                     </button>
                                 </div>
                             )}
