@@ -65,7 +65,11 @@ const BookingDetails = () => {
     }, [id, API_URL, showToast, user, isAuthLoading]);
 
     const handlePayment = async (payment_url) => {
-        window.open(payment_url);
+        if (!payment_url) {
+            showToast("Payment URL not found", "error");
+            return;
+        }
+        window.open(payment_url, "_blank");
     };
 
     const handleCancel = async (booking_id) => {
@@ -258,7 +262,7 @@ const BookingDetails = () => {
                                     </p>
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         <button
-                                            onClick={() => handlePayment(booking.payments[booking.payments.length - 1].payment_url)}
+                                            onClick={() => handlePayment(booking.payment[booking.payment.length - 1].payment_url)}
                                             className="bg-accent text-white px-6 py-3 rounded-lg hover:bg-accent-dark transition duration-300 flex-1 flex items-center justify-center"
                                         >
                                             <FaCreditCard className="mr-2" /> Pay Now

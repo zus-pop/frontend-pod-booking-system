@@ -1,41 +1,67 @@
-import React, { useState } from 'react';
-import { useStoreContext } from '../context/StoreContext';
+import React, { useState, useEffect, useCallback } from 'react';
 import Store from '../components/Store';
 import { HeroSlider } from '../components';
+import Loading from '../components/Loading';
+import Pagination from '../components/Pagination';
 
 const Places = () => {
-  const { stores } = useStoreContext();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [stores, setStores] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalStores, setTotalStores] = useState(0);
+  const API_URL = import.meta.env.VITE_API_URL;
+  const ITEMS_PER_PAGE = 3;
 
-  const filteredStores = stores.filter(store => 
-    store.district.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const fetchStores = useCallback(async (page) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${API_URL}/api/v1/stores?page=${page}&limit=${ITEMS_PER_PAGE}`);
+      if (!response.ok) {
+        throw new Error("Error fetching stores");
+      }
+      const data = await response.json();
+      setStores(data.stores);
+      setTotalStores(data.total);
+    } catch (error) {
+      console.error("Error fetching stores:", error);
+      setStores([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [API_URL]);
+
+  useEffect(() => {
+    fetchStores(currentPage);
+  }, [fetchStores, currentPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div>
       <HeroSlider />
       <div className="container mx-auto py-24">
-        <div className="mb-8">
-          <input 
-            type="text" 
-            placeholder="Search by district" 
-            className="w-full p-2 border rounded"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex">
-          <div className="w-1/2 pr-4">
-            <div className="flex flex-col space-y-4">
-              {filteredStores.map(store => (
-                <Store key={store.id} store={store} />
-              ))}
+        <div className="flex flex-col space-y-8 max-w-4xl mx-auto">
+          {stores.map(store => (
+            <div key={store.store_id} className="w-full">
+              <Store store={store} />
             </div>
-          </div>
-          <div className="w-1/2 pl-4">
-            {/* Here you would integrate a map component */}
-            <div className="bg-gray-200 h-full rounded">Map placeholder</div>
-          </div>
+          ))}
+          {totalStores > ITEMS_PER_PAGE && (
+            <div className="mt-8">
+              <Pagination
+                currentPage={currentPage}
+                totalItems={totalStores}
+                itemsPerPage={ITEMS_PER_PAGE}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
