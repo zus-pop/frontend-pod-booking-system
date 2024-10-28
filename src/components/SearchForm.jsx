@@ -1,44 +1,36 @@
 import { useState, useEffect } from 'react';
+import { FaSearch } from 'react-icons/fa';
 
-const SearchForm = ({ onSearch, stores }) => {
-  const [selectedAddress, setSelectedAddress] = useState('');
-  const [addresses, setAddresses] = useState(['All Address']);
+const SearchForm = ({ onSearch }) => {
+  const [searchValue, setSearchValue] = useState('');
 
-  useEffect(() => {
-    if (stores && stores.length > 0) {
-      const uniqueAddresses = ['All Address', ...new Set(stores.map(store => store.address))];
-      setAddresses(uniqueAddresses);
-    }
-  }, [stores]);
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    // Gọi onSearch ngay khi giá trị thay đổi
+    onSearch(value);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(selectedAddress === 'All Address' ? '' : selectedAddress);
-  };
-
-  const handleAddressChange = (e) => {
-    setSelectedAddress(e.target.value);
+    onSearch(searchValue);
   };
 
   return (
-    <form onSubmit={handleSubmit} className='h-[50px] w-full'>
-      <div className='flex w-full h-full'>
-        <div className='flex-1'>
-          <select
-            value={selectedAddress}
-            onChange={handleAddressChange}
-            className='w-full h-full px-4 text-sm text-primary outline-none cursor-pointer bg-white border border-gray-300 rounded-l-md focus:ring-2 focus:ring-accent transition-all duration-300 ease-in-out'
-          >
-            {addresses.map((address, index) => (
-              <option key={index} value={address}>{address}</option>
-            ))}
-          </select>
-        </div>
-        <button
-          type='submit'
-          className='btn btn-primary rounded-r-md px-6 text-sm font-sans bg-black text-white hover:bg-accent transition-all duration-300 ease-in-out uppercase tracking-wider'
+    <form onSubmit={handleSubmit} className='h-[50px] w-full max-w-[600px] mx-auto'>
+      <div className='relative flex w-full h-full'>
+        <input
+          type="text"
+          value={searchValue}
+          onChange={handleInputChange}
+          placeholder="Search by district..."
+          className='w-full h-full px-4 pr-12 text-sm text-primary outline-none bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-accent transition-all duration-300 ease-in-out'
+        />
+        <button 
+          type="submit"
+          className='absolute right-0 h-full px-4 text-gray-500 hover:text-accent transition-colors duration-300'
         >
-          Search
+          <FaSearch />
         </button>
       </div>
     </form>
