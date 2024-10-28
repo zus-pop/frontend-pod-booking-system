@@ -49,7 +49,12 @@ const StoreDetails = () => {
                 // Fetch tất cả pods không giới hạn limit
                 const podsResponse = await fetch(`${API_URL}/api/v1/stores/${id}/pods?limit=100`);
                 if (!podsResponse.ok) {
-                    throw new Error("Không thể lấy danh sách pods");
+                    // Thay vì throw error, set mảng rỗng cho pods
+                    setAllPods([]);
+                    setFilteredPods([]);
+                    setDisplayedPods([]);
+                    setTotalPods(0);
+                    return;
                 }
                 const podsData = await podsResponse.json();
                 
@@ -61,7 +66,7 @@ const StoreDetails = () => {
                 
             } catch (error) {
                 console.error("Lỗi khi lấy thông tin:", error);
-                showToast("Không thể lấy thông tin cửa hàng hoặc pods", "error");
+                showToast("Không thể lấy thông tin cửa hàng", "error");
             } finally {
                 setLoading(false);
             }
@@ -225,92 +230,99 @@ const StoreDetails = () => {
             <div className="container mx-auto mt-8 mb-24">
                 <h2 className="font-primary text-[45px] mb-8">Pod List</h2>
                 
-                {/* Thay SearchForm bằng filter buttons */}
-                <div className="flex justify-start gap-4 mb-12"> {/* Thay đổi từ justify-center thành justify-start */}
-                    <button
-                        onClick={() => handleFilterByType('')}
-                        className={`px-6 py-3 rounded-md flex items-center gap-2 transition-all duration-300 ${
-                            !searchTerm 
-                            ? 'bg-accent text-white' 
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                        }`}
-                    >
-                        All Pods
-                    </button>
-                    {POD_TYPES.map((type) => (
-                        <button
-                            key={type.id}
-                            onClick={() => handleFilterByType(type.name)}
-                            className={`px-6 py-3 rounded-md flex items-center gap-2 transition-all duration-300 ${
-                                searchTerm === type.name 
-                                ? 'bg-accent text-white' 
-                                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                            }`}
-                        >
-                            <type.icon className="text-lg" />
-                            {type.name}
-                        </button>
-                    ))}
-                </div>
+                {allPods.length > 0 ? (
+                    <>
+                        {/* Filter buttons */}
+                        <div className="flex justify-start gap-4 mb-12">
+                            <button
+                                onClick={() => handleFilterByType('')}
+                                className={`px-6 py-3 rounded-md flex items-center gap-2 transition-all duration-300 ${
+                                    !searchTerm 
+                                    ? 'bg-accent text-white' 
+                                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                }`}
+                            >
+                                All Pods
+                            </button>
+                            {POD_TYPES.map((type) => (
+                                <button
+                                    key={type.id}
+                                    onClick={() => handleFilterByType(type.name)}
+                                    className={`px-6 py-3 rounded-md flex items-center gap-2 transition-all duration-300 ${
+                                        searchTerm === type.name 
+                                        ? 'bg-accent text-white' 
+                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                                    }`}
+                                >
+                                    <type.icon className="text-lg" />
+                                    {type.name}
+                                </button>
+                            ))}
+                        </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px] mt-8">
-                    {displayedPods.map((pod) => (
-                        <div
-                            key={pod.pod_id}
-                            className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 hover:-translate-y-2"
-                        >
-                            <div className="w-full h-48 bg-gray-300">
-                                <img
-                                    src={pod.image}
-                                    alt={pod.pod_name}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            <div className="p-4 flex-grow flex flex-col">
-                                <h3 className="font-primary text-xl mb-2 transition-colors duration-200 ease-in-out hover:text-accent">
-                                    {pod.pod_name}
-                                </h3>
-                                <div className="flex-grow">
-                                    <p className="text-sm text-gray-600 mb-2">
-                                        Type: {pod.type.type_name}
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                        Status:
-                                        <span
-                                            className={
-                                                pod.is_available
-                                                    ? "text-green-500"
-                                                    : "text-red-500"
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px] mt-8">
+                            {displayedPods.map((pod) => (
+                                <div
+                                    key={pod.pod_id}
+                                    className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 hover:-translate-y-2"
+                                >
+                                    <div className="w-full h-48 bg-gray-300">
+                                        <img
+                                            src={pod.image}
+                                            alt={pod.pod_name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="p-4 flex-grow flex flex-col">
+                                        <h3 className="font-primary text-xl mb-2 transition-colors duration-200 ease-in-out hover:text-accent">
+                                            {pod.pod_name}
+                                        </h3>
+                                        <div className="flex-grow">
+                                            <p className="text-sm text-gray-600 mb-2">
+                                                Type: {pod.type.type_name}
+                                            </p>
+                                            <p className="text-sm text-gray-600">
+                                                Status:
+                                                <span
+                                                    className={
+                                                        pod.is_available
+                                                            ? "text-green-500"
+                                                            : "text-red-500"
+                                                    }
+                                                >
+                                                    {pod.is_available
+                                                        ? " Available"
+                                                        : " Unavailable"}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <button
+                                            className="w-full text-center mt-4 py-2 text-sm font-sans bg-black text-white hover:bg-accent transition-colors duration-200 ease-in-out uppercase tracking-wider"
+                                            onClick={() =>
+                                                handleViewDetails(pod.pod_id)
                                             }
                                         >
-                                            {pod.is_available
-                                                ? " Available"
-                                                : " Unavailable"}
-                                        </span>
-                                    </p>
+                                            View Details
+                                        </button>
+                                    </div>
                                 </div>
-                                <button
-                                    className="w-full text-center mt-4 py-2 text-sm font-sans bg-black text-white hover:bg-accent transition-colors duration-200 ease-in-out uppercase tracking-wider"
-                                    onClick={() =>
-                                        handleViewDetails(pod.pod_id)
-                                    }
-                                >
-                                    View Details
-                                </button>
-                            </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
 
-                {/* Sửa lại đi���u kiện hiển thị phân trang */}
-                <div className="mt-8 flex justify-center">
-                    <Pagination
-                        currentPage={currentPage}
-                        totalItems={searchTerm ? filteredPods.length : allPods.length}
-                        itemsPerPage={ITEMS_PER_PAGE}
-                        onPageChange={handlePageChange}
-                    />
-                </div>
+                        <div className="mt-8 flex justify-center">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalItems={searchTerm ? filteredPods.length : allPods.length}
+                                itemsPerPage={ITEMS_PER_PAGE}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    </>
+                ) : (
+                    <div className="text-center py-8">
+                        <p className="text-xl text-gray-600">No PODs available at this store yet.</p>
+                    </div>
+                )}
             </div>
 
             {showLoginForm && (
