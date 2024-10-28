@@ -2,12 +2,19 @@ import React, { useState, useEffect } from "react";
 import { ScrollToTop } from "../components";
 import { hotelRules } from "../constants/data";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaCheck, FaMapMarkerAlt, FaPhone } from "react-icons/fa";
+import { FaCheck, FaMapMarkerAlt, FaPhone, FaUsers, FaUser } from "react-icons/fa";
 import Loading from "../components/Loading";
 import LoginForm from "../components/LoginForm";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
 import Pagination from "../components/Pagination";
+import SearchForm from "../components/SearchForm";
+
+const POD_TYPES = [
+    { id: 1, name: 'Single POD', icon: FaUser },
+    { id: 2, name: 'Double POD', icon: FaUsers },
+    { id: 3, name: 'Meeting Room', icon: FaUsers }
+];
 
 const StoreDetails = () => {
     const { id } = useParams();
@@ -22,11 +29,16 @@ const StoreDetails = () => {
     const { showToast } = useToast();
     const { login } = useAuth();
     const ITEMS_PER_PAGE = 3;
+    const [allPods, setAllPods] = useState([]); // Lưu tất cả pods
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredPods, setFilteredPods] = useState([]); // Lưu kết quả search
+    const [displayedPods, setDisplayedPods] = useState([]); // Lưu pods đang hiển thị
 
     useEffect(() => {
         const fetchStoreDetails = async () => {
             try {
                 setLoading(true);
+                // Fetch store info
                 const response = await fetch(`${API_URL}/api/v1/stores/${id}`);
                 if (!response.ok) {
                     throw new Error("Không thể lấy thông tin cửa hàng");
@@ -34,16 +46,19 @@ const StoreDetails = () => {
                 const data = await response.json();
                 setStore(data);
 
-                // Fetch pods for this store with pagination
-                const podsResponse = await fetch(
-                    `${API_URL}/api/v1/stores/${id}/pods?page=${currentPage}&limit=${ITEMS_PER_PAGE}`
-                );
+                // Fetch tất cả pods không giới hạn limit
+                const podsResponse = await fetch(`${API_URL}/api/v1/stores/${id}/pods?limit=100`);
                 if (!podsResponse.ok) {
                     throw new Error("Không thể lấy danh sách pods");
                 }
                 const podsData = await podsResponse.json();
-                setPods(podsData.pods);
-                setTotalPods(podsData.total);
+                
+                const allPodsArray = podsData.pods;
+                setAllPods(allPodsArray);
+                setFilteredPods(allPodsArray);
+                setDisplayedPods(allPodsArray.slice(0, ITEMS_PER_PAGE));
+                setTotalPods(allPodsArray.length);
+                
             } catch (error) {
                 console.error("Lỗi khi lấy thông tin:", error);
                 showToast("Không thể lấy thông tin cửa hàng hoặc pods", "error");
@@ -53,7 +68,7 @@ const StoreDetails = () => {
         };
 
         fetchStoreDetails();
-    }, [id, API_URL, showToast, currentPage]);
+    }, [id, API_URL, showToast]);
 
     const handleViewDetails = (podId) => {
         navigate(`/pod/${podId}`);
@@ -65,8 +80,35 @@ const StoreDetails = () => {
         showToast(message, "success");
     };
 
+    const handleFilterByType = (typeName) => {
+        setSearchTerm(typeName);
+        setCurrentPage(1);
+
+        if (!typeName) {
+            // Nếu bỏ filter, hiển thị lại tất cả theo phân trang
+            setFilteredPods(allPods);
+            setDisplayedPods(allPods.slice(0, ITEMS_PER_PAGE));
+            setTotalPods(allPods.length);
+        } else {
+            // Lọc pods theo type
+            const filtered = allPods.filter(pod => 
+                pod.type.type_name === typeName
+            );
+            setFilteredPods(filtered);
+            setDisplayedPods(filtered.slice(0, ITEMS_PER_PAGE));
+            setTotalPods(filtered.length);
+        }
+    };
+
     const handlePageChange = (page) => {
         setCurrentPage(page);
+        const startIndex = (page - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        
+        const podsToDisplay = searchTerm ? filteredPods : allPods;
+        setDisplayedPods(podsToDisplay.slice(startIndex, endIndex));
+        console.log('Page changed:', page); // Để debug
+        console.log('Displayed pods:', podsToDisplay.slice(startIndex, endIndex)); // Để debug
     };
 
     if (loading) {
@@ -103,7 +145,7 @@ const StoreDetails = () => {
                             alt={store.store_name}
                         />
 
-                        {/* Thêm địa chỉ và số hotline */}
+                        {/* Thêm địa chỉ và s hotline */}
                         <div className="mb-8">
                             <p className="flex items-center mb-2">
                                 <FaMapMarkerAlt className="text-accent mr-2" />
@@ -182,8 +224,37 @@ const StoreDetails = () => {
 
             <div className="container mx-auto mt-8 mb-24">
                 <h2 className="font-primary text-[45px] mb-8">Pod List</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px]">
-                    {pods.map((pod) => (
+                
+                {/* Thay SearchForm bằng filter buttons */}
+                <div className="flex justify-start gap-4 mb-12"> {/* Thay đổi từ justify-center thành justify-start */}
+                    <button
+                        onClick={() => handleFilterByType('')}
+                        className={`px-6 py-3 rounded-md flex items-center gap-2 transition-all duration-300 ${
+                            !searchTerm 
+                            ? 'bg-accent text-white' 
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
+                    >
+                        All Pods
+                    </button>
+                    {POD_TYPES.map((type) => (
+                        <button
+                            key={type.id}
+                            onClick={() => handleFilterByType(type.name)}
+                            className={`px-6 py-3 rounded-md flex items-center gap-2 transition-all duration-300 ${
+                                searchTerm === type.name 
+                                ? 'bg-accent text-white' 
+                                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                            }`}
+                        >
+                            <type.icon className="text-lg" />
+                            {type.name}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[30px] mt-8">
+                    {displayedPods.map((pod) => (
                         <div
                             key={pod.pod_id}
                             className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 hover:-translate-y-2"
@@ -230,12 +301,16 @@ const StoreDetails = () => {
                         </div>
                     ))}
                 </div>
-                <Pagination
-                    currentPage={currentPage}
-                    totalItems={totalPods}
-                    itemsPerPage={ITEMS_PER_PAGE}
-                    onPageChange={handlePageChange}
-                />
+
+                {/* Sửa lại đi���u kiện hiển thị phân trang */}
+                <div className="mt-8 flex justify-center">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalItems={searchTerm ? filteredPods.length : allPods.length}
+                        itemsPerPage={ITEMS_PER_PAGE}
+                        onPageChange={handlePageChange}
+                    />
+                </div>
             </div>
 
             {showLoginForm && (
