@@ -71,6 +71,7 @@ const BookingForm = ({ pod }) => {
     };
 
     const getCurrentDate = () => moment().format("YYYY-MM-DD");
+    const getMaxDate = () => moment().add(7, 'days').format("YYYY-MM-DD");
 
     const availableSlotOptions = (id) => {
         const selectedDateId = selectedDates.findIndex((d) => d.id === id);
@@ -126,7 +127,7 @@ const BookingForm = ({ pod }) => {
                                     htmlFor="reservationDate"
                                     className="block text-sm font-medium text-gray-700 mb-2"
                                 >
-                                    Select Date
+                                    Select Date (Within 7 days)
                                 </label>
                                 <button
                                     disabled={selectedDates.length === 1}
@@ -134,7 +135,7 @@ const BookingForm = ({ pod }) => {
                                     type="button"
                                     onClick={() =>
                                         handleRemoveSelect(selectedDateObj.id)
-                                    } // Remove by id
+                                    }
                                 >
                                     <MdClose className="text-red-600 text-xl absolute top-2 right-2 rounded-xl enable:hover:text-red-300 transition-all" />
                                 </button>
@@ -157,6 +158,7 @@ const BookingForm = ({ pod }) => {
                                             : null
                                     }
                                     minDate={moment(getCurrentDate()).toDate()}
+                                    maxDate={moment(getMaxDate()).toDate()}
                                     className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent p-2"
                                     onChange={(value) => {
                                         const updatedDates = selectedDates.map(
