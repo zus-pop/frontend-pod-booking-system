@@ -164,7 +164,7 @@ const StoreDetails = () => {
 
                         <div className="mt-8">
                             <h3 className="h2 mb-3">About</h3>
-                            <p className="mb-8">
+                            <p className="mb-4">
                                 The Poddy offers a delightful blend of
                                 functionality and ambiance, making it an ideal
                                 place to relax or get work done. With a range of
@@ -181,7 +181,7 @@ const StoreDetails = () => {
                             {/* icons grid */}
                             {store.facilities &&
                                 store.facilities.length > 0 && (
-                                    <div className="grid grid-cols-3 gap-6 mb-12">
+                                    <div className="grid grid-cols-3 gap-6 mb-4">
                                         {store.facilities.map((item, index) => (
                                             <div
                                                 key={index}
@@ -203,7 +203,7 @@ const StoreDetails = () => {
                     {/* ➡️➡️➡️ right side ➡️➡️➡️ */}
                     <div className="w-full lg:w-[40%] h-full">
                         {/* reservation */}
-                        <div className="py-8 px-6 bg-accent/20 mb-12">
+                        <div className="py-6 px-6 bg-accent/20 mb-8">
                             <h3 className="h3 mb-4">Store Rules</h3>
                             <div className="bg-white p-4 rounded-lg">
                                 <p className="mb-6 text-justify">
@@ -227,8 +227,8 @@ const StoreDetails = () => {
                 </div>
             </div>
 
-            <div className="container mx-auto mt-8 mb-24">
-                <h2 className="font-primary text-[45px] mb-8">Pod List</h2>
+            <div className="container mx-auto mt-4 mb-24">
+                <h2 className="font-primary text-[45px] mb-6">Pod List</h2>
                 
                 {allPods.length > 0 ? (
                     <>

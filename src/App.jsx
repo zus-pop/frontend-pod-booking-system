@@ -5,7 +5,6 @@ import {
     About,
     Solutions,
     Places,
-    Contact,
     PodDetails,
     BookingHistory,
     AuthPage,
@@ -28,7 +27,6 @@ function App() {
                         <Route path="/about" element={<About />} />
                         <Route path="/solutions" element={<Solutions />} />
                         <Route path="/places" element={<Places />} />
-                        <Route path="/contact" element={<Contact />} />
                         <Route path="/pod/:id" element={<PodDetails />} />
                         <Route
                             path="/booking-history"

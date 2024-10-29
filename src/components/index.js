@@ -8,3 +8,5 @@ export { default as Store } from './Store';
 export { default as FetchData } from './FetchData';
 
 export { default as ScrollToTop } from '../utils/ScrollToTop';
+
+export { default as Logo } from './Logo';
