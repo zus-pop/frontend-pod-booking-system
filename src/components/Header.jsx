@@ -168,7 +168,6 @@ const Header = () => {
     const isDarkHeader =
         !header &&
         (location.pathname === "/" ||
-            location.pathname === "/about" ||
             location.pathname === "/solutions" ||
             location.pathname === "/places" ||
             location.pathname === "/contact" ||
@@ -234,17 +233,15 @@ const Header = () => {
         <header
             ref={headerRef}
             className={`${
-                isAuthPage
-                    ? "bg-white py-6 shadow-lg"
-                    : isDarkHeader
-                    ? "bg-transparent py-8"
-                    : "bg-white py-6 shadow-lg"
-            } fixed z-50 w-full transition-all duration-300`}
+                location.pathname === "/about" || header
+                    ? "bg-white shadow-lg py-6"
+                    : "bg-transparent py-8"
+            } fixed w-full z-50 transition-all duration-300`}
         >
             <div className="container mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-y-6 lg:gap-y-0">
                 {/* Logo */}
                 <Link to="/" onClick={resetStoreFilterData}>
-                    <Logo isDark={header} />
+                    <Logo isDark={location.pathname === "/about" || header || !isDarkHeader} />
                 </Link>
 
                 {/* Nav */}
