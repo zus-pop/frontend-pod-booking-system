@@ -2,7 +2,7 @@ import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaBell } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LogoDark, LogoWhite } from "../assets";
+import { Logo } from "../assets";
 import { useAuth } from "../context/AuthContext";
 import { useStoreContext } from "../context/StoreContext";
 import { useToast } from "../context/ToastContext";
@@ -171,7 +171,9 @@ const Header = () => {
             location.pathname === "/about" ||
             location.pathname === "/solutions" ||
             location.pathname === "/places" ||
-            location.pathname === "/contact") &&
+            location.pathname === "/contact" ||
+            location.pathname.startsWith("/store/") ||
+            location.pathname.startsWith("/pod/")) &&
         location.pathname !== "/auth";
     const isAuthPage = location.pathname === "/auth";
 
@@ -242,11 +244,7 @@ const Header = () => {
             <div className="container mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-y-6 lg:gap-y-0">
                 {/* Logo */}
                 <Link to="/" onClick={resetStoreFilterData}>
-                    {isDarkHeader ? (
-                        <LogoWhite className="w-[160px]" />
-                    ) : (
-                        <LogoDark className="w-[160px]" />
-                    )}
+                    <Logo isDark={header} />
                 </Link>
 
                 {/* Nav */}

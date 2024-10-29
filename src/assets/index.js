@@ -3,8 +3,7 @@ import Slider2 from './img/heroSlider/2.jpg';
 import Slider3 from './img/heroSlider/3.jpg';
 import NewLogo from './img/Poddy.jpg';
 
-export { ReactComponent as LogoDark } from './img/logo-dark.svg';
-export { ReactComponent as LogoWhite } from './img/logo-white.svg';
+import Logo from '../components/Logo';
 
 const images = {
     Slider1,
@@ -13,4 +12,5 @@ const images = {
     NewLogo,
 }
 
+export { Logo };
 export default images;
