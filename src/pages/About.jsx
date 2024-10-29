@@ -44,7 +44,7 @@ const About = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
           {/* Feature 1 */}
           <div className="text-center p-6 rounded-lg border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 ">
               <svg className="w-8 h-8 text-accent" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm3 3a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z"/>
               </svg>
@@ -55,7 +55,7 @@ const About = () => {
 
           {/* Feature 2 */}
           <div className="text-center p-6 rounded-lg border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 ">
               <svg className="w-8 h-8 text-accent" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"/>
               </svg>
@@ -66,7 +66,7 @@ const About = () => {
 
           {/* Feature 3 */}
           <div className="text-center p-6 rounded-lg border border-gray-100 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 ">
               <svg className="w-8 h-8 text-accent" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M15.293 5.293a1 1 0 011.414 0l1 1a1 1 0 010 1.414l-9 9a1 1 0 01-1.414 0l-5-5a1 1 0 011.414-1.414L8 13.586l7.293-7.293z"/>
               </svg>

@@ -2,7 +2,7 @@ import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaBell } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Logo } from "../assets";
+import { Logo } from "../components";
 import { useAuth } from "../context/AuthContext";
 import { useStoreContext } from "../context/StoreContext";
 import { useToast } from "../context/ToastContext";

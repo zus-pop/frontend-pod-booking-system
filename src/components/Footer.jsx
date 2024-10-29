@@ -1,4 +1,4 @@
-import { Logo } from "../assets";
+import Logo from './Logo';
 
 const Footer = () => (
   <footer className='bg-primary py-12'>
