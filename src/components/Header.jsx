@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FaBell } from "react-icons/fa";
+import { FaBell, FaBars, FaTimes } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Logo } from "../components";
 import { useAuth } from "../context/AuthContext";
@@ -25,6 +25,8 @@ const Header = () => {
     const notificationRef = useRef(null);
     const [allNotifications, setAllNotifications] = useState([]);
     const [isViewingAll, setIsViewingAll] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const mobileMenuRef = useRef(null);
 
     const closeDropdown = useCallback(() => {
         setShowDropdown(false);
@@ -47,12 +49,33 @@ const Header = () => {
     useEffect(() => {
         const handleScroll = () => {
             if (
-                location.pathname !== "/auth" &&
-                location.pathname !== "/booking-details"
+                location.pathname === "/" || 
+                location.pathname.startsWith("/store/") ||
+                location.pathname.startsWith("/pod/") ||
+                location.pathname === "/solutions" ||
+                location.pathname === "/places"
             ) {
                 setHeader(window.scrollY > 50);
+            } else if (
+                location.pathname === "/about" || 
+                location.pathname === "/auth" ||
+                location.pathname === "/booking-history" ||
+                location.pathname.startsWith("/booking-history/")
+            ) {
+                setHeader(true);
             }
         };
+
+        if (
+            location.pathname === "/about" || 
+            location.pathname === "/auth" ||
+            location.pathname === "/booking-history" ||
+            location.pathname.startsWith("/booking-history/")
+        ) {
+            setHeader(true);
+        } else if (location.pathname !== "/booking-history") {
+            setHeader(window.scrollY > 50);
+        }
 
         const handleClickOutside = (event) => {
             if (
@@ -69,6 +92,14 @@ const Header = () => {
             ) {
                 setShowNotifications(false);
             }
+            if (
+                isMobileMenuOpen &&
+                mobileMenuRef.current &&
+                !mobileMenuRef.current.contains(event.target) &&
+                !event.target.closest('button[aria-label="Toggle mobile menu"]')
+            ) {
+                setIsMobileMenuOpen(false);
+            }
         };
 
         window.addEventListener("scroll", handleScroll);
@@ -78,7 +109,7 @@ const Header = () => {
             window.removeEventListener("scroll", handleScroll);
             document.removeEventListener("click", handleClickOutside);
         };
-    }, [location.pathname, showDropdown, showNotifications]);
+    }, [location.pathname]);
 
     useEffect(() => {
         if (user) {
@@ -165,16 +196,12 @@ const Header = () => {
         setShowDropdown((prev) => !prev);
     };
 
-    const isDarkHeader =
-        !header &&
-        (location.pathname === "/" ||
-            location.pathname === "/solutions" ||
-            location.pathname === "/places" ||
-            location.pathname === "/contact" ||
-            location.pathname.startsWith("/store/") ||
-            location.pathname.startsWith("/pod/")) &&
-        location.pathname !== "/auth";
-    const isAuthPage = location.pathname === "/auth";
+    const isDarkHeader = 
+        location.pathname === "/" || 
+        location.pathname.startsWith("/store/") ||
+        location.pathname.startsWith("/pod/") ||
+        location.pathname === "/solutions" ||
+        location.pathname === "/places";
 
     const handleViewAllNotifications = () => {
         loadAllNotifications();
@@ -229,65 +256,99 @@ const Header = () => {
         }
     };
 
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+    };
+
     return (
         <header
             ref={headerRef}
             className={`${
-                location.pathname === "/about" || header
-                    ? "bg-white shadow-lg py-6"
-                    : "bg-transparent py-8"
-            } fixed w-full z-50 transition-all duration-300`}
+                header ? "bg-white py-6 shadow-lg" : "py-8"
+            } fixed z-50 w-full transition-all duration-300`}
         >
-            <div className="container mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-y-6 lg:gap-y-0">
+            <div className="container mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-y-4 lg:gap-y-0 px-4">
                 {/* Logo */}
-                <Link to="/" onClick={resetStoreFilterData}>
-                    <Logo isDark={location.pathname === "/about" || header || !isDarkHeader} />
+                <Link
+                    to="/"
+                    className="flex items-center"
+                    onClick={() => {
+                        resetStoreFilterData();
+                        setIsMobileMenuOpen(false);
+                    }}
+                >
+                    <Logo isDark={header || !isDarkHeader} />
                 </Link>
 
-                {/* Nav */}
+                {/* Navigation menu - responsive */}
                 <nav
-                    className={`${isDarkHeader ? "text-white" : "text-primary"}
-        flex gap-x-4 lg:gap-x-8 font-tertiary tracking-[3px] text-[15px] items-center uppercase`}
+                    ref={mobileMenuRef}
+                    className={`${
+                        isMobileMenuOpen ? "flex bg-white shadow-lg" : "hidden"
+                    } lg:flex flex-col lg:flex-row lg:items-center lg:gap-x-4 mt-4 lg:mt-0 px-4 lg:px-0 pb-4 lg:pb-0 ${
+                        header ? "lg:bg-transparent" : "lg:bg-transparent"
+                    }`}
                 >
-                    <Link to="/" className="transition hover:text-accent">
-                        Home
+                    <Link
+                        to="/"
+                        onClick={() => {
+                            resetStoreFilterData();
+                            closeMobileMenu();
+                        }}
+                        className={`${
+                            isMobileMenuOpen ? "text-primary" : 
+                            (isDarkHeader && !header ? "text-white" : "text-primary")
+                        } hover:text-accent py-2 lg:py-0 transition border-b lg:border-none`}
+                    >
+                        HOME
                     </Link>
-                    <Link to="/about" className="transition hover:text-accent">
-                        About
+                    <Link
+                        to="/about"
+                        onClick={closeMobileMenu}
+                        className={`${
+                            isMobileMenuOpen ? "text-primary" : 
+                            (isDarkHeader && !header ? "text-white" : "text-primary")
+                        } hover:text-accent py-2 lg:py-0 transition border-b lg:border-none`}
+                    >
+                        ABOUT
                     </Link>
                     <Link
                         to="/solutions"
-                        className="transition hover:text-accent"
+                        onClick={closeMobileMenu}
+                        className={`${
+                            isMobileMenuOpen ? "text-primary" : 
+                            (isDarkHeader && !header ? "text-white" : "text-primary")
+                        } hover:text-accent py-2 lg:py-0 transition border-b lg:border-none`}
                     >
-                        Solutions
-                    </Link>
-                    <Link to="/places" className="transition hover:text-accent">
-                        Places
+                        SOLUTIONS
                     </Link>
                     <Link
-                        to="/contact"
-                        className="transition hover:text-accent"
+                        to="/places"
+                        onClick={closeMobileMenu}
+                        className={`${
+                            isMobileMenuOpen ? "text-primary" : 
+                            (isDarkHeader && !header ? "text-white" : "text-primary")
+                        } hover:text-accent py-2 lg:py-0 transition border-b lg:border-none`}
                     >
-                        Contact
+                        PLACES
                     </Link>
 
-                    {/* Biểu tượng thông báo chỉ hiển thị khi user đã đăng nhập */}
+                    {/* Notifications section */}
                     {user && (
                         <div className="relative">
                             <button
                                 onClick={toggleNotifications}
                                 className={`${
-                                    isDarkHeader
-                                        ? "text-white hover:text-accent"
-                                        : "text-primary hover:text-accent"
-                                } transition relative`}
+                                    isMobileMenuOpen ? "text-primary" :
+                                    (isDarkHeader && !header
+                                        ? "text-white"
+                                        : "text-primary")
+                                } transition relative p-2`}
                             >
-                                <FaBell className="text-xl" />
+                                <FaBell className="text-2xl" />
                                 {unreadCount > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                        {unreadCount > 9
-                                            ? `${unreadCount}+`
-                                            : unreadCount}
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                        {unreadCount > 9 ? "9+" : unreadCount}
                                     </span>
                                 )}
                             </button>
@@ -361,56 +422,60 @@ const Header = () => {
                         </div>
                     )}
 
-                    {/* Nút đăng nhập hoặc tên người dùng */}
-                    {user ? (
-                        <div className="relative">
-                            <button
-                                onClick={toggleDropdown}
-                                className={`${
-                                    isDarkHeader
-                                        ? "text-white border-white"
-                                        : "text-primary border-primary"
-                                } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent`}
-                            >
-                                {user.user_name || user.email}
-                            </button>
-                            {showDropdown && (
-                                <div
-                                    ref={dropdownRef}
-                                    className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
-                                    onClick={(e) => e.stopPropagation()} // Ngăn sự kiện lan truyền khi click vào dropdown
+                    {/* Login/User section */}
+                    <div className="py-2 lg:py-0">
+                        {user ? (
+                            <div className="relative">
+                                <button
+                                    onClick={toggleDropdown}
+                                    className={`${
+                                        isMobileMenuOpen ? "text-primary border-primary" :
+                                        (isDarkHeader && !header
+                                            ? "text-white border-white"
+                                            : "text-primary border-primary")
+                                    } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent w-full lg:w-auto text-left`}
                                 >
-                                    <Link
-                                        to="/booking-history"
-                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 capitalize font-tertiary tracking-[1px]"
-                                        onClick={closeDropdown}
+                                    {user.user_name || user.email}
+                                </button>
+                                {showDropdown && (
+                                    <div
+                                        ref={dropdownRef}
+                                        className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
+                                        onClick={(e) => e.stopPropagation()} // Ngăn sự kiện lan truyền khi click vào dropdown
                                     >
-                                        Booking history
-                                    </Link>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleLogout();
-                                        }}
-                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-tertiary tracking-[1px]"
-                                    >
-                                        Log out
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <button
-                            onClick={handleLoginClick}
-                            className={`${
-                                isDarkHeader
-                                    ? "text-white border-white"
-                                    : "text-primary border-primary"
-                            } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent`}
-                        >
-                            Login
-                        </button>
-                    )}
+                                        <Link
+                                            to="/booking-history"
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 capitalize font-tertiary tracking-[1px]"
+                                            onClick={closeDropdown}
+                                        >
+                                            Booking history
+                                        </Link>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleLogout();
+                                            }}
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-tertiary tracking-[1px]"
+                                        >
+                                            Log out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <button
+                                onClick={handleLoginClick}
+                                className={`${
+                                    isMobileMenuOpen ? "text-primary border-primary" :
+                                    (isDarkHeader && !header
+                                        ? "text-white border-white"
+                                        : "text-primary border-primary")
+                                } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent w-full lg:w-auto`}
+                            >
+                                Login
+                            </button>
+                        )}
+                    </div>
                 </nav>
             </div>
         </header>

@@ -126,8 +126,8 @@ const BookingDetails = () => {
     return (
         <section className="bg-gray-100 min-h-screen">
             <ScrollToTop />
-            <div className="container mx-auto py-24 px-4">
-                <h1 className="text-4xl font-tertiary tracking-[1px] mb-8 text-center text-gray-800">
+            <div className="container mx-auto py-32 px-4">
+                <h1 className="font-primary text-[45px] mb-8 text-center">
                     Booking Details
                 </h1>
                 
@@ -165,7 +165,15 @@ const BookingDetails = () => {
                                             {booking.booking_status}
                                         </span>
                                     </p>
-                                    <p><strong>Total Amount:</strong> {calculateTotalAmount(booking.payment).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                    <p>
+                                        <strong>Total Amount:</strong>{" "}
+                                        <span className="text-yellow-600 font-semibold">
+                                            {calculateTotalAmount(booking.payment).toLocaleString('vi-VN', { 
+                                                style: 'currency', 
+                                                currency: 'VND' 
+                                            })}
+                                        </span>
+                                    </p>
                                 </div>
                             )}
 
@@ -178,7 +186,15 @@ const BookingDetails = () => {
                                                 <p><strong>Slot ID:</strong> {slot.slot_id}</p>
                                                 <p><strong>Start Time:</strong> {moment(slot.start_time).format("DD/MM/YYYY HH:mm")}</p>
                                                 <p><strong>End Time:</strong> {moment(slot.end_time).format("DD/MM/YYYY HH:mm")}</p>
-                                                <p><strong>Price:</strong> {slot.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                                <p>
+                                                    <strong>Price:</strong>{" "}
+                                                    <span className="text-yellow-600 font-semibold">
+                                                        {slot.price.toLocaleString('vi-VN', { 
+                                                            style: 'currency', 
+                                                            currency: 'VND' 
+                                                        })}
+                                                    </span>
+                                                </p>
                                             </div>
                                         ))
                                     ) : (
@@ -204,7 +220,15 @@ const BookingDetails = () => {
                                                 <h3 className="text-xl font-semibold mb-2">Payment {index + 1}</h3>
                                                 <p><strong>Payment ID:</strong> {payment.payment_id}</p>
                                                 <p><strong>Transaction ID:</strong> {payment.transaction_id}</p>
-                                                <p><strong>Total Cost:</strong> {payment.total_cost.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                                                <p>
+                                                    <strong>Total Cost:</strong>{" "}
+                                                    <span className="text-yellow-600 font-semibold">
+                                                        {payment.total_cost.toLocaleString('vi-VN', { 
+                                                            style: 'currency', 
+                                                            currency: 'VND' 
+                                                        })}
+                                                    </span>
+                                                </p>
                                                 <p><strong>Payment Date:</strong> {moment(payment.payment_date).format("DD/MM/YYYY HH:mm")}</p>
                                                 <p>
                                                     <strong>Payment Status:</strong> 
