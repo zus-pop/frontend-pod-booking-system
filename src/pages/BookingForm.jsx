@@ -8,12 +8,13 @@ import Select from "react-select";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { getSlotsByPodIdAndDate, makeBooking } from "../utils/api";
+import LoginForm from "../components/LoginForm";
 
 const BookingForm = ({ pod }) => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, checkUserLoggedIn } = useAuth();
+    const { user, checkUserLoggedIn, login } = useAuth();
     const [selectedDates, setSelectedDates] = useState([
         { id: Date.now(), date: null },
     ]); // Each date has a unique id
@@ -25,6 +26,7 @@ const BookingForm = ({ pod }) => {
     const selectRefs = useRef({});
     const [totalCost, setTotalCost] = useState(0);
     const { mutate: book } = makeBooking();
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     // Update totalCost based on selected slots
     useEffect(() => {
@@ -42,14 +44,14 @@ const BookingForm = ({ pod }) => {
         checkUserLoggedIn();
 
         if (!user) {
-            return navigate("/auth", { state: { from: location.pathname } });
+            setShowLoginModal(true);
+            return;
         }
 
         const booking = {
             pod_id: pod.pod_id,
         };
 
-        // Collect all selected slot values
         const bookingSlots = Object.values(selectRefs.current).flatMap(
             (ref) => ref?.getValue()?.map((slot) => slot.value) || []
         );
@@ -66,9 +68,56 @@ const BookingForm = ({ pod }) => {
                 unit_price: bookingSlot.unit_price,
             })),
         };
-        console.log(submission);
         book(submission);
     };
+
+    const handleLoginSuccess = async (token) => {
+        try {
+            await login(token);
+            setShowLoginModal(false);
+            showToast("Login successful. You can now proceed with booking.", "success");
+        } catch (error) {
+            showToast("Login failed", "error");
+        }
+    };
+
+    useEffect(() => {
+        const restoreBookingData = async () => {
+            const tempBookingData = localStorage.getItem('tempBookingData');
+            if (tempBookingData && user) {
+                try {
+                    const bookingData = JSON.parse(tempBookingData);
+                    
+                    if (bookingData.pod_id === pod.pod_id) {
+                        setSelectedDates(bookingData.selectedDates);
+                        
+                        setTimeout(() => {
+                            setSelectedSlots(bookingData.selectedSlots);
+                            
+                            Object.entries(bookingData.selectedSlots).forEach(([dateId, slots]) => {
+                                if (selectRefs.current[dateId]) {
+                                    const options = slots.map(slot => ({
+                                        value: slot,
+                                        label: `${moment(slot.start_time).format('HH:mm')} - ${moment(slot.end_time).format('HH:mm')} (${slot.unit_price.toLocaleString('vi-VN', {
+                                            style: 'currency',
+                                            currency: 'VND'
+                                        })})`
+                                    }));
+                                    selectRefs.current[dateId].setValue(options);
+                                }
+                            });
+                        }, 500);
+                    }
+                    
+                    localStorage.removeItem('tempBookingData');
+                } catch (error) {
+                    console.error('Error restoring booking data:', error);
+                }
+            }
+        };
+
+        restoreBookingData();
+    }, [user, pod.pod_id]);
 
     const getCurrentDate = () => moment().format("YYYY-MM-DD");
     const getMaxDate = () => moment().add(7, 'days').format("YYYY-MM-DD");
@@ -263,6 +312,17 @@ const BookingForm = ({ pod }) => {
                     </button>
                 </div>
             </form>
+
+            {showLoginModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white p-8 rounded-lg max-w-md w-full">
+                        <LoginForm 
+                            onClose={() => setShowLoginModal(false)}
+                            onLoginSuccess={handleLoginSuccess}
+                        />
+                    </div>
+                </div>
+            )}
         </>
     );
 };

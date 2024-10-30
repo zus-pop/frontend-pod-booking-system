@@ -117,7 +117,16 @@ const AuthPage = () => {
             if (data.token) {
                 showToast("Login successful", "success");
                 await login(data.token);
-                navigate(location.state?.from || "/", { replace: true });
+                
+                // Kiểm tra xem có dữ liệu booking tạm thời không
+                const tempBookingData = localStorage.getItem('tempBookingData');
+                if (tempBookingData) {
+                    const bookingData = JSON.parse(tempBookingData);
+                    // Chuyển hướng về trang pod details
+                    navigate(`/pod/${bookingData.pod_id}`, { replace: true });
+                } else {
+                    navigate(location.state?.from || "/", { replace: true });
+                }
             } else {
                 throw new Error("Invalid token");
             }
