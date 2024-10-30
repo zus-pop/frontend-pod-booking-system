@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
@@ -15,7 +15,7 @@ const AuthPage = () => {
     const [isFormValid, setIsFormValid] = useState(false);
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
-    const [isRegisterFormValid, setIsRegisterFormValid] = useState(false);
+    const [phoneError, setPhoneError] = useState("");
 
     const { showToast } = useToast();
     const { login } = useAuth();
@@ -34,17 +34,6 @@ const AuthPage = () => {
     useEffect(() => {
         if (isLogin) {
             setIsFormValid(email !== "" && password !== "");
-        } else {
-            setIsRegisterFormValid(
-                email !== "" &&
-                    password !== "" &&
-                    rePassword !== "" &&
-                    userName !== "" &&
-                    phoneNumber !== "" &&
-                    !emailError &&
-                    !passwordError &&
-                    password === rePassword
-            );
         }
     }, [
         isLogin,
@@ -168,12 +157,47 @@ const AuthPage = () => {
         }
     };
 
+    const validatePhoneNumber = (phone) => {
+        const phoneRegex = /^[0-9]{10}$/;
+        return phoneRegex.test(phone);
+    };
+
+    const handlePhoneChange = (e) => {
+        const value = e.target.value;
+        if (value === '' || /^\d+$/.test(value)) {
+            if (value.length <= 10) {
+                setPhoneNumber(value);
+                setPhoneError("");
+            }
+        }
+    };
+
+    const handlePhoneBlur = () => {
+        if (phoneNumber && !validatePhoneNumber(phoneNumber)) {
+            setPhoneError("Phone number must be exactly 10 digits");
+        }
+    };
+
+    const isRegisterFormValid = useMemo(() => {
+        return (
+            email &&
+            validateEmail(email) &&
+            password &&
+            password === rePassword &&
+            phoneNumber &&
+            validatePhoneNumber(phoneNumber) &&
+            !emailError &&
+            !passwordError &&
+            !phoneError
+        );
+    }, [email, password, rePassword, phoneNumber, emailError, passwordError, phoneError]);
+
     return (
         <>
             <ScrollToTop />
             {!user && (
-                <section className="h-screen">
-                    <div className="container h-full px-6 py-24">
+                <section className="min-h-screen pt-40">
+                    <div className="container px-6">
                         <div className="flex h-full flex-wrap items-center justify-center lg:justify-between">
                             {/* Left column container with background */}
                             <div className="mb-12 md:mb-0 md:w-8/12 lg:w-6/12">
@@ -301,11 +325,8 @@ const AuthPage = () => {
                                                     className="peer block min-h-[auto] w-full rounded border bg-transparent px-3 py-[0.32rem] leading-[2.15] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[twe-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 [&:not([data-twe-input-placeholder-active])]:placeholder:opacity-0"
                                                     id="phoneNumberInput"
                                                     value={phoneNumber}
-                                                    onChange={(e) =>
-                                                        setPhoneNumber(
-                                                            e.target.value
-                                                        )
-                                                    }
+                                                    onChange={handlePhoneChange}
+                                                    onBlur={handlePhoneBlur}
                                                     placeholder="Phone Number"
                                                 />
                                                 <label
@@ -318,6 +339,11 @@ const AuthPage = () => {
                                                 >
                                                     Phone Number
                                                 </label>
+                                                {phoneError && (
+                                                    <p className="text-red-500 text-xs mt-1">
+                                                        {phoneError}
+                                                    </p>
+                                                )}
                                             </div>
                                         </>
                                     )}

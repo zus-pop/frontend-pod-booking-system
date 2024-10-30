@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ScrollToTop } from "../components";
-import { hotelRules } from "../constants/data";
+import { storeRules } from "../constants/data";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCheck, FaMapMarkerAlt, FaPhone, FaUsers, FaUser } from "react-icons/fa";
 import Loading from "../components/Loading";
@@ -8,7 +8,7 @@ import LoginForm from "../components/LoginForm";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
 import Pagination from "../components/Pagination";
-import SearchForm from "../components/SearchForm";
+
 
 const POD_TYPES = [
     { id: 1, name: 'Single POD', icon: FaUser },
@@ -211,7 +211,7 @@ const StoreDetails = () => {
                                     best services.
                                 </p>
                                 <ul className="flex flex-col gap-y-4">
-                                    {hotelRules.map(({ rules }, idx) => (
+                                    {storeRules.map(({ rules }, idx) => (
                                         <li
                                             key={idx}
                                             className="flex items-center gap-x-4"

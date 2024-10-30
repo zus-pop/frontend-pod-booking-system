@@ -22,7 +22,7 @@ export const sliderData = [
 ]
 
 
-export const hotelRules = [
+export const storeRules = [
     {
         rules: 'No Drugs',
     },
