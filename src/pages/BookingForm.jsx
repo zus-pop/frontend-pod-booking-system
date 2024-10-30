@@ -8,12 +8,13 @@ import Select from "react-select";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { getSlotsByPodIdAndDate, makeBooking } from "../utils/api";
+import LoginForm from "../components/LoginForm";
 
 const BookingForm = ({ pod }) => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
-    const { user, checkUserLoggedIn } = useAuth();
+    const { user, checkUserLoggedIn, login } = useAuth();
     const [selectedDates, setSelectedDates] = useState([
         { id: Date.now(), date: null },
     ]); // Each date has a unique id
@@ -25,6 +26,7 @@ const BookingForm = ({ pod }) => {
     const selectRefs = useRef({});
     const [totalCost, setTotalCost] = useState(0);
     const { mutate: book } = makeBooking();
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     // Update totalCost based on selected slots
     useEffect(() => {
@@ -42,14 +44,8 @@ const BookingForm = ({ pod }) => {
         checkUserLoggedIn();
 
         if (!user) {
-            const tempBookingData = {
-                pod_id: pod.pod_id,
-                selectedDates: selectedDates,
-                selectedSlots: selectedSlots,
-                totalCost: totalCost
-            };
-            localStorage.setItem('tempBookingData', JSON.stringify(tempBookingData));
-            return navigate("/auth", { state: { from: location.pathname } });
+            setShowLoginModal(true);
+            return;
         }
 
         const booking = {
@@ -73,6 +69,16 @@ const BookingForm = ({ pod }) => {
             })),
         };
         book(submission);
+    };
+
+    const handleLoginSuccess = async (token) => {
+        try {
+            await login(token);
+            setShowLoginModal(false);
+            showToast("Login successful. You can now proceed with booking.", "success");
+        } catch (error) {
+            showToast("Login failed", "error");
+        }
     };
 
     useEffect(() => {
@@ -306,6 +312,17 @@ const BookingForm = ({ pod }) => {
                     </button>
                 </div>
             </form>
+
+            {showLoginModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white p-8 rounded-lg max-w-md w-full">
+                        <LoginForm 
+                            onClose={() => setShowLoginModal(false)}
+                            onLoginSuccess={handleLoginSuccess}
+                        />
+                    </div>
+                </div>
+            )}
         </>
     );
 };
