@@ -42,6 +42,13 @@ const BookingForm = ({ pod }) => {
         checkUserLoggedIn();
 
         if (!user) {
+            const tempBookingData = {
+                pod_id: pod.pod_id,
+                selectedDates: selectedDates,
+                selectedSlots: selectedSlots,
+                totalCost: totalCost
+            };
+            localStorage.setItem('tempBookingData', JSON.stringify(tempBookingData));
             return navigate("/auth", { state: { from: location.pathname } });
         }
 
@@ -49,7 +56,6 @@ const BookingForm = ({ pod }) => {
             pod_id: pod.pod_id,
         };
 
-        // Collect all selected slot values
         const bookingSlots = Object.values(selectRefs.current).flatMap(
             (ref) => ref?.getValue()?.map((slot) => slot.value) || []
         );
@@ -66,9 +72,46 @@ const BookingForm = ({ pod }) => {
                 unit_price: bookingSlot.unit_price,
             })),
         };
-        console.log(submission);
         book(submission);
     };
+
+    useEffect(() => {
+        const restoreBookingData = async () => {
+            const tempBookingData = localStorage.getItem('tempBookingData');
+            if (tempBookingData && user) {
+                try {
+                    const bookingData = JSON.parse(tempBookingData);
+                    
+                    if (bookingData.pod_id === pod.pod_id) {
+                        setSelectedDates(bookingData.selectedDates);
+                        
+                        setTimeout(() => {
+                            setSelectedSlots(bookingData.selectedSlots);
+                            
+                            Object.entries(bookingData.selectedSlots).forEach(([dateId, slots]) => {
+                                if (selectRefs.current[dateId]) {
+                                    const options = slots.map(slot => ({
+                                        value: slot,
+                                        label: `${moment(slot.start_time).format('HH:mm')} - ${moment(slot.end_time).format('HH:mm')} (${slot.unit_price.toLocaleString('vi-VN', {
+                                            style: 'currency',
+                                            currency: 'VND'
+                                        })})`
+                                    }));
+                                    selectRefs.current[dateId].setValue(options);
+                                }
+                            });
+                        }, 500);
+                    }
+                    
+                    localStorage.removeItem('tempBookingData');
+                } catch (error) {
+                    console.error('Error restoring booking data:', error);
+                }
+            }
+        };
+
+        restoreBookingData();
+    }, [user, pod.pod_id]);
 
     const getCurrentDate = () => moment().format("YYYY-MM-DD");
     const getMaxDate = () => moment().add(7, 'days').format("YYYY-MM-DD");
