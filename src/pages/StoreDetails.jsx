@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ScrollToTop } from "../components";
-import { hotelRules } from "../constants/data";
+import { storeRules } from "../constants/data";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCheck, FaMapMarkerAlt, FaPhone, FaUsers, FaUser } from "react-icons/fa";
 import Loading from "../components/Loading";
@@ -8,7 +8,7 @@ import LoginForm from "../components/LoginForm";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
 import Pagination from "../components/Pagination";
-import SearchForm from "../components/SearchForm";
+
 
 const POD_TYPES = [
     { id: 1, name: 'Single POD', icon: FaUser },
@@ -49,7 +49,6 @@ const StoreDetails = () => {
                 // Fetch tất cả pods không giới hạn limit
                 const podsResponse = await fetch(`${API_URL}/api/v1/stores/${id}/pods?limit=100`);
                 if (!podsResponse.ok) {
-                    // Thay vì throw error, set mảng rỗng cho pods
                     setAllPods([]);
                     setFilteredPods([]);
                     setDisplayedPods([]);
@@ -58,11 +57,12 @@ const StoreDetails = () => {
                 }
                 const podsData = await podsResponse.json();
                 
-                const allPodsArray = podsData.pods;
-                setAllPods(allPodsArray);
-                setFilteredPods(allPodsArray);
-                setDisplayedPods(allPodsArray.slice(0, ITEMS_PER_PAGE));
-                setTotalPods(allPodsArray.length);
+                // Lọc chỉ lấy những pod có is_available là true
+                const availablePods = podsData.pods.filter(pod => pod.is_available === true);
+                setAllPods(availablePods);
+                setFilteredPods(availablePods);
+                setDisplayedPods(availablePods.slice(0, ITEMS_PER_PAGE));
+                setTotalPods(availablePods.length);
                 
             } catch (error) {
                 console.error("Lỗi khi lấy thông tin:", error);
@@ -90,12 +90,12 @@ const StoreDetails = () => {
         setCurrentPage(1);
 
         if (!typeName) {
-            // Nếu bỏ filter, hiển thị lại tất cả theo phân trang
+            // Nếu bỏ filter, hiển thị lại tất cả pod available
             setFilteredPods(allPods);
             setDisplayedPods(allPods.slice(0, ITEMS_PER_PAGE));
             setTotalPods(allPods.length);
         } else {
-            // Lọc pods theo type
+            // Lọc pods theo type trong số các pod available
             const filtered = allPods.filter(pod => 
                 pod.type.type_name === typeName
             );
@@ -211,7 +211,7 @@ const StoreDetails = () => {
                                     best services.
                                 </p>
                                 <ul className="flex flex-col gap-y-4">
-                                    {hotelRules.map(({ rules }, idx) => (
+                                    {storeRules.map(({ rules }, idx) => (
                                         <li
                                             key={idx}
                                             className="flex items-center gap-x-4"
