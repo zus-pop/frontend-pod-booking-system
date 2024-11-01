@@ -7,19 +7,19 @@ const Solutions = () => {
     {
       name: 'Pod Single',
       description: 'Perfect for individual work, our Pod Single offers a quiet, focused environment for maximum productivity.',
-      image: 'public/single.webp',
+      image: '/single.webp',
       features: ['Quiet Environment', 'Personal Desk', 'High-Speed WiFi', 'Coffee Service']
     },
     {
       name: 'Pod Double',
       description: 'Ideal for pairs or small teams, Pod Double provides a collaborative space while maintaining privacy.',
-      image: 'public/POD_C.png',
+      image: '/POD_C.png',
       features: ['Collaborative Setup', 'Shared Workspace', 'Meeting Display', 'Premium Coffee']
     },
     {
       name: 'Pod Meeting',
       description: 'Designed for group discussions and presentations, Pod Meeting is equipped with all necessary tools for effective meetings.',
-      image: 'public/meeting.png',
+      image: '/meeting.png',
       features: ['Conference Setup', 'Presentation Tools', 'Video Conferencing', 'Catering Options']
     }
   ];
