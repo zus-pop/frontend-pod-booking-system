@@ -118,6 +118,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
           }
           if (data.token) {
             onLoginSuccess(data.token);
+            showToast('Login successful!', 'success');
           }
         } catch (error) {
           showToast(error.message, 'error');
