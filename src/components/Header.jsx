@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { useStoreContext } from "../context/StoreContext";
 import { useToast } from "../context/ToastContext";
 import { initializeSocket } from "../utils/socket";
+import LoginForm from './LoginForm';
 
 const Header = () => {
     const { resetStoreFilterData } = useStoreContext();
@@ -27,6 +28,7 @@ const Header = () => {
     const [isViewingAll, setIsViewingAll] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const mobileMenuRef = useRef(null);
+    const [showLoginForm, setShowLoginForm] = useState(false);
 
     const closeDropdown = useCallback(() => {
         setShowDropdown(false);
@@ -169,11 +171,17 @@ const Header = () => {
 
     const toggleNotifications = (e) => {
         e.stopPropagation();
-        setShowNotifications(!showNotifications);
+        if (showDropdown) {
+            setShowDropdown(false);
+        }
+        setShowNotifications(prev => !prev);
     };
 
     const handleLoginClick = () => {
-        navigate("/auth", { state: { from: location.pathname } });
+        if (showNotifications) {
+            setShowNotifications(false);
+        }
+        setShowLoginForm(prev => !prev);
     };
 
     const handleLogout = () => {
@@ -193,7 +201,10 @@ const Header = () => {
 
     const toggleDropdown = (e) => {
         e.stopPropagation();
-        setShowDropdown((prev) => !prev);
+        if (showNotifications) {
+            setShowNotifications(false);
+        }
+        setShowDropdown(prev => !prev);
     };
 
     const isDarkHeader = 
@@ -273,237 +284,259 @@ const Header = () => {
         closeMobileMenu();
     };
 
+    const handleLoginSuccess = async (token) => {
+        await login(token);
+        setShowLoginForm(false);
+        
+        // Kiểm tra xem có dữ liệu booking tạm thời không
+        const tempBookingData = localStorage.getItem('tempBookingData');
+        if (tempBookingData) {
+            const bookingData = JSON.parse(tempBookingData);
+            navigate(`/pod/${bookingData.pod_id}`, { replace: true });
+        }
+    };
+
     return (
-        <header
-            ref={headerRef}
-            className={`${
-                header ? "bg-white py-6 shadow-lg" : "py-8"
-            } fixed z-50 w-full transition-all duration-300`}
-        >
-            <div className="container mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-y-4 lg:gap-y-0 px-4">
-                {/* Logo và Mobile Menu Button */}
-                <div className="flex items-center justify-between">
-                    <Link
-                        to="/"
-                        className="flex items-center"
-                        onClick={handleHomeClick}
-                    >
-                        <Logo isDark={header || !isDarkHeader} />
-                    </Link>
-
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="lg:hidden text-2xl p-2"
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        aria-label="Toggle mobile menu"
-                    >
-                        {isMobileMenuOpen ? (
-                            <FaTimes className={isDarkHeader && !header ? "text-white" : "text-primary"} />
-                        ) : (
-                            <FaBars className={isDarkHeader && !header ? "text-white" : "text-primary"} />
-                        )}
-                    </button>
-                </div>
-
-                {/* Navigation menu - responsive */}
-                <nav
-                    ref={mobileMenuRef}
-                    className={`${
-                        isMobileMenuOpen ? "flex flex-col" : "hidden"
-                    } lg:flex lg:flex-row lg:items-center lg:gap-x-4 ${
-                        isMobileMenuOpen ? "bg-white shadow-lg absolute top-full left-0 w-full" : ""
-                    } lg:static lg:bg-transparent lg:shadow-none py-4 lg:py-0 px-4 lg:px-0`}
-                >
-                    {/* Menu Items */}
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:gap-x-4 w-full">
+        <>
+            <header
+                ref={headerRef}
+                className={`${
+                    header ? "bg-white py-6 shadow-lg" : "py-8"
+                } fixed z-50 w-full transition-all duration-300`}
+            >
+                <div className="container mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-y-4 lg:gap-y-0 px-4">
+                    {/* Logo và Mobile Menu Button */}
+                    <div className="flex items-center justify-between">
                         <Link
                             to="/"
+                            className="flex items-center"
                             onClick={handleHomeClick}
-                            className={`${
-                                isMobileMenuOpen ? "text-primary" : 
-                                (isDarkHeader && !header ? "text-white" : "text-primary")
-                            } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
                         >
-                            HOME
-                        </Link>
-                        <Link
-                            to="/about"
-                            onClick={closeMobileMenu}
-                            className={`${
-                                isMobileMenuOpen ? "text-primary" : 
-                                (isDarkHeader && !header ? "text-white" : "text-primary")
-                            } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
-                        >
-                            ABOUT
-                        </Link>
-                        <Link
-                            to="/solutions"
-                            onClick={closeMobileMenu}
-                            className={`${
-                                isMobileMenuOpen ? "text-primary" : 
-                                (isDarkHeader && !header ? "text-white" : "text-primary")
-                            } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
-                        >
-                            SOLUTIONS
-                        </Link>
-                        <Link
-                            to="/places"
-                            onClick={closeMobileMenu}
-                            className={`${
-                                isMobileMenuOpen ? "text-primary" : 
-                                (isDarkHeader && !header ? "text-white" : "text-primary")
-                            } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
-                        >
-                            PLACES
+                            <Logo isDark={header || !isDarkHeader} />
                         </Link>
 
-                        {/* Notifications section */}
-                        {user && (
-                            <div className="relative py-3 lg:py-0 text-center lg:text-left">
-                                <button
-                                    onClick={toggleNotifications}
-                                    className={`${
-                                        isMobileMenuOpen ? "text-primary" :
-                                        (isDarkHeader && !header
-                                            ? "text-white"
-                                            : "text-primary")
-                                    } transition relative p-2`}
-                                >
-                                    <FaBell className="text-2xl" />
-                                    {unreadCount > 0 && (
-                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                                            {unreadCount > 9 ? "9+" : unreadCount}
-                                        </span>
-                                    )}
-                                </button>
-                                {showNotifications && (
-                                    <div
-                                        ref={notificationRef}
-                                        className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-50"
+                        {/* Mobile Menu Button */}
+                        <button
+                            className="lg:hidden text-2xl p-2"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            aria-label="Toggle mobile menu"
+                        >
+                            {isMobileMenuOpen ? (
+                                <FaTimes className={isDarkHeader && !header ? "text-white" : "text-primary"} />
+                            ) : (
+                                <FaBars className={isDarkHeader && !header ? "text-white" : "text-primary"} />
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Navigation menu - responsive */}
+                    <nav
+                        ref={mobileMenuRef}
+                        className={`${
+                            isMobileMenuOpen ? "flex flex-col" : "hidden"
+                        } lg:flex lg:flex-row lg:items-center lg:gap-x-4 ${
+                            isMobileMenuOpen ? "bg-white shadow-lg absolute top-full left-0 w-full" : ""
+                        } lg:static lg:bg-transparent lg:shadow-none py-4 lg:py-0 px-4 lg:px-0`}
+                    >
+                        {/* Menu Items */}
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-x-4 w-full">
+                            <Link
+                                to="/"
+                                onClick={handleHomeClick}
+                                className={`${
+                                    isMobileMenuOpen ? "text-primary" : 
+                                    (isDarkHeader && !header ? "text-white" : "text-primary")
+                                } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
+                            >
+                                HOME
+                            </Link>
+                            <Link
+                                to="/about"
+                                onClick={closeMobileMenu}
+                                className={`${
+                                    isMobileMenuOpen ? "text-primary" : 
+                                    (isDarkHeader && !header ? "text-white" : "text-primary")
+                                } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
+                            >
+                                ABOUT
+                            </Link>
+                            <Link
+                                to="/solutions"
+                                onClick={closeMobileMenu}
+                                className={`${
+                                    isMobileMenuOpen ? "text-primary" : 
+                                    (isDarkHeader && !header ? "text-white" : "text-primary")
+                                } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
+                            >
+                                SOLUTIONS
+                            </Link>
+                            <Link
+                                to="/places"
+                                onClick={closeMobileMenu}
+                                className={`${
+                                    isMobileMenuOpen ? "text-primary" : 
+                                    (isDarkHeader && !header ? "text-white" : "text-primary")
+                                } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
+                            >
+                                PLACES
+                            </Link>
+
+                            {/* Notifications section */}
+                            {user && (
+                                <div className="relative py-3 lg:py-0 text-center lg:text-left">
+                                    <button
+                                        onClick={toggleNotifications}
+                                        className={`${
+                                            isMobileMenuOpen ? "text-primary" :
+                                            (isDarkHeader && !header
+                                                ? "text-white"
+                                                : "text-primary")
+                                        } transition relative p-2`}
                                     >
-                                        <div className="px-4 py-2 bg-gray-100 border-b border-gray-200">
-                                            <h3 className="text-sm font-medium text-gray-700 uppercase tracking-wide">
-                                                Notifications
-                                            </h3>
-                                        </div>
-                                        <div className="max-h-96 overflow-y-auto custom-scrollbar">
-                                            {(isViewingAll
-                                                ? allNotifications
-                                                : notifications
-                                            ).length > 0 ? (
-                                                (isViewingAll
+                                        <FaBell className="text-2xl" />
+                                        {unreadCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                                {unreadCount > 9 ? "9+" : unreadCount}
+                                            </span>
+                                        )}
+                                    </button>
+                                    {showNotifications && (
+                                        <div
+                                            ref={notificationRef}
+                                            className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-50"
+                                        >
+                                            <div className="px-4 py-2 bg-gray-100 border-b border-gray-200">
+                                                <h3 className="text-sm font-medium text-gray-700 uppercase tracking-wide">
+                                                    Notifications
+                                                </h3>
+                                            </div>
+                                            <div className="max-h-96 overflow-y-auto custom-scrollbar">
+                                                {(isViewingAll
                                                     ? allNotifications
                                                     : notifications
-                                                ).map((notification) => (
-                                                    <div
-                                                        key={
-                                                            notification.notification_id
-                                                        }
-                                                        className={`px-4 py-3 border-b border-gray-100 ${
-                                                            notification.is_read
-                                                                ? "bg-white"
-                                                                : "bg-blue-100"
-                                                        } hover:bg-gray-50 transition duration-150 ease-in-out cursor-pointer`}
-                                                        onClick={() =>
-                                                            handleReadNotification(
+                                                ).length > 0 ? (
+                                                    (isViewingAll
+                                                        ? allNotifications
+                                                        : notifications
+                                                    ).map((notification) => (
+                                                        <div
+                                                            key={
                                                                 notification.notification_id
-                                                            )
-                                                        }
-                                                    >
-                                                        <p className="text-sm font-sans text-gray-800 tracking-wide capitalize mb-1">
-                                                            {notification.message}
-                                                        </p>
-                                                        <p className="text-xs font-sans text-gray-500 capitalize">
-                                                            {moment(
-                                                                notification.created_at
-                                                            ).format(
-                                                                "MMMM Do YYYY, HH:mm:s"
-                                                            )}
-                                                        </p>
+                                                            }
+                                                            className={`px-4 py-3 border-b border-gray-100 ${
+                                                                notification.is_read
+                                                                    ? "bg-white"
+                                                                    : "bg-blue-100"
+                                                            } hover:bg-gray-50 transition duration-150 ease-in-out cursor-pointer`}
+                                                            onClick={() =>
+                                                                handleReadNotification(
+                                                                    notification.notification_id
+                                                                )
+                                                            }
+                                                        >
+                                                            <p className="text-sm font-sans text-gray-800 tracking-wide capitalize mb-1">
+                                                                {notification.message}
+                                                            </p>
+                                                            <p className="text-xs font-sans text-gray-500 capitalize">
+                                                                {moment(
+                                                                    notification.created_at
+                                                                ).format(
+                                                                    "MMMM Do YYYY, HH:mm:s"
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="px-4 py-3 text-center text-gray-500 font-sans">
+                                                        No new notifications
                                                     </div>
-                                                ))
-                                            ) : (
-                                                <div className="px-4 py-3 text-center text-gray-500 font-sans">
-                                                    No new notifications
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
+                                            {!isViewingAll &&
+                                                notifications.length >= 10 && (
+                                                    <div className="px-4 py-2 bg-gray-100 border-t border-gray-200">
+                                                        <button
+                                                            className="text-xs font-sans text-accent hover:underline w-full text-center capitalize tracking-wide"
+                                                            onClick={
+                                                                handleViewAllNotifications
+                                                            }
+                                                        >
+                                                            View all notifications
+                                                        </button>
+                                                    </div>
+                                                )}
                                         </div>
-                                        {!isViewingAll &&
-                                            notifications.length >= 10 && (
-                                                <div className="px-4 py-2 bg-gray-100 border-t border-gray-200">
-                                                    <button
-                                                        className="text-xs font-sans text-accent hover:underline w-full text-center capitalize tracking-wide"
-                                                        onClick={
-                                                            handleViewAllNotifications
-                                                        }
-                                                    >
-                                                        View all notifications
-                                                    </button>
-                                                </div>
-                                            )}
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                    )}
+                                </div>
+                            )}
 
-                        {/* Login/User section */}
-                        <div className="py-3 lg:py-0 text-center lg:text-left">
-                            {user ? (
-                                <div className="relative">
+                            {/* Login/User section */}
+                            <div className="py-3 lg:py-0 text-center lg:text-left">
+                                {user ? (
+                                    <div className="relative">
+                                        <button
+                                            onClick={toggleDropdown}
+                                            className={`${
+                                                isMobileMenuOpen ? "text-primary border-primary" :
+                                                (isDarkHeader && !header
+                                                    ? "text-white border-white"
+                                                    : "text-primary border-primary")
+                                            } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent w-full lg:w-auto text-left`}
+                                        >
+                                            {user.user_name || user.email}
+                                        </button>
+                                        {showDropdown && (
+                                            <div
+                                                ref={dropdownRef}
+                                                className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
+                                                onClick={(e) => e.stopPropagation()} // Ngăn sự kiện lan truyền khi click vào dropdown
+                                            >
+                                                <Link
+                                                    to="/booking-history"
+                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 capitalize font-tertiary tracking-[1px]"
+                                                    onClick={closeDropdown}
+                                                >
+                                                    Booking history
+                                                </Link>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleLogout();
+                                                    }}
+                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-tertiary tracking-[1px]"
+                                                >
+                                                    Log out
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
                                     <button
-                                        onClick={toggleDropdown}
+                                        onClick={handleLoginClick}
                                         className={`${
                                             isMobileMenuOpen ? "text-primary border-primary" :
                                             (isDarkHeader && !header
                                                 ? "text-white border-white"
                                                 : "text-primary border-primary")
-                                        } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent w-full lg:w-auto text-left`}
+                                        } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent w-full lg:w-auto`}
                                     >
-                                        {user.user_name || user.email}
+                                        Login
                                     </button>
-                                    {showDropdown && (
-                                        <div
-                                            ref={dropdownRef}
-                                            className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
-                                            onClick={(e) => e.stopPropagation()} // Ngăn sự kiện lan truyền khi click vào dropdown
-                                        >
-                                            <Link
-                                                to="/booking-history"
-                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 capitalize font-tertiary tracking-[1px]"
-                                                onClick={closeDropdown}
-                                            >
-                                                Booking history
-                                            </Link>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleLogout();
-                                                }}
-                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-tertiary tracking-[1px]"
-                                            >
-                                                Log out
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={handleLoginClick}
-                                    className={`${
-                                        isMobileMenuOpen ? "text-primary border-primary" :
-                                        (isDarkHeader && !header
-                                            ? "text-white border-white"
-                                            : "text-primary border-primary")
-                                    } border-2 px-4 py-2 rounded-full transition hover:text-accent hover:border-accent w-full lg:w-auto`}
-                                >
-                                    Login
-                                </button>
-                            )}
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </nav>
-            </div>
-        </header>
+                    </nav>
+                </div>
+            </header>
+
+            {/* Thêm LoginForm Modal */}
+            {showLoginForm && (
+                <LoginForm
+                    onClose={() => setShowLoginForm(false)}
+                    onLoginSuccess={handleLoginSuccess}
+                />
+            )}
+        </>
     );
 };
 

@@ -5,5 +5,5 @@ export { default as Solutions } from './Solutions';
 export { default as Places } from './Places';
 export { default as PodDetails } from './PodDetails';
 export { default as BookingHistory } from './BookingHistory';
-export { default as AuthPage } from './AuthPage';
+
 export { default as BookingDetails } from './BookingDetails';

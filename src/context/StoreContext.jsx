@@ -1,20 +1,43 @@
 import { createContext, useContext, useState } from "react";
-import { storeData } from "../db/data";
 
 const StoreInfo = createContext();
 
-export const StoreContext = ({ children }) => {
-  const [stores, setStores] = useState(storeData);
+export const StoreProvider = ({ children }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredStores, setFilteredStores] = useState([]);
+  const [totalStores, setTotalStores] = useState(0);
 
-  const shareWithChildren = {
-    stores,
+  const resetStoreFilterData = () => {
+    setSearchTerm('');
+    setCurrentPage(1);
+    setFilteredStores([]);
+    setTotalStores(0);
+  };
+
+  const value = {
+    searchTerm,
+    setSearchTerm,
+    currentPage,
+    setCurrentPage,
+    filteredStores,
+    setFilteredStores,
+    totalStores,
+    setTotalStores,
+    resetStoreFilterData
   };
 
   return (
-    <StoreInfo.Provider value={shareWithChildren}>
+    <StoreInfo.Provider value={value}>
       {children}
     </StoreInfo.Provider>
   );
 };
 
-export const useStoreContext = () => useContext(StoreInfo);
+export const useStoreContext = () => {
+  const context = useContext(StoreInfo);
+  if (!context) {
+    throw new Error('useStoreContext must be used within a StoreProvider');
+  }
+  return context;
+};
