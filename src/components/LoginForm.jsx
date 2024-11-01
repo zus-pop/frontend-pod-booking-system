@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '../context/ToastContext';
 
 const LoginForm = ({ onClose, onLoginSuccess }) => {
@@ -14,6 +14,9 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   const [phoneError, setPhoneError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
   const { showToast } = useToast();
+
+  // Thêm ref cho form container
+  const formRef = useRef(null);
 
   // Kiểm tra form validation
   useEffect(() => {
@@ -32,6 +35,20 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
       );
     }
   }, [isLogin, email, password, rePassword, userName, phoneNumber, emailError, passwordError, phoneError]);
+
+  // Sửa lại useEffect để handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (formRef.current && !formRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
 
   const validateEmail = (email) => {
     const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -101,6 +118,7 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
           }
           if (data.token) {
             onLoginSuccess(data.token);
+            showToast('Login successful!', 'success');
           }
         } catch (error) {
           showToast(error.message, 'error');
@@ -143,96 +161,115 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">
-          {isLogin ? 'Login' : 'Register'}
-        </h2>
-        <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-          ✕
-        </button>
-      </div>
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+      <div ref={formRef} className="bg-white rounded-xl w-[400px] relative">
+        <div className="p-6 bg-white rounded-xl border-2 border-gray-200">
+          {/* Header section */}
+          <div className="relative flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-yellow-900 via-yellow-700 to-yellow-500 text-transparent bg-clip-text">
+              {isLogin ? 'Welcome Back!' : 'Create Account'}
+            </h2>
+            <button
+              onClick={onClose}
+              className="absolute right-2 top-2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <input
-            type="email"
-            value={email}
-            onChange={handleEmailChange}
-            onBlur={handleEmailBlur}
-            placeholder="Email"
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
-        </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email Input */}
+            <div className="group">
+              <input
+                type="email"
+                value={email}
+                onChange={handleEmailChange}
+                onBlur={handleEmailBlur}
+                placeholder="Email"
+                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200"
+              />
+              {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
+            </div>
 
-        <div>
-          <input
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-            placeholder="Password"
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {!isLogin && (
-          <>
+            {/* Password Input */}
             <div>
               <input
                 type="password"
-                value={rePassword}
-                onChange={handleRePasswordChange}
-                onBlur={handleRePasswordBlur}
-                placeholder="Confirm Password"
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
-            </div>
-
-            <div>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Username"
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder="Password"
+                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200"
               />
             </div>
 
-            <div>
-              <input
-                type="tel"
-                value={phoneNumber}
-                onChange={handlePhoneChange}
-                onBlur={handlePhoneBlur}
-                placeholder="Phone Number"
-                className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {phoneError && <p className="text-red-500 text-sm mt-1">{phoneError}</p>}
-            </div>
-          </>
-        )}
+            {/* Registration Fields */}
+            {!isLogin && (
+              <>
+                <div>
+                  <input
+                    type="password"
+                    value={rePassword}
+                    onChange={handleRePasswordChange}
+                    onBlur={handleRePasswordBlur}
+                    placeholder="Confirm Password"
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200"
+                  />
+                  {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
+                </div>
 
-        <button
-          type="submit"
-          disabled={!isFormValid}
-          className={`w-full p-2 rounded text-white font-medium
-            ${isFormValid 
-              ? 'bg-blue-500 hover:bg-blue-600' 
-              : 'bg-gray-400 cursor-not-allowed'}`}
-        >
-          {isLogin ? 'Login' : 'Register'}
-        </button>
-      </form>
+                <div>
+                  <input
+                    type="text"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Username"
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200"
+                  />
+                </div>
 
-      <div className="mt-4 text-center">
-        <button
-          onClick={() => setIsLogin(!isLogin)}
-          className="text-blue-500 hover:underline"
-        >
-          {isLogin ? 'Need an account? Register' : 'Already have an account? Login'}
-        </button>
+                <div>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    onBlur={handlePhoneBlur}
+                    placeholder="Phone Number"
+                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200"
+                  />
+                  {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
+                </div>
+              </>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={!isFormValid}
+              className={`w-full py-2.5 rounded-lg text-white font-semibold ${
+                isFormValid 
+                  ? 'bg-gradient-to-r from-yellow-900 via-yellow-600 to-yellow-500 hover:opacity-90 transition-opacity' 
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
+            >
+              <span className="relative">
+                {isLogin ? 'Sign In' : 'Create Account'}
+              </span>
+            </button>
+          </form>
+
+          {/* Switch between Login/Register */}
+          <div className="mt-4 text-center">
+            <p className="text-gray-600 text-sm">
+              {isLogin ? "Don't have an account? " : 'Already have an account? '}
+              <button
+                onClick={() => setIsLogin(!isLogin)}
+                className="font-semibold bg-gradient-to-r from-yellow-900 via-yellow-600 to-yellow-500 text-transparent bg-clip-text hover:opacity-80 transition-opacity"
+              >
+                {isLogin ? 'Register' : 'Login'}
+              </button>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

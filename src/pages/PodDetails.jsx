@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { ScrollToTop } from "../components";
+
 import { FaCheck } from "react-icons/fa";
 import Loading from "../components/Loading";
 import { useToast } from "../context/ToastContext";
@@ -44,7 +44,7 @@ const PodDetails = () => {
 
     return (
         <section>
-            <ScrollToTop />
+            
 
             <div
                 className="bg-room h-screen relative flex justify-center items-center bg-cover bg-center"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ScrollToTop } from "../components";
+
 import { storeRules } from "../constants/data";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaCheck, FaMapMarkerAlt, FaPhone, FaUsers, FaUser } from "react-icons/fa";
@@ -126,7 +126,7 @@ const StoreDetails = () => {
 
     return (
         <section>
-            <ScrollToTop />
+            
 
             <div
                 className="bg-room h-screen relative flex justify-center items-center bg-cover bg-center"

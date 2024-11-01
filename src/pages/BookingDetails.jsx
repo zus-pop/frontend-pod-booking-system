@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ScrollToTop } from "../components";
 import {
@@ -18,6 +18,7 @@ import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
 import moment from "moment";
 import { cancelBook } from "../utils/api";
+import { MdClose } from "react-icons/md";
 
 const BookingDetails = () => {
     const { id } = useParams();
@@ -29,6 +30,14 @@ const BookingDetails = () => {
     const { mutate: cancelTheBook } = cancelBook();
     const { user, isLoading: isAuthLoading } = useAuth();
     const navigate = useNavigate();
+
+    // Thêm state để quản lý việc hiển thị modal sản phẩm và lưu trữ sản phẩm
+    const [selectedSlotProducts, setSelectedSlotProducts] = useState([]);
+    const [showProductsModal, setShowProductsModal] = useState(false);
+    const [selectedSlotId, setSelectedSlotId] = useState(null);
+
+    // Thêm ref cho modal content
+    const modalContentRef = useRef(null);
 
     useEffect(() => {
         if (!isAuthLoading && !user) {
@@ -63,6 +72,35 @@ const BookingDetails = () => {
             fetchBookingDetails();
         }
     }, [id, API_URL, showToast, user, isAuthLoading]);
+
+    useEffect(() => {
+        const fetchInitialProducts = async () => {
+            if (booking && booking.slots && booking.slots.length > 0) {
+                try {
+                    const firstSlot = booking.slots[0];
+                    const response = await fetch(
+                        `${API_URL}/api/v1/bookings/${booking.booking_id}/slots/${firstSlot.slot_id}/products`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            }
+                        }
+                    );
+                    if (!response.ok) {
+                        throw new Error("Unable to fetch products");
+                    }
+                    const data = await response.json();
+                    setSelectedSlotProducts(data);
+                } catch (error) {
+                    console.error("Error fetching initial products:", error);
+                }
+            }
+        };
+
+        if (booking) {
+            fetchInitialProducts();
+        }
+    }, [booking, API_URL]);
 
     const handlePayment = async (payment_url) => {
         if (!payment_url) {
@@ -99,7 +137,53 @@ const BookingDetails = () => {
         if (!payments || !Array.isArray(payments) || payments.length === 0) {
             return 0;
         }
-        return payments.reduce((total, payment) => total + payment.total_cost, 0);
+        
+        // Tính tổng từ tất cả các payment
+        return payments.reduce((total, payment, index) => {
+            // Nếu là payment thứ 2 (index === 1), sử dụng giá từ products
+            if (index === 1 && selectedSlotProducts.length > 0) {
+                return total + calculateProductTotal(selectedSlotProducts);
+            }
+            return total + payment.total_cost;
+        }, 0);
+    };
+
+    // Sửa lại hàm fetchSlotProducts
+    const fetchSlotProducts = async (bookingId, slotId) => {
+        try {
+            const response = await fetch(`${API_URL}/api/v1/bookings/${bookingId}/slots/${slotId}/products`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error("Unable to fetch products");
+            }
+            const data = await response.json();
+            setSelectedSlotProducts(data);
+            setShowProductsModal(true);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            setSelectedSlotProducts([]);
+            setShowProductsModal(true);
+        }
+    };
+
+    // Thêm hàm tính tổng tiền sản phẩm
+    const calculateProductTotal = (products) => {
+        if (!products || !Array.isArray(products)) {
+            return 0;
+        }
+        return products.reduce((total, product) => {
+            return total + (product.unit_price * product.quantity);
+        }, 0);
+    };
+
+    // Thêm hàm xử lý click outside
+    const handleModalClick = (event) => {
+        if (modalContentRef.current && !modalContentRef.current.contains(event.target)) {
+            setShowProductsModal(false);
+        }
     };
 
     if (isAuthLoading || loading) {
@@ -119,7 +203,6 @@ const BookingDetails = () => {
         { id: "slot", label: "Slot\nInformation", icon: FaRegClock },
         { id: "user", label: "User\nInformation", icon: FaUser },
         { id: "payment", label: "Payment\nInformation", icon: FaCreditCard },
-        { id: "product", label: "Product\nInformation", icon: FaCoffee },
         { id: "store", label: "Store\nInformation", icon: FaStore },
     ];
 
@@ -182,7 +265,17 @@ const BookingDetails = () => {
                                     <h2 className="text-2xl font-semibold mb-4">Slot Information</h2>
                                     {booking.slots && booking.slots.length > 0 ? (
                                         booking.slots.map((slot, index) => (
-                                            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                                            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg relative">
+                                                <div className="absolute top-4 right-4">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                                        slot.is_checked_in 
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-yellow-100 text-yellow-800'
+                                                    }`}>
+                                                        {slot.is_checked_in ? 'Checked In' : 'Not Checked In'}
+                                                    </span>
+                                                </div>
+
                                                 <p><strong>Slot ID:</strong> {slot.slot_id}</p>
                                                 <p><strong>Start Time:</strong> {moment(slot.start_time).format("DD/MM/YYYY HH:mm")}</p>
                                                 <p><strong>End Time:</strong> {moment(slot.end_time).format("DD/MM/YYYY HH:mm")}</p>
@@ -195,6 +288,15 @@ const BookingDetails = () => {
                                                         })}
                                                     </span>
                                                 </p>
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedSlotId(slot.slot_id);
+                                                        fetchSlotProducts(booking.booking_id, slot.slot_id);
+                                                    }}
+                                                    className="mt-2 flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors"
+                                                >
+                                                    <FaCoffee /> Ordered Products
+                                                </button>
                                             </div>
                                         ))
                                     ) : (
@@ -223,7 +325,10 @@ const BookingDetails = () => {
                                                 <p>
                                                     <strong>Total Cost:</strong>{" "}
                                                     <span className="text-yellow-600 font-semibold">
-                                                        {payment.total_cost.toLocaleString('vi-VN', { 
+                                                        {(index === 1 && selectedSlotProducts.length > 0 
+                                                            ? calculateProductTotal(selectedSlotProducts) 
+                                                            : payment.total_cost
+                                                        ).toLocaleString('vi-VN', { 
                                                             style: 'currency', 
                                                             currency: 'VND' 
                                                         })}
@@ -241,24 +346,6 @@ const BookingDetails = () => {
                                     ) : (
                                         <p>No payment information available.</p>
                                     )}
-                                </div>
-                            )}
-
-                            {activeTab === "product" && (
-                                <div className="p-6">
-                                    <h2 className="text-2xl font-semibold mb-4">Product Information</h2>
-                                    {booking.products.map((product) => (
-                                        <div key={product.product_id} className="mb-4">
-                                            {product.image && (
-                                                <img src={product.image} alt={product.product_name} className="w-full h-48 object-cover mb-2" />
-                                            )}
-                                            <p><strong>Product Name:</strong> {product.product_name}</p>
-                                            <p><strong>Description:</strong> {product.description}</p>
-                                            <p><strong>Price:</strong> {product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-                                            <p><strong>Quantity:</strong> {product.quantity}</p>
-                                            <p><strong>Total:</strong> {(product.quantity * product.unit_price).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-                                        </div>
-                                    ))}
                                 </div>
                             )}
 
@@ -343,6 +430,78 @@ const BookingDetails = () => {
                     </div>
                 </div>
             </div>
+
+            {showProductsModal && (
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+                    onClick={handleModalClick}
+                >
+                    <div 
+                        ref={modalContentRef} 
+                        className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto custom-scrollbar"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-semibold">Ordered Products for Slot {selectedSlotId}</h3>
+                            <button
+                                onClick={() => setShowProductsModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <MdClose className="text-2xl" />
+                            </button>
+                        </div>
+                        {selectedSlotProducts.length > 0 ? (
+                            <>
+                                {selectedSlotProducts.map((product) => (
+                                    <div key={product.product_id} className="mb-4 p-4 bg-gray-50 rounded-lg flex gap-4">
+                                        {product.image && (
+                                            <div className="w-1/3">
+                                                <img 
+                                                    src={product.image} 
+                                                    alt={product.product_name} 
+                                                    className="w-full h-48 object-cover rounded-lg"
+                                                />
+                                            </div>
+                                        )}
+                                        <div className="flex-1 space-y-2">
+                                            <h4 className="text-lg font-semibold">{product.product_name}</h4>
+                                            <p className="text-gray-600">{product.description}</p>
+                                            <div className="space-y-1">
+                                                <p>
+                                                    <strong>Price:</strong>{" "}
+                                                    <span className="text-yellow-600 font-semibold">
+                                                        {product.unit_price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                                    </span>
+                                                </p>
+                                                <p><strong>Quantity:</strong> {product.quantity}</p>
+                                                <p>
+                                                    <strong>Total:</strong>{" "}
+                                                    <span className="text-yellow-600 font-semibold">
+                                                        {(product.unit_price * product.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                    <p className="text-xl font-semibold">
+                                        Total Amount:{" "}
+                                        <span className="text-yellow-600">
+                                            {calculateProductTotal(selectedSlotProducts).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                        </span>
+                                    </p>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-8">
+                                <FaCoffee className="text-4xl text-gray-400 mb-4" />
+                                <p className="text-gray-500 text-lg">No products have been added to this slot yet.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </section>
     );
 };
