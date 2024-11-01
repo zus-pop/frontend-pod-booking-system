@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ScrollToTop } from "../components";
 import {
@@ -35,6 +35,9 @@ const BookingDetails = () => {
     const [selectedSlotProducts, setSelectedSlotProducts] = useState([]);
     const [showProductsModal, setShowProductsModal] = useState(false);
     const [selectedSlotId, setSelectedSlotId] = useState(null);
+
+    // Thêm ref cho modal content
+    const modalContentRef = useRef(null);
 
     useEffect(() => {
         if (!isAuthLoading && !user) {
@@ -174,6 +177,13 @@ const BookingDetails = () => {
         return products.reduce((total, product) => {
             return total + (product.unit_price * product.quantity);
         }, 0);
+    };
+
+    // Thêm hàm xử lý click outside
+    const handleModalClick = (event) => {
+        if (modalContentRef.current && !modalContentRef.current.contains(event.target)) {
+            setShowProductsModal(false);
+        }
     };
 
     if (isAuthLoading || loading) {
@@ -422,8 +432,15 @@ const BookingDetails = () => {
             </div>
 
             {showProductsModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+                    onClick={handleModalClick}
+                >
+                    <div 
+                        ref={modalContentRef} 
+                        className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto custom-scrollbar"
+                        onClick={e => e.stopPropagation()}
+                    >
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-semibold">Ordered Products for Slot {selectedSlotId}</h3>
                             <button
@@ -436,25 +453,35 @@ const BookingDetails = () => {
                         {selectedSlotProducts.length > 0 ? (
                             <>
                                 {selectedSlotProducts.map((product) => (
-                                    <div key={product.product_id} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                                    <div key={product.product_id} className="mb-4 p-4 bg-gray-50 rounded-lg flex gap-4">
                                         {product.image && (
-                                            <img src={product.image} alt={product.product_name} className="w-full h-48 object-cover mb-2 rounded-lg" />
+                                            <div className="w-1/3">
+                                                <img 
+                                                    src={product.image} 
+                                                    alt={product.product_name} 
+                                                    className="w-full h-48 object-cover rounded-lg"
+                                                />
+                                            </div>
                                         )}
-                                        <p><strong>Product Name:</strong> {product.product_name}</p>
-                                        <p><strong>Description:</strong> {product.description}</p>
-                                        <p>
-                                            <strong>Price:</strong>{" "}
-                                            <span className="text-yellow-600 font-semibold">
-                                                {product.unit_price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                                            </span>
-                                        </p>
-                                        <p><strong>Quantity:</strong> {product.quantity}</p>
-                                        <p>
-                                            <strong>Total:</strong>{" "}
-                                            <span className="text-yellow-600 font-semibold">
-                                                {(product.unit_price * product.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                                            </span>
-                                        </p>
+                                        <div className="flex-1 space-y-2">
+                                            <h4 className="text-lg font-semibold">{product.product_name}</h4>
+                                            <p className="text-gray-600">{product.description}</p>
+                                            <div className="space-y-1">
+                                                <p>
+                                                    <strong>Price:</strong>{" "}
+                                                    <span className="text-yellow-600 font-semibold">
+                                                        {product.unit_price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                                    </span>
+                                                </p>
+                                                <p><strong>Quantity:</strong> {product.quantity}</p>
+                                                <p>
+                                                    <strong>Total:</strong>{" "}
+                                                    <span className="text-yellow-600 font-semibold">
+                                                        {(product.unit_price * product.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                                 <div className="mt-4 pt-4 border-t border-gray-200">

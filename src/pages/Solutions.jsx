@@ -7,19 +7,19 @@ const Solutions = () => {
     {
       name: 'Pod Single',
       description: 'Perfect for individual work, our Pod Single offers a quiet, focused environment for maximum productivity.',
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c',
+      image: 'public/single.webp',
       features: ['Quiet Environment', 'Personal Desk', 'High-Speed WiFi', 'Coffee Service']
     },
     {
       name: 'Pod Double',
       description: 'Ideal for pairs or small teams, Pod Double provides a collaborative space while maintaining privacy.',
-      image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2',
+      image: 'public/POD_C.png',
       features: ['Collaborative Setup', 'Shared Workspace', 'Meeting Display', 'Premium Coffee']
     },
     {
       name: 'Pod Meeting',
       description: 'Designed for group discussions and presentations, Pod Meeting is equipped with all necessary tools for effective meetings.',
-      image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72',
+      image: 'public/meeting.png',
       features: ['Conference Setup', 'Presentation Tools', 'Video Conferencing', 'Catering Options']
     }
   ];
@@ -92,9 +92,7 @@ const Solutions = () => {
                   ))}
                 </div>
 
-                <button className="bg-accent hover:bg-accent-hover text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
-                  Learn More
-                </button>
+                
               </div>
             </motion.div>
           ))}
