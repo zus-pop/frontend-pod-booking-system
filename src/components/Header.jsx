@@ -14,7 +14,7 @@ const Header = () => {
     const [header, setHeader] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const { showToast } = useToast();
-    const { user, logout } = useAuth();
+    const { user, logout, login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const dropdownRef = useRef(null);
