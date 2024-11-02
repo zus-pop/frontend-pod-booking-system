@@ -317,15 +317,17 @@ const BookingDetails = () => {
                                 <div className="p-6">
                                     <h2 className="text-2xl font-semibold mb-4">Payment Information</h2>
                                     {booking.payment && booking.payment.length > 0 ? (
-                                        booking.payment.map((payment, index) => (
+                                        booking.payment.map((payment) => (
                                             <div key={payment.payment_id} className="mb-6 pb-6 border-b border-gray-200 last:border-b-0">
-                                                <h3 className="text-xl font-semibold mb-2">Payment {index + 1}</h3>
+                                                <h3 className="text-xl font-semibold mb-2">
+                                                    {payment.payment_for === 'Slot' ? 'Slot Payment' : 'Product Payment'}
+                                                </h3>
                                                 <p><strong>Payment ID:</strong> {payment.payment_id}</p>
                                                 <p><strong>Transaction ID:</strong> {payment.transaction_id}</p>
                                                 <p>
                                                     <strong>Total Cost:</strong>{" "}
                                                     <span className="text-yellow-600 font-semibold">
-                                                        {(index === 1 && selectedSlotProducts.length > 0 
+                                                        {(payment.payment_for === 'Product' && selectedSlotProducts.length > 0 
                                                             ? calculateProductTotal(selectedSlotProducts) 
                                                             : payment.total_cost
                                                         ).toLocaleString('vi-VN', { 
