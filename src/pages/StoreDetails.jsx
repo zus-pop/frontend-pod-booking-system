@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import { storeRules } from "../constants/data";
 import { useParams, useNavigate } from "react-router-dom";
-import { FaCheck, FaMapMarkerAlt, FaPhone, FaUsers, FaUser } from "react-icons/fa";
+import { FaCheck, FaMapMarkerAlt, FaPhone, FaUsers, FaUser, FaStar } from "react-icons/fa";
 import Loading from "../components/Loading";
 import LoginForm from "../components/LoginForm";
 import { useToast } from "../context/ToastContext";
@@ -202,20 +202,16 @@ const StoreDetails = () => {
 
                     {/* ➡️➡️➡️ right side ➡️➡️➡️ */}
                     <div className="w-full lg:w-[40%] h-full">
-                        {/* reservation */}
-                        <div className="py-6 px-6 bg-accent/20 mb-8">
+                        {/* Store Rules */}
+                        <div className="bg-accent/20 p-4 rounded-lg mb-6">
                             <h3 className="h3 mb-4">Store Rules</h3>
                             <div className="bg-white p-4 rounded-lg">
                                 <p className="mb-6 text-justify">
-                                    Please follow these rules to experience the
-                                    best services.
+                                    Please follow these rules to experience the best services.
                                 </p>
                                 <ul className="flex flex-col gap-y-4">
                                     {storeRules.map(({ rules }, idx) => (
-                                        <li
-                                            key={idx}
-                                            className="flex items-center gap-x-4"
-                                        >
+                                        <li key={idx} className="flex items-center gap-x-4">
                                             <FaCheck className="text-accent" />
                                             {rules}
                                         </li>
@@ -223,6 +219,54 @@ const StoreDetails = () => {
                                 </ul>
                             </div>
                         </div>
+
+                        {/* Customer Reviews */}
+                        {store?.feedbacks && store.feedbacks.length > 0 && (
+                            <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+                                <h3 className="text-2xl font-semibold mb-6 text-gray-800">Customer Reviews</h3>
+                                <div className="space-y-6">
+                                    {store.feedbacks
+                                        .sort((a, b) => b.rating - a.rating)
+                                        .slice(0, 4)
+                                        .map((feedback, idx) => (
+                                            <div 
+                                                key={idx} 
+                                                className="bg-gray-50 rounded-lg p-4 transition-all duration-300 hover:shadow-md"
+                                            >
+                                                <div className="flex items-start justify-between mb-3">
+                                                    <div>
+                                                        <h4 className="font-semibold text-lg text-gray-800">
+                                                            {feedback.user_name}
+                                                        </h4>
+                                                        <p className="text-sm text-gray-500 mt-1">
+                                                            Pod: {feedback.pod_name}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex gap-1">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <FaStar
+                                                                key={i}
+                                                                className={`${
+                                                                    i < feedback.rating 
+                                                                        ? 'text-yellow-400' 
+                                                                        : 'text-gray-200'
+                                                                }`}
+                                                                size={18}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                {feedback.comment && (
+                                                    <p className="text-gray-600 text-sm italic">
+                                                        "{feedback.comment}"
+                                                    </p>
+                                                )}
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -12,6 +12,7 @@ import {
     FaStore,
     FaCoffee,
     FaRegClock,
+    FaStar,
 } from "react-icons/fa";
 import Loading from "../components/Loading";
 import { useToast } from "../context/ToastContext";
@@ -39,6 +40,16 @@ const BookingDetails = () => {
     // Thêm ref cho modal content
     const modalContentRef = useRef(null);
 
+    // Thêm các state mới sau state showProductsModal
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [rating, setRating] = useState(0);
+    const [hover, setHover] = useState(0);
+    const [comment, setComment] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Thêm state mới để lưu trữ feedback hiện tại
+    const [existingFeedback, setExistingFeedback] = useState(null);
+
     useEffect(() => {
         if (!isAuthLoading && !user) {
             navigate('/');
@@ -48,7 +59,7 @@ const BookingDetails = () => {
 
     useEffect(() => {
         const fetchBookingDetails = async () => {
-            if (!user) return; // Không fetch nếu chưa có user
+            if (!user) return;
             try {
                 const response = await fetch(`${API_URL}/api/v1/bookings/${id}`, {
                     headers: {
@@ -60,6 +71,13 @@ const BookingDetails = () => {
                 }
                 const data = await response.json();
                 setBooking(data);
+                // Lưu feedback nếu có
+                if (data.rating || data.comment) {
+                    setExistingFeedback({
+                        rating: data.rating,
+                        comment: data.comment
+                    });
+                }
             } catch (error) {
                 console.error("Error fetching booking details:", error);
                 showToast("Unable to fetch booking details", "error");
@@ -186,6 +204,49 @@ const BookingDetails = () => {
         }
     };
 
+    // Thêm hàm submitFeedback sau hàm handleModalClick
+    const submitFeedback = async () => {
+        if (rating === 0) {
+            showToast("Please select a rating", "error");
+            return;
+        }
+        
+        setIsSubmitting(true);
+        try {
+            const response = await fetch(`${API_URL}/api/v1/bookings/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    rating,
+                    comment: comment.trim() || null
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Unable to submit feedback");
+            }
+
+            // Cập nhật existingFeedback sau khi gửi thành công
+            setExistingFeedback({
+                rating,
+                comment: comment.trim() || null
+            });
+
+            showToast("Thank you for your feedback!", "success");
+            setShowFeedbackModal(false);
+            setRating(0);
+            setComment('');
+        } catch (error) {
+            console.error("Error submitting feedback:", error);
+            showToast("Unable to submit feedback", "error");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     if (isAuthLoading || loading) {
         return <Loading />;
     }
@@ -257,6 +318,39 @@ const BookingDetails = () => {
                                             })}
                                         </span>
                                     </p>
+
+                                    {/* Hiển thị feedback hoặc nút feedback tùy điều kiện */}
+                                    {booking.booking_status.toLowerCase() === "complete" && (
+                                        <>
+                                            {existingFeedback ? (
+                                                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                                                    <h3 className="text-lg font-semibold mb-3">Your Feedback</h3>
+                                                    <div className="flex items-center mb-2">
+                                                        {[...Array(5)].map((_, index) => (
+                                                            <FaStar
+                                                                key={index}
+                                                                className="mr-1"
+                                                                size={24}
+                                                                color={index < existingFeedback.rating ? "#ffc107" : "#e4e5e9"}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    {existingFeedback.comment && (
+                                                        <p className="text-gray-600 mt-2">
+                                                            "{existingFeedback.comment}"
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => setShowFeedbackModal(true)}
+                                                    className="mt-4 bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent-hover transition-colors flex items-center gap-2"
+                                                >
+                                                    <FaStar /> Rate your experience
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                             )}
 
@@ -501,6 +595,69 @@ const BookingDetails = () => {
                                 <p className="text-gray-500 text-lg">No products have been added to this slot yet.</p>
                             </div>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {showFeedbackModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-semibold">Service Feedback</h3>
+                            <button
+                                onClick={() => setShowFeedbackModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <MdClose className="text-2xl" />
+                            </button>
+                        </div>
+
+                        <div className="flex gap-1 mb-4">
+                            {[...Array(5)].map((_, index) => {
+                                const ratingValue = index + 1;
+                                return (
+                                    <label key={index}>
+                                        <input
+                                            type="radio"
+                                            name="rating"
+                                            className="hidden"
+                                            value={ratingValue}
+                                            onClick={() => setRating(ratingValue)}
+                                        />
+                                        <FaStar
+                                            className="cursor-pointer transition-colors"
+                                            size={32}
+                                            color={ratingValue <= (hover || rating) ? "#ffc107" : "#e4e5e9"}
+                                            onMouseEnter={() => setHover(ratingValue)}
+                                            onMouseLeave={() => setHover(0)}
+                                        />
+                                    </label>
+                                );
+                            })}
+                        </div>
+
+                        <textarea
+                            placeholder="Share your experience (optional)"
+                            className="w-full p-3 border rounded-lg mb-4 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-accent"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                        />
+
+                        <div className="flex gap-4">
+                            <button
+                                onClick={submitFeedback}
+                                disabled={isSubmitting}
+                                className="flex-1 bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent-hover transition-colors disabled:bg-gray-400"
+                            >
+                                {isSubmitting ? "Submitting..." : "Submit Feedback"}
+                            </button>
+                            <button
+                                onClick={() => setShowFeedbackModal(false)}
+                                className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

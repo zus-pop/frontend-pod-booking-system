@@ -7,10 +7,10 @@ const Store = ({ store }) => {
     return null;
   }
 
-  const { store_id, store_name, image, address, hotline } = store;
+  const { store_id, store_name, image, address, hotline, rating } = store;
   
-  // Tạo số sao ngẫu nhiên từ 4-5
-  const rating = (Math.random() * (5 - 4) + 4).toFixed(1);
+  // Format rating to 1 decimal place, show 0 if no rating
+  const formattedRating = rating ? Number(rating).toFixed(1) : "0.0";
 
   return (
     <div className='bg-white shadow-md rounded-lg overflow-hidden flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 hover:-translate-y-2'>
@@ -18,9 +18,16 @@ const Store = ({ store }) => {
       <div className='p-4 flex-grow flex flex-col'>
         <h3 className='font-primary text-xl mb-2 transition-colors duration-200 ease-in-out hover:text-accent'>{store_name}</h3>
         <div className='flex items-center mb-2'>
-          <span className='text-yellow-400 mr-1'>{rating}</span>
+          <span className='text-yellow-400 mr-1'>{formattedRating}</span>
           {[...Array(5)].map((_, i) => (
-            <FaStar key={i} className={`text-yellow-400 ${i < Math.floor(rating) ? 'opacity-100' : 'opacity-30'}`} />
+            <FaStar 
+              key={i} 
+              className={`text-yellow-400 ${
+                rating && i < Math.floor(rating) 
+                  ? 'opacity-100' 
+                  : 'opacity-30'
+              }`} 
+            />
           ))}
         </div>
         <div className='flex-grow'>
