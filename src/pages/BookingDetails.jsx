@@ -50,6 +50,10 @@ const BookingDetails = () => {
     // Thêm state mới để lưu trữ feedback hiện tại
     const [existingFeedback, setExistingFeedback] = useState(null);
 
+    // Thêm state để quản lý modal xác nhận hủy
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [bookingToCancel, setBookingToCancel] = useState(null);
+
     useEffect(() => {
         if (!isAuthLoading && !user) {
             navigate('/');
@@ -128,9 +132,16 @@ const BookingDetails = () => {
         window.open(payment_url, "_blank");
     };
 
-    const handleCancel = async (booking_id) => {
-        if (confirm("Are you sure you want to cancel this booking?")) {
-            cancelTheBook(booking_id);
+    const handleCancel = (booking_id) => {
+        setBookingToCancel(booking_id);
+        setShowCancelModal(true);
+    };
+
+    const handleConfirmCancel = () => {
+        if (bookingToCancel) {
+            cancelTheBook(bookingToCancel);
+            setShowCancelModal(false);
+            setBookingToCancel(null);
         }
     };
 
@@ -350,6 +361,7 @@ const BookingDetails = () => {
                                                 </button>
                                             )}
                                         </>
+                                        
                                     )}
                                 </div>
                             )}
@@ -656,6 +668,43 @@ const BookingDetails = () => {
                                 className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
                             >
                                 Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showCancelModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-semibold">Cancel Booking</h3>
+                            <button
+                                onClick={() => setShowCancelModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <MdClose className="text-2xl" />
+                            </button>
+                        </div>
+
+                        <div className="mb-6">
+                            <p className="text-gray-600">
+                                Are you sure you want to cancel this booking? This action cannot be undone.
+                            </p>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <button
+                                onClick={handleConfirmCancel}
+                                className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                            >
+                                Confirm Cancel
+                            </button>
+                            <button
+                                onClick={() => setShowCancelModal(false)}
+                                className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                            >
+                                Keep Booking
                             </button>
                         </div>
                     </div>

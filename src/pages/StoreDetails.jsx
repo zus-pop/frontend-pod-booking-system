@@ -222,23 +222,36 @@ const StoreDetails = () => {
 
                         {/* Customer Reviews */}
                         {store?.feedbacks && store.feedbacks.length > 0 && (
-                            <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-                                <h3 className="text-2xl font-semibold mb-6 text-gray-800">Customer Reviews</h3>
-                                <div className="space-y-6">
+                            <div className="bg-accent/5 rounded-lg p-6">
+                                <h3 className="h3">Customer Reviews</h3>
+                               
+                                <div className="space-y-4">
                                     {store.feedbacks
+                                        // Lọc feedback trùng username, chỉ giữ lại feedback có rating cao nhất
+                                        .reduce((unique, feedback) => {
+                                            const existingFeedback = unique.find(f => f.user_name === feedback.user_name);
+                                            if (!existingFeedback) {
+                                                unique.push(feedback);
+                                            } else if (feedback.rating > existingFeedback.rating) {
+                                                // Thay thế feedback cũ bằng feedback mới có rating cao hơn
+                                                const index = unique.indexOf(existingFeedback);
+                                                unique[index] = feedback;
+                                            }
+                                            return unique;
+                                        }, [])
                                         .sort((a, b) => b.rating - a.rating)
                                         .slice(0, 4)
                                         .map((feedback, idx) => (
                                             <div 
                                                 key={idx} 
-                                                className="bg-gray-50 rounded-lg p-4 transition-all duration-300 hover:shadow-md"
+                                                className="bg-white shadow-sm rounded-lg p-4 border border-accent/10 hover:border-accent/20 transition-all duration-300"
                                             >
                                                 <div className="flex items-start justify-between mb-3">
                                                     <div>
                                                         <h4 className="font-semibold text-lg text-gray-800">
                                                             {feedback.user_name}
                                                         </h4>
-                                                        <p className="text-sm text-gray-500 mt-1">
+                                                        <p className="text-sm text-accent/80 mt-1">
                                                             Pod: {feedback.pod_name}
                                                         </p>
                                                     </div>
@@ -248,7 +261,7 @@ const StoreDetails = () => {
                                                                 key={i}
                                                                 className={`${
                                                                     i < feedback.rating 
-                                                                        ? 'text-yellow-400' 
+                                                                        ? 'text-accent'
                                                                         : 'text-gray-200'
                                                                 }`}
                                                                 size={18}
@@ -271,7 +284,7 @@ const StoreDetails = () => {
                 </div>
             </div>
 
-            <div className="container mx-auto mt-4 mb-24">
+            <div className="container mx-auto mt-[-2rem] mb-24">
                 <h2 className="font-primary text-[45px] mb-6">Pod List</h2>
                 
                 {allPods.length > 0 ? (

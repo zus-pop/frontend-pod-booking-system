@@ -2,7 +2,7 @@ import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import ReactDatePicker from "react-datepicker";
 import { FaPlus } from "react-icons/fa";
-import { MdClose } from "react-icons/md";
+import { MdClose, MdCalendarToday, MdAccessTime, MdAttachMoney } from "react-icons/md";
 import { useLocation, useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { useAuth } from "../context/AuthContext";
@@ -27,6 +27,7 @@ const BookingForm = ({ pod }) => {
     const [totalCost, setTotalCost] = useState(0);
     const { mutate: book } = makeBooking();
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     // Update totalCost based on selected slots
     useEffect(() => {
@@ -48,10 +49,6 @@ const BookingForm = ({ pod }) => {
             return;
         }
 
-        const booking = {
-            pod_id: pod.pod_id,
-        };
-
         const bookingSlots = Object.values(selectRefs.current).flatMap(
             (ref) => ref?.getValue()?.map((slot) => slot.value) || []
         );
@@ -61,6 +58,18 @@ const BookingForm = ({ pod }) => {
             return;
         }
 
+        setShowConfirmModal(true);
+    };
+
+    const handleConfirmBooking = () => {
+        const booking = {
+            pod_id: pod.pod_id,
+        };
+
+        const bookingSlots = Object.values(selectRefs.current).flatMap(
+            (ref) => ref?.getValue()?.map((slot) => slot.value) || []
+        );
+
         const submission = {
             booking,
             bookingSlots: bookingSlots.map((bookingSlot) => ({
@@ -69,6 +78,7 @@ const BookingForm = ({ pod }) => {
             })),
         };
         book(submission);
+        setShowConfirmModal(false);
     };
 
     const handleLoginSuccess = async (token) => {
@@ -272,19 +282,21 @@ const BookingForm = ({ pod }) => {
                     ))}
                 </div>
                 <div className="flex flex-col">
-                    <button
-                        type="button"
-                        className="w-full flex justify-center items-center gap-2 font-tertiary text-sm uppercase tracking-[1px] hover:scale-105 transition-all my-4"
-                        onClick={() => {
-                            const newId = Date.now() + Math.random(); // Generate unique id
-                            setSelectedDates((prev) => [
-                                ...prev,
-                                { id: newId, date: null },
-                            ]);
-                        }}
-                    >
-                        Add more slot of other date <FaPlus />
-                    </button>
+                    {selectedDates.length < 7 && (
+                        <button
+                            type="button"
+                            className="w-full flex justify-center items-center gap-2 font-tertiary text-sm uppercase tracking-[1px] hover:scale-105 transition-all my-4"
+                            onClick={() => {
+                                const newId = Date.now() + Math.random();
+                                setSelectedDates((prev) => [
+                                    ...prev,
+                                    { id: newId, date: null },
+                                ]);
+                            }}
+                        >
+                            Add more slot of other date <FaPlus />
+                        </button>
+                    )}
 
                     <div className="p-6 my-5 bg-gray-100 rounded-lg shadow-md w-full max-w-md mx-auto">
                         <h2 className="text-xl font-semibold text-gray-700 mb-4">
@@ -321,6 +333,70 @@ const BookingForm = ({ pod }) => {
                             onLoginSuccess={handleLoginSuccess}
                         />
                     
+                </div>
+            )}
+
+            {showConfirmModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-semibold">Booking Confirmation</h3>
+                            <button
+                                onClick={() => setShowConfirmModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <MdClose className="text-2xl" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4 mb-6">
+                            <div className="flex items-center gap-3">
+                                <MdCalendarToday className="text-accent text-xl" />
+                                <div>
+                                    <p className="font-medium">Number of Days:</p>
+                                    <p className="text-gray-600">{selectedDates.filter(date => date.date).length} days</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <MdAccessTime className="text-accent text-xl" />
+                                <div>
+                                    <p className="font-medium">Total Slots:</p>
+                                    <p className="text-gray-600">
+                                        {Object.values(selectedSlots).flat().length} slots
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <MdAttachMoney className="text-accent text-xl" />
+                                <div>
+                                    <p className="font-medium">Total Amount:</p>
+                                    <p className="text-yellow-600 font-semibold">
+                                        {totalCost.toLocaleString("vi-VN", {
+                                            style: "currency",
+                                            currency: "VND",
+                                        })}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                            <button
+                                onClick={handleConfirmBooking}
+                                className="flex-1 bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent-hover transition-colors"
+                            >
+                                Confirm
+                            </button>
+                            <button
+                                onClick={() => setShowConfirmModal(false)}
+                                className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </>
