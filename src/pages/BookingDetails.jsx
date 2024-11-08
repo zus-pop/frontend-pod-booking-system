@@ -370,41 +370,63 @@ const BookingDetails = () => {
                                 <div className="p-6">
                                     <h2 className="text-2xl font-semibold mb-4">Slot Information</h2>
                                     {booking.slots && booking.slots.length > 0 ? (
-                                        booking.slots.map((slot, index) => (
-                                            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg relative">
-                                                <div className="absolute top-4 right-4">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                                        slot.status === 'Not Yet' ? 'bg-yellow-100 text-gray-800' :
-                                                        slot.status === 'Checked In' ? 'bg-green-100 text-green-800' :
-                                                        slot.status === 'Checked Out' ? 'bg-purple-100 text-purple-800' :
-                                                        slot.status === 'Absent' ? 'bg-red-100 text-red-800' :
-                                                        'bg-gray-100 text-gray-800'
-                                                    }`}>
-                                                        {slot.status}
-                                                    </span>
-                                                </div>
+                                        // Nhóm và sắp xếp các slot theo ngày
+                                        Object.entries(
+                                            booking.slots.reduce((groups, slot) => {
+                                                const date = moment(slot.start_time).format('DD/MM/YYYY');
+                                                if (!groups[date]) {
+                                                    groups[date] = [];
+                                                }
+                                                groups[date].push(slot);
+                                                return groups;
+                                            }, {})
+                                        )
+                                        .sort(([dateA], [dateB]) => moment(dateA, 'DD/MM/YYYY').diff(moment(dateB, 'DD/MM/YYYY')))
+                                        .map(([date, dateSlots]) => (
+                                            <div key={date} className="mb-8">
+                                                <h3 className="text-lg font-semibold mb-4 pb-2 border-b border-gray-200 flex items-center gap-2">
+                                                    <FaCalendarAlt className="text-accent" />
+                                                    {date}
+                                                </h3>
+                                                <div className="space-y-4">
+                                                    {dateSlots.map((slot, index) => (
+                                                        <div key={index} className="p-4 bg-gray-50 rounded-lg relative">
+                                                            <div className="absolute top-4 right-4">
+                                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                                                    slot.status === 'Not Yet' ? 'bg-gray-200 text-gray-800' :
+                                                                    slot.status === 'Checked In' ? 'bg-green-100 text-green-800' :
+                                                                    slot.status === 'Checked Out' ? 'bg-purple-100 text-purple-800' :
+                                                                    slot.status === 'Absent' ? 'bg-red-100 text-red-800' :
+                                                                    'bg-gray-100 text-gray-800'
+                                                                }`}>
+                                                                    {slot.status}
+                                                                </span>
+                                                            </div>
 
-                                                <p><strong>Slot ID:</strong> {slot.slot_id}</p>
-                                                <p><strong>Start Time:</strong> {moment(slot.start_time).format("DD/MM/YYYY HH:mm")}</p>
-                                                <p><strong>End Time:</strong> {moment(slot.end_time).format("DD/MM/YYYY HH:mm")}</p>
-                                                <p>
-                                                    <strong>Price:</strong>{" "}
-                                                    <span className="text-yellow-600 font-semibold">
-                                                        {slot.price.toLocaleString('vi-VN', { 
-                                                            style: 'currency', 
-                                                            currency: 'VND' 
-                                                        })}
-                                                    </span>
-                                                </p>
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedSlotId(slot.slot_id);
-                                                        fetchSlotProducts(booking.booking_id, slot.slot_id);
-                                                    }}
-                                                    className="mt-2 flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors"
-                                                >
-                                                    <FaCoffee /> Ordered Products
-                                                </button>
+                                                            <p><strong>Slot ID:</strong> {slot.slot_id}</p>
+                                                            <p><strong>Start Time:</strong> {moment(slot.start_time).format("DD/MM/YYYY HH:mm")}</p>
+                                                            <p><strong>End Time:</strong> {moment(slot.end_time).format("DD/MM/YYYY HH:mm")}</p>
+                                                            <p>
+                                                                <strong>Price:</strong>{" "}
+                                                                <span className="text-yellow-600 font-semibold">
+                                                                    {slot.price.toLocaleString('vi-VN', { 
+                                                                        style: 'currency', 
+                                                                        currency: 'VND' 
+                                                                    })}
+                                                                </span>
+                                                            </p>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedSlotId(slot.slot_id);
+                                                                    fetchSlotProducts(booking.booking_id, slot.slot_id);
+                                                                }}
+                                                                className="mt-2 flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors"
+                                                            >
+                                                                <FaCoffee /> Ordered Products
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         ))
                                     ) : (
