@@ -8,6 +8,7 @@ import {
     PodDetails,
     BookingHistory,
     BookingDetails,
+    Policy,
 } from "./pages";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -29,6 +30,7 @@ function App() {
                         <Route path="/pod/:id" element={<PodDetails />} />
                         <Route path="/booking-history" element={<BookingHistory />} />
                         <Route path="/booking-history/:id" element={<BookingDetails />} />
+                        <Route path="/policy" element={<Policy />} />
                     </Routes>
                     <Footer />
                 </AuthProvider>

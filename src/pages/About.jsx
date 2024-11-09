@@ -8,8 +8,15 @@ const About = () => {
       
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-12">
-        <h1 className="font-primary text-[45px] mb-4">About Our Poddy</h1>
-        <p className="text-xl text-gray-600">Discover the perfect blend of coffee and workspace with us</p>
+        <div className="flex flex-col items-center text-center">
+          <h1 className="text-6xl lg:text-7xl font-primary">
+            <span className="text-black">Our </span>
+            <span className="text-accent">Poddy</span>
+          </h1>
+          <p className="text-xl text-gray-600 mt-4">
+            Discover the perfect blend of coffee and workspace with us
+          </p>
+        </div>
       </div>
 
       {/* Main Content Section - Giảm margin-bottom và thêm margin-top âm */}
