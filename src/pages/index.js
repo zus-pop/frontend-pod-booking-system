@@ -7,3 +7,5 @@ export { default as PodDetails } from './PodDetails';
 export { default as BookingHistory } from './BookingHistory';
 
 export { default as BookingDetails } from './BookingDetails';
+
+export { default as Policy } from './Policy';

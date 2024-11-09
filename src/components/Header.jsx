@@ -51,6 +51,14 @@ const Header = () => {
     useEffect(() => {
         const handleScroll = () => {
             if (
+                location.pathname === "/about" || 
+                location.pathname === "/policy" ||
+                
+                location.pathname === "/booking-history" ||
+                location.pathname.startsWith("/booking-history/")
+            ) {
+                setHeader(true);
+            } else if (
                 location.pathname === "/" || 
                 location.pathname.startsWith("/store/") ||
                 location.pathname.startsWith("/pod/") ||
@@ -58,18 +66,12 @@ const Header = () => {
                 location.pathname === "/places"
             ) {
                 setHeader(window.scrollY > 50);
-            } else if (
-                location.pathname === "/about" || 
-                location.pathname === "/auth" ||
-                location.pathname === "/booking-history" ||
-                location.pathname.startsWith("/booking-history/")
-            ) {
-                setHeader(true);
             }
         };
 
         if (
             location.pathname === "/about" || 
+            location.pathname === "/policy" ||
             location.pathname === "/auth" ||
             location.pathname === "/booking-history" ||
             location.pathname.startsWith("/booking-history/")
@@ -359,6 +361,16 @@ const Header = () => {
                                 } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
                             >
                                 ABOUT
+                            </Link>
+                            <Link
+                                to="/policy"
+                                onClick={closeMobileMenu}
+                                className={`${
+                                    isMobileMenuOpen ? "text-primary" : 
+                                    (isDarkHeader && !header ? "text-white" : "text-primary")
+                                } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
+                            >
+                                POLICY
                             </Link>
                             <Link
                                 to="/solutions"

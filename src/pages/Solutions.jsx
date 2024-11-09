@@ -28,19 +28,19 @@ const Solutions = () => {
     <div className="min-h-screen bg-gray-50">
       <HeroSlider />
       
-      <div className="container mx-auto py-24 px-4">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Our{' '}
-            <span className="bg-gradient-to-r from-yellow-900 via-yellow-600 to-yellow-500 text-transparent bg-clip-text">
-              Pod Solutions
-            </span>
+      <div className="container mx-auto px-4 py-4 mt-12">
+        <div className="flex flex-col items-center text-center mb-8">
+          <h1 className="text-6xl lg:text-7xl font-primary">
+            <span className="text-black">Our </span>
+            <span className="text-accent">Pod Solutions</span>
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Discover our innovative workspace solutions designed to enhance your productivity and comfort
+          <p className="text-xl text-gray-600 mt-4">
+            Discover our innovative workspace solutions
           </p>
         </div>
+      </div>
 
+      <div className="container mx-auto px-4 -mt-4">
         <div className="space-y-24">
           {pods.map((pod, index) => (
             <motion.div

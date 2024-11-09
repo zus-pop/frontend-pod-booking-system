@@ -49,7 +49,7 @@ const BookingHistory = () => {
 
     const handleSync = async () => {
         if (!(await checkUserLoggedIn())) {
-            return navigate("/auth", { state: { from: location.pathname } });
+            return navigate("/", { state: { from: location.pathname } });
         }
         try {
             const response = await fetch(`${API_URL}/api/v1/google-calendar`);
@@ -69,19 +69,28 @@ const BookingHistory = () => {
 
     useEffect(() => {
         const initializeBookingHistory = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                navigate('/');  // Redirect về home nếu không có token
+                showToast("Please log in to view booking history", "error");
+                return;
+            }
+
             const isAuthenticated = await checkUserLoggedIn();
             if (!isAuthenticated) {
-                navigate("/auth");
+                navigate('/');  // Redirect về home nếu token không hợp lệ
                 showToast("Please log in to view booking history", "error");
             } else {
                 fetchBookings(currentPage);
             }
         };
+
         const goToCalendar = (event) => {
             if (event.data === "oauth-success") {
                 sync();
             }
         };
+
         initializeBookingHistory();
         window.addEventListener("message", goToCalendar);
         return () => {
