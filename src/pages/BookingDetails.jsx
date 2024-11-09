@@ -258,6 +258,32 @@ const BookingDetails = () => {
         }
     };
 
+    // Thêm hàm getStatusStyle để xử lý style cho status
+    const getStatusStyle = (status) => {
+        switch (status.toLowerCase()) {
+            case 'not yet':
+                return 'bg-yellow-100 text-gray-800';
+            case 'checked in':
+                return 'bg-green-100 text-green-800';
+            case 'checked out':
+                return 'bg-purple-100 text-purple-800';
+            case 'absent':
+                return 'bg-red-100 text-red-800';
+            case 'refunded':
+            case 'confirmed':
+            case 'complete':
+            case 'paid':
+                return 'bg-green-100 text-green-800';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'canceled':
+            case 'failed':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
     if (isAuthLoading || loading) {
         return <Loading />;
     }
@@ -390,19 +416,17 @@ const BookingDetails = () => {
                                                 </h3>
                                                 <div className="space-y-4">
                                                     {dateSlots.map((slot, index) => (
-                                                        <div key={index} className="p-4 bg-gray-50 rounded-lg relative">
-                                                            <div className="absolute top-4 right-4">
-                                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                                                    slot.status === 'Not Yet' ? 'bg-gray-200 text-gray-800' :
-                                                                    slot.status === 'Checked In' ? 'bg-green-100 text-green-800' :
-                                                                    slot.status === 'Checked Out' ? 'bg-purple-100 text-purple-800' :
-                                                                    slot.status === 'Absent' ? 'bg-red-100 text-red-800' :
-                                                                    'bg-gray-100 text-gray-800'
+                                                        <div key={index} className="mb-6 p-4 bg-gray-50 rounded-lg">
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <h4 className="text-lg font-semibold">Slot Information</h4>
+                                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                                                    slot.status.toLowerCase() === 'refunded' 
+                                                                    ? 'bg-green-100 text-green-800' 
+                                                                    : getStatusStyle(slot.status)
                                                                 }`}>
                                                                     {slot.status}
                                                                 </span>
                                                             </div>
-
                                                             <p><strong>Slot ID:</strong> {slot.slot_id}</p>
                                                             <p><strong>Start Time:</strong> {moment(slot.start_time).format("DD/MM/YYYY HH:mm")}</p>
                                                             <p><strong>End Time:</strong> {moment(slot.end_time).format("DD/MM/YYYY HH:mm")}</p>
@@ -467,12 +491,36 @@ const BookingDetails = () => {
                                                     </span>
                                                 </p>
                                                 <p><strong>Payment Date:</strong> {moment(payment.payment_date).format("DD/MM/YYYY HH:mm")}</p>
-                                                <p>
+                                                <p className="mb-2">
                                                     <strong>Payment Status:</strong> 
-                                                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(payment.payment_status)}`}>
+                                                    <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold ${getStatusStyle(payment.payment_status)}`}>
                                                         {payment.payment_status}
                                                     </span>
                                                 </p>
+                                                
+                                                {/* Thêm thông báo hoàn tiền nếu payment được refunded */}
+                                                {payment.payment_status.toLowerCase() === 'refunded' && (
+                                                    <div className="mt-3 p-3 bg-[#aa8453]/10 border border-[#aa8453]/30 rounded-lg">
+                                                        <p className="text-[#aa8453] flex items-center">
+                                                            <FaInfoCircle className="mr-2" />
+                                                            {/* Sử dụng refunded_amount từ API thay vì tính toán */}
+                                                            {(() => {
+                                                                const refundedSlots = booking.slots.filter(slot => 
+                                                                    slot.status.toLowerCase() === 'refunded'
+                                                                );
+                                                                const slotIds = refundedSlots.map(slot => slot.slot_id);
+                                                                
+                                                                return `Refunded amount from ${refundedSlots.length > 1 ? 'slots' : 'slot'} ${slotIds.join(' and ')}: `
+                                                            })()}
+                                                            <span className="font-semibold ml-1">
+                                                                {payment.refunded_amount.toLocaleString('vi-VN', { 
+                                                                    style: 'currency', 
+                                                                    currency: 'VND' 
+                                                                })}
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))
                                     ) : (
