@@ -221,9 +221,9 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
                 type="password"
                 value={password}
                 onChange={handlePasswordChange}
-                className={`w-full px-4 py-3 rounded-lg bg-gray-100 mt-2 border focus:border-accent focus:bg-white focus:outline-none ${
+                className={`w-full px-4 py-2.5 border-2 ${
                   passwordError ? 'border-red-500' : 'border-gray-200'
-                }`}
+                } rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200`}
                 placeholder="Password"
               />
             </div>
@@ -237,9 +237,9 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
                     value={rePassword}
                     onChange={handleRePasswordChange}
                     onBlur={handleRePasswordBlur}
-                    className={`w-full px-4 py-3 rounded-lg bg-gray-100 mt-2 border focus:border-accent focus:bg-white focus:outline-none ${
+                    className={`w-full px-4 py-2.5 border-2 ${
                       passwordError ? 'border-red-500' : 'border-gray-200'
-                    }`}
+                    } rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200`}
                     placeholder="Confirm Password"
                   />
                   {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
@@ -260,13 +260,13 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
                     type="tel"
                     value={phoneNumber}
                     onChange={handlePhoneChange}
-                    onFocus={() => setHasPhoneFocused(true)}
+                    onFocus={handlePhoneFocus}
                     onBlur={handlePhoneBlur}
                     maxLength="10"
                     placeholder="Phone number"
-                    className={`w-full px-4 py-3 rounded-lg bg-gray-100 mt-2 border focus:border-accent focus:bg-white focus:outline-none ${
+                    className={`w-full px-4 py-2.5 border-2 ${
                       phoneError ? 'border-red-500' : 'border-gray-200'
-                    }`}
+                    } rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200`}
                   />
                   {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
                 </div>
