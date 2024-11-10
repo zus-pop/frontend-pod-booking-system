@@ -18,7 +18,7 @@ const Policy = () => {
       items: [
         "Online payments accepted through Zalopay",
         "Service prices may vary depending on time and POD type",
-        "Payment must be completed to confirm booking",
+        "Payment via Zalopay must be completed within 10 minutes, otherwise a booking will be automatically canceled",
         "System automatically updates booking status after payment completion"
       ]
     },

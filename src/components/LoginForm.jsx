@@ -13,6 +13,8 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   const [passwordError, setPasswordError] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [hasPhoneFocused, setHasPhoneFocused] = useState(false);
   const { showToast } = useToast();
 
   // Thêm ref cho form container
@@ -31,10 +33,12 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
         phoneNumber !== '' && 
         !emailError && 
         !passwordError && 
-        !phoneError
+        !phoneError &&
+        passwordsMatch &&
+        phoneNumber.length === 10
       );
     }
-  }, [isLogin, email, password, rePassword, userName, phoneNumber, emailError, passwordError, phoneError]);
+  }, [isLogin, email, password, rePassword, userName, phoneNumber, emailError, passwordError, phoneError, passwordsMatch]);
 
   // Sửa lại useEffect để handle click outside
   useEffect(() => {
@@ -73,13 +77,27 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   };
 
   const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
+    const newPassword = e.target.value;
+    setPassword(newPassword);
     setPasswordError('');
+    if (rePassword) {
+      setPasswordsMatch(newPassword === rePassword);
+      if (newPassword !== rePassword) {
+        setPasswordError('Passwords do not match');
+      }
+    }
   };
 
   const handleRePasswordChange = (e) => {
-    setRePassword(e.target.value);
+    const newRePassword = e.target.value;
+    setRePassword(newRePassword);
     setPasswordError('');
+    if (password) {
+      setPasswordsMatch(password === newRePassword);
+      if (password !== newRePassword) {
+        setPasswordError('Passwords do not match');
+      }
+    }
   };
 
   const handleRePasswordBlur = () => {
@@ -89,14 +107,20 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
   };
 
   const handlePhoneChange = (e) => {
-    const newPhone = e.target.value;
-    setPhoneNumber(newPhone);
-    setPhoneError('');
+    const value = e.target.value;
+    if (/^\d*$/.test(value) && value.length <= 10) {
+      setPhoneNumber(value);
+      setPhoneError('');
+    }
+  };
+
+  const handlePhoneFocus = () => {
+    setHasPhoneFocused(true);
   };
 
   const handlePhoneBlur = () => {
-    if (phoneNumber && !validatePhone(phoneNumber)) {
-      setPhoneError('Please enter a valid 10-digit phone number');
+    if (hasPhoneFocused && phoneNumber.length > 0 && phoneNumber.length !== 10) {
+      setPhoneError('Phone number must be 10 digits');
     }
   };
 
@@ -197,8 +221,10 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
                 type="password"
                 value={password}
                 onChange={handlePasswordChange}
+                className={`w-full px-4 py-3 rounded-lg bg-gray-100 mt-2 border focus:border-accent focus:bg-white focus:outline-none ${
+                  passwordError ? 'border-red-500' : 'border-gray-200'
+                }`}
                 placeholder="Password"
-                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200"
               />
             </div>
 
@@ -211,8 +237,10 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
                     value={rePassword}
                     onChange={handleRePasswordChange}
                     onBlur={handleRePasswordBlur}
+                    className={`w-full px-4 py-3 rounded-lg bg-gray-100 mt-2 border focus:border-accent focus:bg-white focus:outline-none ${
+                      passwordError ? 'border-red-500' : 'border-gray-200'
+                    }`}
                     placeholder="Confirm Password"
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200"
                   />
                   {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
                 </div>
@@ -232,9 +260,13 @@ const LoginForm = ({ onClose, onLoginSuccess }) => {
                     type="tel"
                     value={phoneNumber}
                     onChange={handlePhoneChange}
+                    onFocus={() => setHasPhoneFocused(true)}
                     onBlur={handlePhoneBlur}
-                    placeholder="Phone Number"
-                    className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg outline-none focus:border-yellow-600 transition-colors duration-200"
+                    maxLength="10"
+                    placeholder="Phone number"
+                    className={`w-full px-4 py-3 rounded-lg bg-gray-100 mt-2 border focus:border-accent focus:bg-white focus:outline-none ${
+                      phoneError ? 'border-red-500' : 'border-gray-200'
+                    }`}
                   />
                   {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
                 </div>

@@ -28,7 +28,7 @@ const Solutions = () => {
     <div className="min-h-screen bg-gray-50">
       <HeroSlider />
       
-      <div className="container mx-auto px-4 py-4 mt-12">
+      <div className="container mx-auto px-4 py-4 mt-8">
         <div className="flex flex-col items-center text-center mb-8">
           <h1 className="text-6xl lg:text-7xl font-primary">
             <span className="text-black">Our </span>
@@ -40,8 +40,8 @@ const Solutions = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 -mt-4">
-        <div className="space-y-24">
+      <div className="container mx-auto px-4 mb-16">
+        <div className="grid grid-cols-1 gap-12">
           {pods.map((pod, index) => (
             <motion.div
               key={index}
