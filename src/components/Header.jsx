@@ -370,7 +370,7 @@ const Header = () => {
                                     (isDarkHeader && !header ? "text-white" : "text-primary")
                                 } hover:text-accent py-3 lg:py-0 border-b lg:border-none text-center lg:text-left`}
                             >
-                                POLICY
+                                POLICIES
                             </Link>
                             <Link
                                 to="/solutions"
