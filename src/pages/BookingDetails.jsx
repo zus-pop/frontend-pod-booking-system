@@ -390,7 +390,9 @@ const BookingDetails = () => {
                                             })}
                                         </span>
                                     </p>
-
+                                    <p className="mt-4 text-gray-600">
+                                        Use this booking details to check-in, you can check-in anytime for the booked slot.
+                                    </p>
                                     {/* Hiển thị feedback hoặc nút feedback tùy điều kiện */}
                                     {booking.booking_status.toLowerCase() === "complete" && (
                                         <>
