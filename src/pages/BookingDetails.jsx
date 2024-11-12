@@ -129,8 +129,43 @@ const BookingDetails = () => {
             showToast("Payment URL not found", "error");
             return;
         }
-        window.open(payment_url, "_blank");
+        window.location.href = payment_url;
     };
+
+    useEffect(() => {
+        const checkPaymentStatus = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            
+            if (status) {
+                try {
+                    const response = await fetch(`${API_URL}/api/v1/bookings/${id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    if (!response.ok) {
+                        throw new Error("Unable to fetch booking information");
+                    }
+                    const data = await response.json();
+                    setBooking(data);
+                    
+                    if (status === 'success') {
+                        showToast("Payment successful! Your booking has been confirmed.", "success");
+                    } else if (status === 'failed') {
+                        showToast("Payment failed. Please try again.", "error");
+                    }
+                    
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    console.error("Error fetching booking details:", error);
+                    showToast("Unable to fetch booking details", "error");
+                }
+            }
+        };
+
+        checkPaymentStatus();
+    }, [id, API_URL, showToast]);
 
     const handleCancel = (booking_id) => {
         setBookingToCancel(booking_id);

@@ -62,8 +62,7 @@ export const makeBooking = () => {
         onSuccess: (data) => {
             console.log(data);
             showToast("Success", "success");
-            window.open(data.payment_url);
-            navigate(`/booking-history/${data.booking_id}`);
+            window.location.href = data.payment_url;
         },
         onError: (err) => {
             console.log("Error: ", err.message);
