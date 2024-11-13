@@ -10,7 +10,8 @@ const Policy = () => {
         "Customers can view and select PODs without logging in",
         "Login is required to make a booking",
         "Each POD can only be booked by one user at a specific time slot",
-        "Bookings are only confirmed after successful payment"
+        "Bookings are only confirmed after successful payment",
+        "You can check-in anytime for the booked slot"
       ]
     },
     {
