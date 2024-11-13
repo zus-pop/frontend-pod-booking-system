@@ -202,13 +202,13 @@ const BookingDetails = () => {
             return 0;
         }
         
-        // Tính tổng từ tất cả các payment
-        return payments.reduce((total, payment, index) => {
-            // Nếu là payment thứ 2 (index === 1), sử dụng giá từ products
-            if (index === 1 && selectedSlotProducts.length > 0) {
-                return total + calculateProductTotal(selectedSlotProducts);
+        // Tính tổng từ tất cả các payment, sử dụng giá trị total_cost từ API
+        return payments.reduce((total, payment) => {
+            if (payment && typeof payment.total_cost === 'number') {
+                // Sử dụng giá trị total_cost trực tiếp từ API
+                return total + payment.total_cost;
             }
-            return total + payment.total_cost;
+            return total;
         }, 0);
     };
 
@@ -520,10 +520,7 @@ const BookingDetails = () => {
                                                 <p>
                                                     <strong>Total Cost:</strong>{" "}
                                                     <span className="text-yellow-600 font-semibold">
-                                                        {(payment.payment_for === 'Product' && selectedSlotProducts.length > 0 
-                                                            ? calculateProductTotal(selectedSlotProducts) 
-                                                            : payment.total_cost
-                                                        ).toLocaleString('vi-VN', { 
+                                                        {payment.total_cost.toLocaleString('vi-VN', { 
                                                             style: 'currency', 
                                                             currency: 'VND' 
                                                         })}
