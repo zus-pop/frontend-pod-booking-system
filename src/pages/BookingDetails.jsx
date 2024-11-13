@@ -390,9 +390,7 @@ const BookingDetails = () => {
                                             })}
                                         </span>
                                     </p>
-                                    <p className="mt-4 text-gray-600">
-                                        Use this booking details to check-in, you can check-in anytime for the booked slot.
-                                    </p>
+
                                     {/* Hiển thị feedback hoặc nút feedback tùy điều kiện */}
                                     {booking.booking_status.toLowerCase() === "complete" && (
                                         <>
@@ -424,8 +422,11 @@ const BookingDetails = () => {
                                                 </button>
                                             )}
                                         </>
-                                        
                                     )}
+
+                                    <p className="mt-4 text-gray-600 border-t pt-4">
+                                        Use this booking details to check-in, you can check-in anytime for the booked slot.
+                                    </p>
                                 </div>
                             )}
 
@@ -501,6 +502,7 @@ const BookingDetails = () => {
                                     <h2 className="text-2xl font-semibold mb-4">User Information</h2>
                                     <p><strong>Name:</strong> {booking.user.user_name}</p>
                                     <p><strong>Email:</strong> {booking.user.email}</p>
+                                    <p><strong>Phone:</strong> {booking.user.phone_number}</p>
                                 </div>
                             )}
 
